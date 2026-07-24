@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mazi · North Coast — Together, by the sea</title>
+<meta name="description" content="Mazi — a Mediterranean beach club on Egypt's North Coast. Wood-fire seafood, a raw bar, and the bright, generous flavours of the Greek coast. Together, by the sea." />
+<meta name="theme-color" content="#f4f0e6" />
+
+<!-- Open Graph / social -->
+<meta property="og:type" content="restaurant" />
+<meta property="og:title" content="Mazi · North Coast — Together, by the sea" />
+<meta property="og:description" content="A Mediterranean beach club on Egypt's North Coast. Wood-fire seafood, a raw bar, Greek soul." />
+<meta property="og:image" content="assets/og-image.png" />
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --cream:#f4f0e6;
+    --cream-2:#efe9db;
+    --paper:#faf7ef;
+    --ink:#20303f;          /* deep aegean ink */
+    --ink-soft:#3a4b5a;
+    --sea:#3c6e8f;          /* aegean blue accent */
+    --sea-deep:#2c576f;
+    --sand:#c7a374;         /* warm boho gold */
+    --clay:#c07a58;         /* terracotta whisper */
+    --line:rgba(32,48,63,.18);
+    --line-soft:rgba(32,48,63,.10);
+    --maxw:1140px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Cormorant Garamond',Georgia,serif;
+    font-size:20px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+
+  .label{
+    font-family:'Jost',sans-serif;
+    font-weight:400;
+    text-transform:uppercase;
+    letter-spacing:.34em;
+    font-size:.72rem;
+    color:var(--sea);
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+
+  /* ---------- wave divider ---------- */
+  .wave{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto;color:var(--sea);opacity:.85;}
+  .wave::before,.wave::after{content:"";height:1px;width:64px;background:currentColor;opacity:.5;}
+  .wave svg{width:26px;height:12px;}
+
+  /* ---------- nav ---------- */
+  header.nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;
+    transition:background .4s ease,box-shadow .4s ease,padding .4s ease;
+  }
+  header.nav.scrolled{
+    background:rgba(244,240,230,.92);
+    backdrop-filter:blur(8px);
+    box-shadow:0 1px 0 var(--line-soft);
+    padding:12px 28px;
+  }
+  .nav-brand{font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:.42em;font-size:1.15rem;padding-left:.42em;}
+  .nav-links{display:flex;gap:34px;align-items:center;}
+  .nav-links a{font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.7rem;color:var(--ink-soft);transition:color .25s;}
+  .nav-links a:hover{color:var(--sea);}
+  .nav-links a.reserve{border:1px solid var(--sea);color:var(--sea);padding:9px 18px;border-radius:40px;}
+  .nav-links a.reserve:hover{background:var(--sea);color:var(--paper);}
+  .nav-toggle{display:none;background:none;border:0;cursor:pointer;padding:6px;}
+  .nav-toggle span{display:block;width:24px;height:1.5px;background:var(--ink);margin:5px 0;transition:.3s;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;min-height:100svh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    padding:120px 24px 60px;overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 6%, rgba(60,110,143,.06), transparent 60%),
+      linear-gradient(180deg,var(--paper),var(--cream) 55%,var(--cream-2));
+  }
+  /* faint sun-rays behind mark */
+  .hero-arch{
+    position:relative;width:min(560px,86vw);
+    padding:56px 40px 40px;margin-bottom:14px;
+  }
+  .hero-arch::before{
+    content:"";position:absolute;inset:0;
+    border:1px solid var(--line);
+    border-bottom:0;
+    border-radius:50% 50% 0 0 / 62% 62% 0 0;
+    -webkit-mask:linear-gradient(#000,#000);
+  }
+  .sun{width:46px;height:46px;margin:0 auto 22px;color:var(--sea);}
+  .wordmark{
+    font-weight:500;letter-spacing:.28em;
+    font-size:clamp(4.2rem,17vw,8.4rem);
+    line-height:.9;padding-left:.28em;color:var(--ink);
+  }
+  .hero-tag{font-style:italic;font-weight:400;color:var(--sea-deep);font-size:clamp(1.2rem,4.5vw,1.7rem);margin-top:.4em;}
+  .hero-sub{max-width:640px;margin:26px auto 0;color:var(--ink-soft);font-size:1.28rem;font-weight:300;}
+  .hero-place{margin-top:30px;}
+  .scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--sea);opacity:.7;animation:bob 2.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
+
+  .btn{
+    display:inline-block;font-family:'Jost',sans-serif;text-transform:uppercase;
+    letter-spacing:.2em;font-size:.72rem;padding:14px 30px;border-radius:44px;
+    border:1px solid var(--sea);color:var(--sea);transition:.3s;cursor:pointer;
+  }
+  .btn:hover{background:var(--sea);color:var(--paper);}
+  .btn.solid{background:var(--sea);color:var(--paper);}
+  .btn.solid:hover{background:var(--sea-deep);border-color:var(--sea-deep);}
+
+  /* ---------- section frame ---------- */
+  section{padding:96px 0;}
+  .sec-head{text-align:center;margin-bottom:8px;}
+  .sec-title{font-weight:400;letter-spacing:.16em;font-size:clamp(2.2rem,6vw,3.3rem);text-transform:uppercase;margin:16px 0 4px;}
+  .sec-note{font-style:italic;color:var(--ink-soft);font-size:1.15rem;}
+
+  /* ---------- about ---------- */
+  .about{background:var(--paper);}
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+  .about p{font-size:1.32rem;font-weight:300;color:var(--ink-soft);margin:0 0 20px;}
+  .about .lead{font-size:1.55rem;color:var(--ink);font-weight:400;}
+  .about-figure{
+    aspect-ratio:4/5;border-radius:220px 220px 18px 18px;overflow:hidden;position:relative;
+    background:linear-gradient(160deg,#dfe7ea,#cdd9dd 40%,#b9cbcf);
+    border:1px solid var(--line-soft);
+  }
+  .about-figure .art-sun{position:absolute;top:14%;left:50%;transform:translateX(-50%);width:120px;height:120px;color:rgba(255,255,255,.7);}
+  .about-figure .art-sea{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,rgba(60,110,143,.55),rgba(44,87,111,.85));}
+  .about-figure .art-note{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:rgba(255,255,255,.9);font-style:italic;font-size:1.05rem;}
+
+  /* ---------- menu ---------- */
+  .menu{background:var(--cream);}
+  .menu-banner{
+    max-width:660px;margin:0 auto 60px;text-align:center;
+    border:1px solid var(--line);border-radius:16px;padding:22px 26px;background:var(--paper);
+  }
+  .menu-banner strong{font-weight:500;}
+  .menu-banner .label{display:block;margin-bottom:8px;}
+  .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px 72px;}
+  .menu-group{break-inside:avoid;margin-bottom:40px;}
+  .group-head{text-align:center;margin:8px 0 26px;}
+  .group-title{font-weight:400;letter-spacing:.14em;font-size:1.7rem;text-transform:uppercase;}
+  .group-sub{font-style:italic;color:var(--sea-deep);font-size:1rem;}
+  .item{margin-bottom:22px;}
+  .item-top{display:flex;align-items:baseline;gap:10px;}
+  .item-name{font-weight:500;letter-spacing:.05em;text-transform:uppercase;font-size:1.05rem;white-space:normal;}
+  .leader{flex:1;border-bottom:1px dotted var(--line);transform:translateY(-4px);min-width:16px;}
+  .item-price{font-family:'Cormorant Garamond',serif;color:var(--sea);font-size:1.2rem;font-weight:500;letter-spacing:.03em;}
+  .item-desc{color:var(--ink-soft);font-weight:300;font-size:1.08rem;font-style:italic;margin-top:2px;max-width:46ch;}
+  .menu-foot{text-align:center;margin-top:26px;color:var(--ink-soft);font-style:italic;}
+
+  /* ---------- visit ---------- */
+  .visit{background:var(--paper);}
+  .visit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center;margin-top:30px;}
+  .visit-card .label{display:block;margin-bottom:14px;}
+  .visit-card p{margin:2px 0;color:var(--ink-soft);font-size:1.2rem;font-weight:300;}
+  .visit-card .big{color:var(--ink);font-size:1.35rem;}
+  .visit-cta{text-align:center;margin-top:56px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--ink);color:var(--cream);text-align:center;padding:70px 24px 46px;}
+  footer .sun{color:var(--sand);margin-bottom:18px;}
+  footer .f-mark{font-weight:500;letter-spacing:.42em;font-size:2rem;padding-left:.42em;}
+  footer .f-tag{font-style:italic;color:#b9c6d0;margin-top:6px;}
+  .f-social{display:flex;gap:26px;justify-content:center;margin:28px 0 22px;}
+  .f-social a{font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:#cdd7de;transition:color .25s;}
+  .f-social a:hover{color:var(--sand);}
+  .f-fine{font-family:'Jost',sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:.62rem;color:#7f909c;margin-top:14px;}
+  .f-kali{font-style:italic;color:var(--sand);font-size:1.15rem;margin-top:26px;}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform .9s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:820px){
+    body{font-size:19px;}
+    .nav-links{
+      position:fixed;inset:0 0 0 auto;width:min(78vw,320px);background:var(--paper);
+      flex-direction:column;justify-content:center;gap:30px;transform:translateX(100%);
+      transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(0,0,0,.12);
+    }
+    .nav-links.open{transform:none;}
+    .nav-toggle{display:block;z-index:60;}
+    .about-grid{grid-template-columns:1fr;gap:40px;}
+    .about-figure{max-width:360px;margin:0 auto;order:-1;}
+    .menu-cols{grid-template-columns:1fr;gap:0;}
+    .visit-grid{grid-template-columns:1fr;gap:34px;}
+    section{padding:74px 0;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .reveal{opacity:1;transform:none;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <a class="nav-brand" href="#top">MAZI</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <nav class="nav-links" id="navLinks">
+    <a href="#about">About</a>
+    <a href="#menu">Menu</a>
+    <a href="#visit">Visit</a>
+    <a href="#visit" class="reserve">Reserve</a>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="hero-arch">
+    <svg class="sun" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+      <circle cx="50" cy="50" r="15"/>
+      <g>
+        <line x1="50" y1="10" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="90"/>
+        <line x1="10" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="90" y2="50"/>
+        <line x1="22" y1="22" x2="30" y2="30"/><line x1="70" y1="70" x2="78" y2="78"/>
+        <line x1="78" y1="22" x2="70" y2="30"/><line x1="30" y1="70" x2="22" y2="78"/>
+      </g>
+    </svg>
+    <h1 class="wordmark">MAZI</h1>
+    <p class="hero-tag">— together, by the sea —</p>
+  </div>
+  <p class="hero-sub">A Mediterranean beach club on Egypt's North Coast — wood-fire seafood, a raw bar from the morning boats, and the bright, generous soul of the Greek coast.</p>
+  <p class="hero-place label">Mazi · North Coast</p>
+  <a class="scroll-cue" href="#about" aria-label="Scroll down">
+    <svg width="22" height="34" viewBox="0 0 22 34" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1" width="20" height="32" rx="10"/><line x1="11" y1="8" x2="11" y2="15" stroke-linecap="round"/></svg>
+  </a>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="reveal">
+        <div class="wave" style="justify-content:flex-start;"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
+        <p class="lead">Mazi means <em>together</em>.</p>
+        <p>Long lunches that melt into golden evenings. Feet in the sand, plates made for sharing, and a table that never really ends. This is Greek and Mediterranean cooking at its most generous — raw-bar catches untouched by fire, whole fish over olive-wood embers, and salads that taste of sun.</p>
+        <p>Set on the shore of Egypt's North Coast, Mazi is where the day slows down and the sea does the talking.</p>
+      </div>
+      <div class="about-figure reveal" aria-hidden="true">
+        <svg class="art-sun" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2"><circle cx="50" cy="50" r="15"/><g stroke-linecap="round"><line x1="50" y1="14" x2="50" y2="24"/><line x1="50" y1="76" x2="50" y2="86"/><line x1="14" y1="50" x2="24" y2="50"/><line x1="76" y1="50" x2="86" y2="50"/><line x1="24" y1="24" x2="31" y2="31"/><line x1="69" y1="69" x2="76" y2="76"/><line x1="76" y1="24" x2="69" y2="31"/><line x1="31" y1="69" x2="24" y2="76"/></g></svg>
+        <div class="art-sea"></div>
+        <div class="art-note">the North Coast, at golden hour</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MENU ================= -->
+<section class="menu" id="menu">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="wave"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
+      <h2 class="sec-title">The Menu</h2>
+      <p class="sec-note">from the sea, over the embers, meant for sharing</p>
+    </div>
+
+    <div class="menu-banner reveal">
+      <span class="label">Opening Menu</span>
+      <p style="margin:0;"><strong>Our opening selection.</strong> The full à la carte arrives this <strong>Sunday</strong>.</p>
+    </div>
+
+    <div class="menu-cols">
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Raw Bar</div><div class="group-sub">from the sea, untouched by fire</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Truffle Ceviche</span><span class="leader"></span><span class="item-price">900</span></div>
+          <div class="item-desc">Fresh white fish cured in citrus juices and coconut milk with a Middle Eastern twist.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Mediterranean Dips</div><div class="group-sub">smoked, whipped, shared</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Aubergine Dip</span><span class="leader"></span><span class="item-price">300</span></div>
+          <div class="item-desc">Fire-roasted eggplant smoked over olive wood with garlic confit, lemon, walnuts, parsley oil and pomegranate seeds.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Hot Mezze</div><div class="group-sub">small plates from the coals</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Grilled Octopus</span><span class="leader"></span><span class="item-price">600</span></div>
+          <div class="item-desc">Slow-braised octopus tentacle charred over wood, with potato purée, pea purée, smoked paprika, capers, arugula and cherry tomatoes.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Sardines &amp; Beldi Tomato</span><span class="leader"></span><span class="item-price">400</span></div>
+          <div class="item-desc">Fire-grilled sardines with tomato relish and basil oil.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Crispy Shrimp</span><span class="leader"></span><span class="item-price">700</span></div>
+          <div class="item-desc">Crispy shrimp served with fried noodles and spicy chili mayo.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Salads</div><div class="group-sub">green, bright, generous</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Mazi Greek &amp; Watermelon Salad</span><span class="leader"></span><span class="item-price">400</span></div>
+          <div class="item-desc">Compressed watermelon, Dodoni feta, fresh mint, cucumber pearls, balsamic pearls, red onion, lime zest, pink peppercorn and pea shoots, finished with Cretan olive oil.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Mazi Caesar</span><span class="leader"></span><span class="item-price">380</span></div>
+          <div class="item-desc">Crisp baby lettuce with spring rolls, smoked almonds and Caesar dressing.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Sicilian Octopus Salad</span><span class="leader"></span><span class="item-price">560</span></div>
+          <div class="item-desc">Charred octopus with Sicilian citrus vinaigrette, Kalamata olives, capers and basil.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Pasta</div><div class="group-sub">hand-finished, from the pot</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Pasta Garides</span><span class="leader"></span><span class="item-price">750</span></div>
+          <div class="item-desc">Linguine with Alexandria red shrimp or tiger shrimp, garlic, chili, fresh tomato, white wine, parsley, lemon zest and smoked paprika oil.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Wood-Fire Seafood</div><div class="group-sub">over olive-wood embers</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Mazi Mediterranean King Prawns</span><span class="leader"></span><span class="item-price">1300</span></div>
+          <div class="item-desc">King prawns with cherry tomatoes, olives, capers and extra virgin olive oil.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Signature Seafood</div><div class="group-sub">the catch, our way</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Lemon Oil Sea Bass or Sea Bream</span><span class="leader"></span><span class="item-price">1400</span></div>
+          <div class="item-desc">Olive oil, lemon and fresh herbs.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Paprika Sea Bass or Sea Bream</span><span class="leader"></span><span class="item-price">1400</span></div>
+          <div class="item-desc">Smoked paprika marinade with herbs, cherry tomato, capers and olive oil.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Mazi Fried Red Mullet</span><span class="leader"></span><span class="item-price">1200</span></div>
+          <div class="item-desc">Golden fried red mullet with tzatziki sauce, arugula and spinach.</div>
+        </div>
+      </div>
+
+      <div class="menu-group reveal">
+        <div class="group-head"><div class="group-title">Sides</div><div class="group-sub">to accompany</div></div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Sautéed Seasonal Vegetables</span><span class="leader"></span><span class="item-price">200</span></div>
+          <div class="item-desc">Fresh vegetables sautéed with olive oil, garlic and herbs.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Seafood Sayadiya Rice</span><span class="leader"></span><span class="item-price">220</span></div>
+          <div class="item-desc">Fragrant caramelized rice cooked with seafood, onions and warm spices.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Baby Potatoes</span><span class="leader"></span><span class="item-price">200</span></div>
+          <div class="item-desc">Spiced aioli, feta and herbs.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Coriander Lemon Rice</span><span class="leader"></span><span class="item-price">200</span></div>
+          <div class="item-desc">Fragrant rice with fresh coriander, lemon zest and olive oil.</div>
+        </div>
+        <div class="item">
+          <div class="item-top"><span class="item-name">Truffle Fries</span><span class="leader"></span><span class="item-price">250</span></div>
+          <div class="item-desc">Crispy fries finished with truffle oil and Parmesan.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="menu-foot reveal">All prices in Egyptian pounds. &nbsp;·&nbsp; Catch of the day, priced by the kilogram — ask your waiter.</p>
+  </div>
+</section>
+
+<!-- ================= VISIT ================= -->
+<section class="visit" id="visit">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="wave"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
+      <h2 class="sec-title">Visit</h2>
+      <p class="sec-note">come as you are, stay as long as you like</p>
+    </div>
+
+    <div class="visit-grid">
+      <div class="visit-card reveal">
+        <span class="label">Where</span>
+        <p class="big">Mazi · North Coast</p>
+        <p>Sahel, Egypt</p>
+        <p><a href="#" style="color:var(--sea);border-bottom:1px solid var(--line);">Get directions →</a></p>
+      </div>
+      <div class="visit-card reveal">
+        <span class="label">Hours</span>
+        <p class="big">Daily</p>
+        <p>1:00 pm — late</p>
+        <p>Lunch · Sunset · Dinner</p>
+      </div>
+      <div class="visit-card reveal">
+        <span class="label">Reserve</span>
+        <p class="big"><a href="tel:+20000000000" style="color:var(--sea);">+20 000 000 0000</a></p>
+        <p>Walk-ins welcome</p>
+        <p>Groups by request</p>
+      </div>
+    </div>
+
+    <div class="visit-cta reveal">
+      <a class="btn solid" href="https://wa.me/20000000000" target="_blank" rel="noopener">Book on WhatsApp</a>
+      <a class="btn" href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <svg class="sun" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="width:40px;height:40px;margin:0 auto 18px;">
+    <circle cx="50" cy="50" r="15"/><g><line x1="50" y1="10" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="90"/><line x1="10" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="90" y2="50"/><line x1="22" y1="22" x2="30" y2="30"/><line x1="70" y1="70" x2="78" y2="78"/><line x1="78" y1="22" x2="70" y2="30"/><line x1="30" y1="70" x2="22" y2="78"/></g>
+  </svg>
+  <div class="f-mark">MAZI</div>
+  <div class="f-tag">— together, by the sea —</div>
+  <div class="f-social">
+    <a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://wa.me/20000000000" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="tel:+20000000000">Call</a>
+  </div>
+  <div class="f-kali">kali orexi — enjoy</div>
+  <div class="f-fine">Mazi · North Coast · Egypt</div>
+</footer>
+
+<script>
+  // nav shrink on scroll
+  var nav=document.getElementById('nav');
+  addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>40);});
+  // mobile nav
+  var t=document.getElementById('navToggle'),l=document.getElementById('navLinks');
+  t.addEventListener('click',function(){l.classList.toggle('open');});
+  l.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){l.classList.remove('open');});});
+  // reveal on scroll
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+</script>
+</body>
+</html>
