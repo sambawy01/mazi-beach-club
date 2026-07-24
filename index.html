@@ -11,7 +11,7 @@
 <meta property="og:type" content="restaurant" />
 <meta property="og:title" content="Mazi · North Coast — Together, by the sea" />
 <meta property="og:description" content="A Mediterranean beach club on Egypt's North Coast. Wood-fire seafood, a raw bar, Greek soul." />
-<meta property="og:image" content="assets/og-image.png" />
+<meta property="og:image" content="https://mazibeach.com/assets/logo-mazi.jpeg" />
 
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 
@@ -21,17 +21,19 @@
 
 <style>
   :root{
-    --cream:#f4f0e6;
-    --cream-2:#efe9db;
-    --paper:#faf7ef;
-    --ink:#20303f;          /* deep aegean ink */
-    --ink-soft:#3a4b5a;
-    --sea:#3c6e8f;          /* aegean blue accent */
-    --sea-deep:#2c576f;
-    --sand:#c7a374;         /* warm boho gold */
+    --cream:#f6f1e4;
+    --cream-2:#efe8d6;
+    --paper:#fbf8f0;
+    --butter:#ffeea9;       /* logo background */
+    --butter-soft:#fdf4cf;
+    --ink:#1b2350;          /* deep blue-ink for body */
+    --ink-soft:#3c4570;
+    --sea:#12207e;          /* royal cobalt — the logo blue */
+    --sea-deep:#0a1560;
+    --sand:#cfa94e;         /* warm boho gold */
     --clay:#c07a58;         /* terracotta whisper */
-    --line:rgba(32,48,63,.18);
-    --line-soft:rgba(32,48,63,.10);
+    --line:rgba(18,32,126,.18);
+    --line-soft:rgba(18,32,126,.10);
     --maxw:1140px;
   }
 
@@ -78,7 +80,7 @@
     box-shadow:0 1px 0 var(--line-soft);
     padding:12px 28px;
   }
-  .nav-brand{font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:.42em;font-size:1.15rem;padding-left:.42em;}
+  .nav-brand{font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:.42em;font-size:1.2rem;padding-left:.42em;color:var(--sea);}
   .nav-links{display:flex;gap:34px;align-items:center;}
   .nav-links a{font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.7rem;color:var(--ink-soft);transition:color .25s;}
   .nav-links a:hover{color:var(--sea);}
@@ -93,31 +95,12 @@
     align-items:center;justify-content:center;text-align:center;
     padding:120px 24px 60px;overflow:hidden;
     background:
-      radial-gradient(120% 90% at 50% 6%, rgba(60,110,143,.06), transparent 60%),
-      linear-gradient(180deg,var(--paper),var(--cream) 55%,var(--cream-2));
+      radial-gradient(120% 80% at 50% 30%, #fff3bd, var(--butter) 62%, #f7e29a);
   }
-  /* faint sun-rays behind mark */
-  .hero-arch{
-    position:relative;width:min(560px,86vw);
-    padding:56px 40px 40px;margin-bottom:14px;
-  }
-  .hero-arch::before{
-    content:"";position:absolute;inset:0;
-    border:1px solid var(--line);
-    border-bottom:0;
-    border-radius:50% 50% 0 0 / 62% 62% 0 0;
-    -webkit-mask:linear-gradient(#000,#000);
-  }
-  .sun{width:46px;height:46px;margin:0 auto 22px;color:var(--sea);}
-  .wordmark{
-    font-weight:500;letter-spacing:.28em;
-    font-size:clamp(4.2rem,17vw,8.4rem);
-    line-height:.9;padding-left:.28em;color:var(--ink);
-  }
-  .hero-tag{font-style:italic;font-weight:400;color:var(--sea-deep);font-size:clamp(1.2rem,4.5vw,1.7rem);margin-top:.4em;}
-  .hero-sub{max-width:640px;margin:26px auto 0;color:var(--ink-soft);font-size:1.28rem;font-weight:300;}
-  .hero-place{margin-top:30px;}
-  .scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--sea);opacity:.7;animation:bob 2.6s ease-in-out infinite;}
+  .hero-logo{width:min(560px,84vw);margin:0 auto 4px;filter:drop-shadow(0 8px 30px rgba(10,21,96,.10));}
+  .hero-sub{max-width:620px;margin:18px auto 0;color:var(--sea-deep);font-size:1.28rem;font-weight:400;}
+  .hero-place{margin-top:26px;color:var(--sea)!important;}
+  .scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--sea);opacity:.65;animation:bob 2.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
 
   .btn{
@@ -132,7 +115,7 @@
   /* ---------- section frame ---------- */
   section{padding:96px 0;}
   .sec-head{text-align:center;margin-bottom:8px;}
-  .sec-title{font-weight:400;letter-spacing:.16em;font-size:clamp(2.2rem,6vw,3.3rem);text-transform:uppercase;margin:16px 0 4px;}
+  .sec-title{font-weight:400;letter-spacing:.16em;font-size:clamp(2.2rem,6vw,3.3rem);text-transform:uppercase;margin:16px 0 4px;color:var(--sea);}
   .sec-note{font-style:italic;color:var(--ink-soft);font-size:1.15rem;}
 
   /* ---------- about ---------- */
@@ -142,12 +125,12 @@
   .about .lead{font-size:1.55rem;color:var(--ink);font-weight:400;}
   .about-figure{
     aspect-ratio:4/5;border-radius:220px 220px 18px 18px;overflow:hidden;position:relative;
-    background:linear-gradient(160deg,#dfe7ea,#cdd9dd 40%,#b9cbcf);
+    background:linear-gradient(178deg,#fff1b8 0%,#ffe38f 30%,#f6cf7a 46%,#7f96c9 58%,#2c3f9a 100%);
     border:1px solid var(--line-soft);
   }
-  .about-figure .art-sun{position:absolute;top:14%;left:50%;transform:translateX(-50%);width:120px;height:120px;color:rgba(255,255,255,.7);}
-  .about-figure .art-sea{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,rgba(60,110,143,.55),rgba(44,87,111,.85));}
-  .about-figure .art-note{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:rgba(255,255,255,.9);font-style:italic;font-size:1.05rem;}
+  .about-figure .art-sun{position:absolute;top:16%;left:50%;transform:translateX(-50%);width:110px;height:110px;color:rgba(255,255,255,.85);}
+  .about-figure .art-sea{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,rgba(18,32,126,.35),rgba(10,21,96,.7));}
+  .about-figure .art-note{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:rgba(255,255,255,.95);font-style:italic;font-size:1.05rem;}
 
   /* ---------- menu ---------- */
   .menu{background:var(--cream);}
@@ -160,7 +143,7 @@
   .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px 72px;}
   .menu-group{break-inside:avoid;margin-bottom:40px;}
   .group-head{text-align:center;margin:8px 0 26px;}
-  .group-title{font-weight:400;letter-spacing:.14em;font-size:1.7rem;text-transform:uppercase;}
+  .group-title{font-weight:400;letter-spacing:.14em;font-size:1.7rem;text-transform:uppercase;color:var(--sea);}
   .group-sub{font-style:italic;color:var(--sea-deep);font-size:1rem;}
   .item{margin-bottom:22px;}
   .item-top{display:flex;align-items:baseline;gap:10px;}
@@ -232,19 +215,7 @@
 
 <!-- ================= HERO ================= -->
 <section class="hero" id="top">
-  <div class="hero-arch">
-    <svg class="sun" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
-      <circle cx="50" cy="50" r="15"/>
-      <g>
-        <line x1="50" y1="10" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="90"/>
-        <line x1="10" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="90" y2="50"/>
-        <line x1="22" y1="22" x2="30" y2="30"/><line x1="70" y1="70" x2="78" y2="78"/>
-        <line x1="78" y1="22" x2="70" y2="30"/><line x1="30" y1="70" x2="22" y2="78"/>
-      </g>
-    </svg>
-    <h1 class="wordmark">MAZI</h1>
-    <p class="hero-tag">— together, by the sea —</p>
-  </div>
+  <h1 style="margin:0;"><img class="hero-logo" src="assets/logo-mazi.jpeg" alt="Mazi — together by the sea" /></h1>
   <p class="hero-sub">A Mediterranean beach club on Egypt's North Coast — wood-fire seafood, a raw bar from the morning boats, and the bright, generous soul of the Greek coast.</p>
   <p class="hero-place label">Mazi · North Coast</p>
   <a class="scroll-cue" href="#about" aria-label="Scroll down">
