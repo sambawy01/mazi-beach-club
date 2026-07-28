@@ -25,7 +25,7 @@ const STORY_IMAGES = [
   '/hero-10.jpg',
   '/hero-2.jpg',
 ];
-const CTA_BG = 'https://placehold.co/1920x600/1b2350/12207e?text=Reserve+Your+Table';
+const CTA_BG = '/hero-8.jpg';
 
 const GALLERY_IMAGES = [
   { label: 'The Lounge', span: 'md:row-span-2', url: '/hero-1.jpg' },
@@ -88,105 +88,96 @@ export function HomePage() {
 
   return (
     <div className="w-full bg-[#f6f2e8]">
-      {/* ============ 1. HERO — Futuristic with logo + motion ============ */}
-      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-[#1b2350]">
+      {/* ============ 1. HERO — cinematic ============ */}
+      <section className="relative h-screen min-h-[640px] flex items-center justify-center overflow-hidden bg-[#0e1533] noise">
         {/* Rotating hero images with crossfade + Ken Burns zoom */}
         {HERO_IMAGES.map((src, i) => (
           <motion.div
             key={src}
             className="absolute inset-0"
             initial={{ opacity: 0 }}
-            animate={{
-              opacity: i === heroIndex ? 1 : 0,
-              scale: i === heroIndex ? 1.1 : 1,
-            }}
-            transition={{
-              opacity: { duration: 1.5, ease: 'easeInOut' },
-              scale: { duration: 6, ease: 'easeOut' },
-            }}
+            animate={{ opacity: i === heroIndex ? 1 : 0, scale: i === heroIndex ? 1.12 : 1 }}
+            transition={{ opacity: { duration: 1.6, ease: 'easeInOut' }, scale: { duration: 7, ease: 'easeOut' } }}
           >
-            <img
-              src={src}
-              alt="Mazi Beach Restaurant"
-              className="w-full h-full object-cover"
-            />
+            <img src={src} alt="Mazi Beach Restaurant" className="w-full h-full object-cover" />
           </motion.div>
         ))}
 
-        {/* Dark gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1b2350]/40 via-[#1b2350]/30 to-[#1b2350]" />
+        {/* Cinematic scrims + vignette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0e1533]/55 via-[#0e1533]/15 to-[#0e1533]" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(120% 90% at 50% 8%, transparent 42%, rgba(14,21,51,0.6))' }} />
+        {/* Aurora light glows */}
+        <div className="pointer-events-none absolute -top-1/3 left-1/2 -translate-x-1/2 w-[80vw] h-[80vw] rounded-full blur-3xl animate-aurora" style={{ background: 'radial-gradient(circle, rgba(47,111,158,0.35), transparent 60%)' }} />
+        <div className="pointer-events-none absolute bottom-0 right-0 w-[52vw] h-[52vw] rounded-full blur-3xl animate-aurora" style={{ background: 'radial-gradient(circle, rgba(201,162,74,0.18), transparent 60%)', animationDelay: '-9s' }} />
 
         {/* Content */}
         <div className="relative z-10 text-center px-4 max-w-4xl">
-          {/* Logo with pulsing glow + entrance animation */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative inline-block mb-2"
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.1 }}
+            className="font-elegant italic text-gold-gradient text-xl md:text-3xl mb-5"
           >
-            {/* Pulsing glow behind logo */}
-            <motion.div
-              animate={{
-                opacity: [0.2, 0.5, 0.2],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute inset-0 bg-[#3c6e8f] blur-[60px] rounded-full"
-            />
-            <img
-              src="/mazi-logo-full-white.png"
-              alt="Mazi"
-              className="relative z-10 mx-auto w-48 md:w-64 h-auto"
-            />
+            — together, by the sea —
+          </motion.p>
+
+          {/* Logo with glow */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.86, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="relative inline-block"
+          >
+            <div className="absolute inset-0 bg-[#2f6f9e] blur-[70px] rounded-full animate-glow" />
+            <img src="/mazi-logo-full-white.png" alt="Mazi" className="relative z-10 mx-auto w-56 md:w-80 h-auto drop-shadow-2xl" />
           </motion.div>
 
-          {/* Tagline with staggered entrance */}
           <motion.p
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
-            className="mt-6 text-sm md:text-base text-white/70 uppercase tracking-[0.25em]"
+            className="mt-7 text-[0.68rem] md:text-xs text-white/70 uppercase tracking-[0.34em]"
           >
-            Mediterranean Beach Restaurant &amp; Bar &nbsp;|&nbsp; Ras El Hekma, North Coast
+            Mediterranean Beach Club &nbsp;·&nbsp; Ras El Hekma, North Coast
           </motion.p>
 
-          {/* Animated line under tagline */}
           <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: '120px' }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="mx-auto h-[2px] bg-gradient-to-r from-transparent via-[#3c6e8f] to-transparent mt-6"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: '140px', opacity: 1 }}
+            transition={{ duration: 0.9, delay: 1.2 }}
+            className="mx-auto h-px rule-gold mt-7"
           />
 
-          {/* CTA buttons with stagger */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.4 }}
             className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/menu">
-              <Button className="bg-[#12207e] hover:bg-[#3c6e8f] text-white border-none rounded-full px-8 h-14 text-base font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[#12207e]/30">
-                View Menu
+            <Link to="/reserve">
+              <Button className="sheen group bg-gradient-to-r from-[#c9a24a] to-[#e3c878] hover:from-[#e3c878] hover:to-[#c9a24a] text-[#1b2350] border-none rounded-full px-9 h-14 text-sm font-semibold uppercase tracking-[0.14em] transition-all duration-300 hover:scale-[1.03] shadow-gold">
+                Reserve a Table <ArrowRight className="w-4 h-4 ml-2 inline transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link to="/reserve">
-              <Button variant="outline" className="border-2 border-white/80 text-white hover:bg-white hover:text-[#12207e] bg-transparent rounded-full px-8 h-14 text-base font-semibold transition-all duration-300 hover:scale-105 shadow-lg shadow-[#12207e]/30">
-                Reserve
+            <Link to="/menu">
+              <Button variant="outline" className="glass text-white border-white/40 hover:bg-white hover:text-[#12207e] rounded-full px-9 h-14 text-sm font-semibold uppercase tracking-[0.14em] transition-all duration-300 hover:scale-[1.03]">
+                Explore the Menu
               </Button>
             </Link>
           </motion.div>
         </div>
 
-        {/* Animated scroll indicator */}
+        {/* Scroll cue */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 12, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 hidden sm:block"
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2"
         >
-          <ChevronDown className="w-8 h-8" />
+          <span className="text-white/50 text-[0.6rem] uppercase tracking-[0.3em]">Scroll</span>
+          <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-white/60">
+            <ChevronDown className="w-6 h-6" />
+          </motion.div>
         </motion.div>
       </section>
 
@@ -522,38 +513,56 @@ export function HomePage() {
       </section>
 
       {/* ============ 7. CTA SECTION ============ */}
-      <section className="relative py-32 md:py-40 overflow-hidden">
-        {/* Animated glow */}
-        <motion.div
-          animate={{ opacity: [0.1, 0.25, 0.1] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute inset-0 bg-gradient-to-b from-[#12207e]/30 to-transparent"
-        />
-        <img src={CTA_BG} alt="Reserve your table" className="absolute inset-0 w-full h-full object-cover opacity-20" />
-        <div className="absolute inset-0 bg-[#1b2350]/80" />
+      <section className="relative py-36 md:py-48 overflow-hidden bg-[#0e1533] noise">
+        {/* Real photo, fixed for parallax feel */}
+        <div className="absolute inset-0 bg-fixed bg-center bg-cover" style={{ backgroundImage: `url(${CTA_BG})` }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0e1533]/70 via-[#0e1533]/60 to-[#0e1533]/90" />
+        {/* Gold aurora */}
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full blur-3xl animate-aurora" style={{ background: 'radial-gradient(circle, rgba(201,162,74,0.16), transparent 62%)' }} />
+
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-serif text-4xl md:text-6xl font-bold text-white mb-4"
+            className="font-elegant italic text-gold-gradient text-2xl md:text-3xl mb-4"
           >
-            Reserve Your Table
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-[#f0e6d2] text-xl md:text-2xl font-light mb-10"
-          >
-            Experience Mazi this summer
+            your table by the sea awaits
           </motion.p>
-          <Link to="/menu">
-            <Button className="bg-[#12207e] hover:bg-[#3c6e8f] text-white border-none rounded-full px-10 h-14 text-lg font-semibold transition-all duration-300 hover:scale-105 shadow-xl shadow-[#12207e]/40">
-              View Menu <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="font-display text-5xl md:text-7xl font-semibold text-white leading-[1.05] mb-6"
+          >
+            Spend the summer<br />with us
+          </motion.h2>
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            whileInView={{ width: '120px', opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, delay: 0.25 }}
+            className="mx-auto h-px rule-gold mb-10"
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.35 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link to="/reserve">
+              <Button className="sheen group bg-gradient-to-r from-[#c9a24a] to-[#e3c878] hover:from-[#e3c878] hover:to-[#c9a24a] text-[#1b2350] border-none rounded-full px-10 h-14 text-sm font-semibold uppercase tracking-[0.14em] transition-all duration-300 hover:scale-[1.03] shadow-gold">
+                Reserve a Table <ArrowRight className="ml-2 w-4 h-4 inline transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <Link to="/menu">
+              <Button variant="outline" className="glass text-white border-white/40 hover:bg-white hover:text-[#12207e] rounded-full px-10 h-14 text-sm font-semibold uppercase tracking-[0.14em] transition-all duration-300 hover:scale-[1.03]">
+                View the Menu
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
     </div>

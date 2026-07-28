@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingBag, Phone, MapPin, Instagram, Mail, User, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -13,6 +13,14 @@ function LayoutContent() {
   const location = useLocation();
   const { toggleCart, totalItems } = useCart();
   const { session, signOut } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -28,31 +36,29 @@ function LayoutContent() {
       <CartDrawer />
       
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
-        <div className="container mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
+      <header className={`sticky top-0 z-40 w-full transition-all duration-500 ${scrolled ? 'glass-nav shadow-float border-b border-[#12207e]/10' : 'bg-transparent border-b border-transparent'}`}>
+        <div className={`container mx-auto px-4 md:px-6 flex items-center justify-between transition-all duration-500 ${scrolled ? 'h-16' : 'h-20'}`}>
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
               <img
               src="/mazi-logo-full.png"
               alt="Mazi"
-              className="h-12 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+              className={`w-auto object-contain transition-all duration-500 group-hover:scale-105 ${scrolled ? 'h-11 md:h-12' : 'h-12 md:h-16'}`}
             />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-9">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-sm font-semibold transition-colors hover:text-[#12207e] relative py-2 ${
-                  location.pathname === link.path ? 'text-[#12207e]' : 'text-gray-600'
+                className={`group relative text-[0.78rem] font-semibold uppercase tracking-[0.16em] transition-colors py-2 ${
+                  location.pathname === link.path ? 'text-[#12207e]' : 'text-[#1b2350]/70 hover:text-[#12207e]'
                 }`}
               >
                 {link.name}
-                {location.pathname === link.path && (
-                  <motion.div layoutId="underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#12207e]" />
-                )}
+                <span className={`pointer-events-none absolute -bottom-0.5 left-0 h-[2px] rounded-full rule-gold transition-all duration-500 ${location.pathname === link.path ? 'w-full' : 'w-0 group-hover:w-full'}`} />
               </Link>
             ))}
             {session ? (
@@ -88,7 +94,7 @@ function LayoutContent() {
             )}
             <Button
               onClick={toggleCart}
-              className="rounded-full shadow-lg hover:shadow-xl transition-all relative overflow-visible"
+              className="sheen rounded-full h-11 px-6 bg-gradient-to-r from-[#12207e] to-[#2f6f9e] hover:from-[#0e1533] hover:to-[#12207e] text-white shadow-float hover:shadow-luxe transition-all relative overflow-hidden"
             >
               <ShoppingBag className="w-4 h-4 mr-2" />
               Cart

@@ -3,13 +3,26 @@
 :root {
   --font-montserrat: 'Montserrat', sans-serif;
   --font-inter: 'Inter', sans-serif;
-  
+  --font-fraunces: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+
   /* Brand Colors */
-  --color-brand: #12207e; /* Deep Teal */
+  --color-brand: #12207e; /* Royal Cobalt */
   --color-charcoal: #1b2350; /* Text/Headers */
   --color-beige: #f6f2e8; /* Warm Background */
   --color-success: #27AE60;
   --color-warning: #F39C12;
+
+  /* Extended palette for the elevated design system */
+  --aegean: #2f6f9e;
+  --aegean-deep: #17335a;
+  --sea-glass: #a9c6d3;
+  --sage: #a9bfa9;
+  --gold: #c9a24a;
+  --gold-light: #e3c878;
+  --sand: #efe4cf;
+  --ink: #0e1533;
+  --ease-lux: cubic-bezier(0.19, 1, 0.22, 1);
 
   --font-size: 16px;
   --background: var(--color-beige);
@@ -96,7 +109,127 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-montserrat: var(--font-montserrat);
   --font-inter: var(--font-inter);
+  --font-fraunces: var(--font-fraunces);
+  --font-cormorant: var(--font-cormorant);
   --color-brand: var(--color-brand);
+  --color-aegean: var(--aegean);
+  --color-aegean-deep: var(--aegean-deep);
+  --color-sea-glass: var(--sea-glass);
+  --color-sage: var(--sage);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-sand: var(--sand);
+  --color-ink: var(--ink);
+}
+
+/* ============================================================
+   MAZI — elevated design system (keyframes + utilities)
+   ============================================================ */
+@keyframes mazi-kenburns { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.12) translate(-1.5%, -1.5%); } }
+@keyframes mazi-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes mazi-float-slow { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-22px) rotate(3deg); } }
+@keyframes mazi-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes mazi-gradient-pan { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes mazi-glow { 0%,100% { opacity: .35; transform: scale(1); } 50% { opacity: .7; transform: scale(1.12); } }
+@keyframes mazi-sweep { 0% { transform: translateX(-120%) skewX(-18deg); } 60%,100% { transform: translateX(240%) skewX(-18deg); } }
+@keyframes mazi-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes mazi-aurora { 0% { transform: translate(0,0) scale(1); } 33% { transform: translate(6%,-4%) scale(1.15); } 66% { transform: translate(-5%,5%) scale(1.05); } 100% { transform: translate(0,0) scale(1); } }
+@keyframes mazi-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes mazi-spin-slow { to { transform: rotate(360deg); } }
+
+@layer utilities {
+  .font-display { font-family: var(--font-fraunces); font-optical-sizing: auto; }
+  .font-elegant { font-family: var(--font-cormorant); }
+
+  /* Glass */
+  .glass {
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.20);
+  }
+  .glass-dark {
+    background: rgba(14,21,51,0.42);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .glass-nav {
+    background: rgba(246,242,232,0.72);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+  }
+
+  /* Gold gradient text + hairlines */
+  .text-gold-gradient {
+    background: linear-gradient(100deg, #b8892f, var(--gold-light) 45%, #f4e6b8 55%, var(--gold) 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .text-aegean-gradient {
+    background: linear-gradient(100deg, var(--aegean-deep), var(--aegean) 55%, var(--sea-glass));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .rule-gold { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+  /* Depth */
+  .shadow-luxe { box-shadow: 0 34px 90px -44px rgba(18,32,126,0.55), 0 14px 40px -26px rgba(0,0,0,0.35); }
+  .shadow-float { box-shadow: 0 24px 60px -30px rgba(18,32,126,0.45); }
+  .shadow-gold { box-shadow: 0 20px 50px -24px rgba(201,162,74,0.5); }
+
+  /* Mesh / aurora backdrops */
+  .mesh-aegean {
+    background:
+      radial-gradient(60% 60% at 15% 20%, rgba(47,111,158,0.55), transparent 60%),
+      radial-gradient(50% 50% at 85% 15%, rgba(201,162,74,0.28), transparent 60%),
+      radial-gradient(70% 70% at 80% 90%, rgba(169,191,169,0.4), transparent 60%),
+      linear-gradient(160deg, #0e1533, #17335a 55%, #1b2350);
+  }
+  .noise { position: relative; }
+  .noise::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.05; z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Animation helpers */
+  .animate-kenburns { animation: mazi-kenburns 14s ease-out both; }
+  .animate-float { animation: mazi-float 6s ease-in-out infinite; }
+  .animate-float-slow { animation: mazi-float-slow 9s ease-in-out infinite; }
+  .animate-glow { animation: mazi-glow 5s ease-in-out infinite; }
+  .animate-aurora { animation: mazi-aurora 26s ease-in-out infinite; }
+  .animate-spin-slow { animation: mazi-spin-slow 40s linear infinite; }
+  .animate-gradient { background-size: 200% 200%; animation: mazi-gradient-pan 8s ease infinite; }
+  .animate-marquee { animation: mazi-marquee 32s linear infinite; }
+
+  /* Interactive */
+  .hover-lift { transition: transform 0.55s var(--ease-lux), box-shadow 0.55s var(--ease-lux); }
+  .hover-lift:hover { transform: translateY(-8px); }
+  .card-luxe {
+    position: relative; border-radius: 1.5rem; overflow: hidden;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(18,32,126,0.08);
+    backdrop-filter: blur(6px);
+    transition: transform 0.55s var(--ease-lux), box-shadow 0.55s var(--ease-lux), border-color 0.55s;
+  }
+  .card-luxe:hover { transform: translateY(-8px); box-shadow: 0 34px 80px -40px rgba(18,32,126,0.4); border-color: rgba(201,162,74,0.45); }
+
+  /* Shine sweep on hover (add to a group with .sheen) */
+  .sheen { position: relative; overflow: hidden; }
+  .sheen::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: translateX(-160%) skewX(-18deg); pointer-events: none;
+  }
+  .sheen:hover::before { animation: mazi-sweep 1.1s var(--ease-lux); }
+
+  /* Fine gold ring frame */
+  .ring-gold { box-shadow: inset 0 0 0 1px rgba(201,162,74,0.5); }
+
+  .track-widest { letter-spacing: 0.42em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-kenburns, .animate-float, .animate-float-slow, .animate-glow,
+  .animate-aurora, .animate-spin-slow, .animate-gradient, .animate-marquee { animation: none !important; }
 }
 
 @layer base {
