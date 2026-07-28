@@ -1,749 +1,107 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mazi · North Coast — Together, by the sea</title>
-<meta name="description" content="Mazi — a Mediterranean beach club on Egypt's North Coast. Wood-fire seafood, a raw bar, and the bright, generous flavours of the Greek coast. Together, by the sea." />
-<meta name="theme-color" content="#f6f2e8" />
-
-<!-- Open Graph / social -->
-<meta property="og:type" content="restaurant" />
-<meta property="og:title" content="Mazi · North Coast — Together, by the sea" />
-<meta property="og:description" content="A Mediterranean beach club on Egypt's North Coast. Wood-fire seafood, a raw bar, Greek soul." />
-<meta property="og:image" content="https://mazibeach.com/assets/logo-mazi.jpeg" />
-
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
-
-<style>
-  :root{
-    --cream:#f6f2e8;
-    --cream-2:#efe9da;
-    --paper:#fbf8f0;
-    --ink:#1b2350;
-    --ink-soft:#41497a;
-    --sea:#12207e;           /* royal cobalt — the logo blue */
-    --sea-deep:#0a1560;
-    --wash-blue:#a9c6d3;     /* washed aegean */
-    --wash-blue-2:#c7dde4;
-    --wash-blue-deep:#7fa3b5;
-    --wash-green:#a9bfa9;    /* washed sage */
-    --wash-green-2:#c6d6c2;
-    --wash-green-deep:#84a189;
-    --sand:#cfa94e;
-    --line:rgba(18,32,126,.16);
-    --line-soft:rgba(18,32,126,.08);
-    --maxw:1180px;
-    --ease-out:cubic-bezier(.19,1,.22,1);
-  }
-
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--cream);
-    color:var(--ink);
-    font-family:'Cormorant Garamond',Georgia,serif;
-    font-size:20px;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-    overflow-x:hidden;
-  }
-  img{max-width:100%;display:block;}
-  a{color:inherit;text-decoration:none;}
-  ::selection{background:var(--wash-blue);color:var(--sea-deep);}
-
-  .label{
-    font-family:'Jost',sans-serif;font-weight:400;text-transform:uppercase;
-    letter-spacing:.34em;font-size:.72rem;color:var(--sea);
-  }
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;position:relative;}
-
-  /* ================= film grain ================= */
-  .grain{
-    position:fixed;inset:-50%;z-index:200;pointer-events:none;opacity:.05;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
-    animation:grain 7s steps(10) infinite;
-  }
-  @keyframes grain{
-    0%,100%{transform:translate(0,0);}10%{transform:translate(-3%,2%);}
-    30%{transform:translate(2%,-3%);}50%{transform:translate(-2%,-2%);}
-    70%{transform:translate(3%,2%);}90%{transform:translate(-1%,3%);}
-  }
-
-  /* ================= cursor glow ================= */
-  .glow{
-    position:fixed;z-index:1;width:560px;height:560px;border-radius:50%;
-    pointer-events:none;left:0;top:0;opacity:0;transition:opacity .8s;
-    background:radial-gradient(circle,rgba(169,198,211,.35),rgba(169,191,169,.14) 45%,transparent 70%);
-    transform:translate(-50%,-50%);mix-blend-mode:multiply;will-change:transform;
-  }
-  body.has-mouse .glow{opacity:1;}
-
-  /* ================= scroll progress ================= */
-  .progress{position:fixed;top:0;left:0;height:2.5px;width:0;z-index:120;
-    background:linear-gradient(90deg,var(--wash-green-deep),var(--sea));}
-
-  /* ================= wave divider mark ================= */
-  .wave{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto;color:var(--sea);opacity:.85;}
-  .wave::before,.wave::after{content:"";height:1px;width:64px;background:currentColor;opacity:.5;}
-  .wave svg{width:26px;height:12px;}
-
-  /* ================= nav ================= */
-  header.nav{
-    position:fixed;top:0;left:0;right:0;z-index:100;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:20px 30px;transition:background .5s,box-shadow .5s,padding .5s;
-  }
-  header.nav.scrolled{
-    background:rgba(246,242,232,.9);backdrop-filter:blur(12px);
-    box-shadow:0 1px 0 var(--line-soft);padding:13px 30px;
-  }
-  .nav-brand{font-weight:600;letter-spacing:.42em;font-size:1.2rem;padding-left:.42em;color:var(--sea);position:relative;}
-  .nav-links{display:flex;gap:38px;align-items:center;}
-  .nav-links a{
-    font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.22em;
-    font-size:.7rem;color:var(--ink-soft);position:relative;padding:4px 0;transition:color .3s;
-  }
-  .nav-links a::after{
-    content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;
-    background:var(--sea);transition:right .45s var(--ease-out);
-  }
-  .nav-links a:hover{color:var(--sea);}
-  .nav-links a:hover::after{right:0;}
-  .nav-toggle{display:none;background:none;border:0;cursor:pointer;padding:6px;z-index:130;}
-  .nav-toggle span{display:block;width:24px;height:1.5px;background:var(--sea);margin:5px 0;transition:.35s;}
-  .nav-toggle.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
-  .nav-toggle.open span:nth-child(2){opacity:0;}
-  .nav-toggle.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
-
-  /* ================= hero ================= */
-  .hero{
-    position:relative;min-height:100svh;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;text-align:center;
-    padding:130px 24px 110px;overflow:hidden;isolation:isolate;
-  }
-  /* drifting washed blobs */
-  .blob{position:absolute;border-radius:50%;filter:blur(70px);z-index:-2;opacity:.65;will-change:transform;}
-  .blob.b1{width:60vmax;height:60vmax;left:-18vmax;top:-22vmax;
-    background:radial-gradient(circle at 35% 35%,var(--wash-blue-2),var(--wash-blue) 55%,transparent 75%);
-    animation:drift1 26s ease-in-out infinite alternate;}
-  .blob.b2{width:52vmax;height:52vmax;right:-16vmax;bottom:-18vmax;
-    background:radial-gradient(circle at 60% 60%,var(--wash-green-2),var(--wash-green) 55%,transparent 75%);
-    animation:drift2 32s ease-in-out infinite alternate;}
-  .blob.b3{width:34vmax;height:34vmax;right:6vmax;top:-10vmax;opacity:.4;
-    background:radial-gradient(circle,#fdf2c0,transparent 70%);
-    animation:drift3 24s ease-in-out infinite alternate;}
-  @keyframes drift1{to{transform:translate(6vmax,5vmax) scale(1.08);}}
-  @keyframes drift2{to{transform:translate(-5vmax,-4vmax) scale(1.1) rotate(8deg);}}
-  @keyframes drift3{to{transform:translate(-4vmax,3vmax);}}
-
-  .hero-logo{
-    width:min(540px,82vw);margin:0 auto 4px;position:relative;z-index:2;
-    animation:heroIn 1.6s var(--ease-out) both, float 7s ease-in-out 1.8s infinite;
-  }
-  @keyframes heroIn{from{opacity:0;transform:translateY(34px) scale(.97);}to{opacity:1;transform:none;}}
-  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
-  .hero-sub{
-    max-width:620px;margin:20px auto 0;color:var(--ink-soft);font-size:1.3rem;font-weight:400;z-index:2;
-    animation:heroIn 1.6s .25s var(--ease-out) both;
-  }
-  .hero-place{margin-top:28px;z-index:2;animation:heroIn 1.6s .45s var(--ease-out) both;}
-
-  /* animated shoreline waves at hero base */
-  .shore{position:absolute;left:0;right:0;bottom:-2px;z-index:1;pointer-events:none;line-height:0;}
-  .shore svg{width:100%;height:110px;display:block;}
-  .shore .w1{animation:shore 14s linear infinite;}
-  .shore .w2{animation:shore 9s linear infinite reverse;opacity:.55;}
-  @keyframes shore{from{transform:translateX(0);}to{transform:translateX(-25%);}}
-
-  .scroll-cue{
-    position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-    color:var(--sea);opacity:.65;animation:bob 2.6s ease-in-out infinite;z-index:3;
-  }
-  @keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
-
-  /* ================= marquee band ================= */
-  .marquee{
-    background:linear-gradient(90deg,var(--wash-green-deep),var(--wash-blue-deep));
-    color:#fdfbf4;overflow:hidden;padding:15px 0;position:relative;z-index:2;
-  }
-  .marquee-track{display:flex;width:max-content;animation:marquee 30s linear infinite;}
-  .marquee span{
-    font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.34em;
-    font-size:.72rem;white-space:nowrap;padding:0 24px;display:flex;align-items:center;gap:24px;
-  }
-  .marquee i{font-style:normal;opacity:.7;}
-  @keyframes marquee{to{transform:translateX(-50%);}}
-
-  /* ================= sections ================= */
-  section{padding:110px 0;position:relative;}
-  .sec-head{text-align:center;margin-bottom:8px;}
-  .sec-title{
-    font-weight:400;letter-spacing:.16em;font-size:clamp(2.2rem,6vw,3.4rem);
-    text-transform:uppercase;margin:16px 0 4px;color:var(--sea);
-  }
-  .sec-note{font-style:italic;color:var(--ink-soft);font-size:1.15rem;}
-
-  /* ================= about ================= */
-  .about{background:var(--paper);overflow:hidden;}
-  .about::before{ /* washed arc backdrop */
-    content:"";position:absolute;right:-22%;top:-30%;width:70%;aspect-ratio:1;border-radius:50%;
-    background:radial-gradient(circle,var(--wash-blue-2) 0%,transparent 68%);opacity:.55;
-  }
-  .about-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center;}
-  .about p{font-size:1.32rem;font-weight:300;color:var(--ink-soft);margin:0 0 20px;}
-  .about .lead{font-size:1.6rem;color:var(--ink);font-weight:400;}
-  .about-figure{
-    aspect-ratio:4/5;border-radius:230px 230px 20px 20px;overflow:hidden;position:relative;
-    background:linear-gradient(178deg,#fdf3c4 0%,#f7e19c 26%,var(--wash-green-2) 40%,var(--wash-blue) 58%,var(--sea) 130%);
-    border:1px solid var(--line-soft);
-    box-shadow:0 30px 80px -30px rgba(18,32,126,.25);
-    transform:translateZ(0);
-  }
-  .about-figure .art-sun{
-    position:absolute;top:15%;left:50%;transform:translateX(-50%);width:110px;height:110px;
-    color:rgba(255,255,255,.9);animation:sunspin 40s linear infinite;
-  }
-  @keyframes sunspin{to{transform:translateX(-50%) rotate(360deg);}}
-  .about-figure .art-sea{
-    position:absolute;left:0;right:0;bottom:0;height:44%;
-    background:linear-gradient(180deg,rgba(18,32,126,.25),rgba(10,21,96,.72));
-  }
-  .about-figure .shimmer{
-    position:absolute;left:0;right:0;bottom:30%;height:22%;
-    background:repeating-linear-gradient(180deg,rgba(255,255,255,.28) 0 2px,transparent 2px 12px);
-    mask-image:linear-gradient(180deg,transparent,black 40%,transparent);
-    animation:shimmer 6s ease-in-out infinite alternate;
-  }
-  @keyframes shimmer{from{transform:translateY(0);opacity:.6;}to{transform:translateY(8px);opacity:1;}}
-  .about-figure .art-note{
-    position:absolute;bottom:18px;left:0;right:0;text-align:center;
-    color:rgba(255,255,255,.95);font-style:italic;font-size:1.05rem;z-index:3;
-  }
-  .about-figure .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;}
-  .about-figure .ph[data-missing]{display:none;}
-
-  /* ================= gallery (photo placeholders) ================= */
-  .gallery{background:var(--cream-2);overflow:hidden;}
-  .gal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:50px;}
-  .gal-frame{
-    position:relative;aspect-ratio:3/4;overflow:hidden;
-    border:1px solid var(--line-soft);background:var(--paper);
-    transition:transform .5s var(--ease-out),box-shadow .5s var(--ease-out);
-  }
-  .gal-frame:nth-child(odd){border-radius:160px 160px 16px 16px;}
-  .gal-frame:nth-child(even){border-radius:16px;}
-  .gal-frame:hover{transform:translateY(-6px);box-shadow:0 24px 55px -26px rgba(18,32,126,.3);}
-  .gal-frame img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease-out);}
-  .gal-frame:hover img{transform:scale(1.06);}
-  .gal-frame img[data-missing]{display:none;}
-  .gal-ph{
-    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:14px;text-align:center;padding:20px;
-  }
-  .gal-frame:nth-child(1) .gal-ph{background:linear-gradient(170deg,var(--wash-blue-2),var(--wash-blue) 90%);}
-  .gal-frame:nth-child(2) .gal-ph{background:linear-gradient(170deg,var(--wash-green-2),var(--wash-green) 90%);}
-  .gal-frame:nth-child(3) .gal-ph{background:linear-gradient(170deg,#fdf2c0,#f2dc93 90%);}
-  .gal-frame:nth-child(4) .gal-ph{background:linear-gradient(170deg,var(--wash-blue-2),var(--wash-green) 110%);}
-  .gal-ph svg{width:44px;height:44px;color:rgba(18,32,126,.55);}
-  .gal-ph .gal-cap{font-style:italic;color:rgba(18,32,126,.75);font-size:1.08rem;}
-  .gal-ph .gal-tag{font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.3em;font-size:.6rem;color:rgba(18,32,126,.5);}
-  .gal-frame.loaded .gal-ph{display:none;}
-  /* floating olive leaves */
-  .leaf{position:absolute;color:var(--wash-green-deep);opacity:.5;pointer-events:none;will-change:transform;}
-  .leaf svg{width:100%;height:100%;}
-
-  /* ================= menu ================= */
-  .menu{background:var(--cream);}
-  .menu::before{
-    content:"";position:absolute;left:-24%;bottom:-18%;width:60%;aspect-ratio:1;border-radius:50%;
-    background:radial-gradient(circle,var(--wash-green-2) 0%,transparent 66%);opacity:.5;
-  }
-  .menu-banner{
-    max-width:660px;margin:0 auto 64px;text-align:center;position:relative;overflow:hidden;
-    border:1px solid var(--line);border-radius:18px;padding:24px 28px;background:var(--paper);
-  }
-  .menu-banner::before{
-    content:"";position:absolute;inset:0;
-    background:linear-gradient(100deg,transparent 30%,rgba(169,198,211,.25) 50%,transparent 70%);
-    transform:translateX(-100%);animation:sheen 5.5s ease-in-out infinite;
-  }
-  @keyframes sheen{0%,60%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
-  .menu-banner strong{font-weight:500;}
-  .menu-banner .label{display:block;margin-bottom:8px;}
-
-  .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:30px 34px;align-items:start;}
-  .menu-group{
-    background:var(--paper);border:1px solid var(--line-soft);border-radius:20px;
-    padding:36px 34px 22px;position:relative;overflow:hidden;
-    transition:transform .5s var(--ease-out),box-shadow .5s var(--ease-out),border-color .5s;
-  }
-  .menu-group::before{ /* washed corner tint */
-    content:"";position:absolute;right:-40%;top:-40%;width:80%;aspect-ratio:1;border-radius:50%;
-    background:radial-gradient(circle,var(--wash-blue-2),transparent 70%);
-    opacity:0;transition:opacity .6s;
-  }
-  .menu-group:nth-child(even)::before{background:radial-gradient(circle,var(--wash-green-2),transparent 70%);}
-  .menu-group:hover{
-    transform:translateY(-6px);
-    box-shadow:0 26px 60px -28px rgba(18,32,126,.28);
-    border-color:var(--line);
-  }
-  .menu-group:hover::before{opacity:.8;}
-  .group-head{text-align:center;margin:0 0 24px;position:relative;}
-  .group-title{font-weight:400;letter-spacing:.14em;font-size:1.65rem;text-transform:uppercase;color:var(--sea);}
-  .group-sub{font-style:italic;color:var(--wash-blue-deep);font-size:1rem;}
-  .menu-group:nth-child(even) .group-sub{color:var(--wash-green-deep);}
-  .item{margin-bottom:20px;position:relative;padding:6px 8px;margin-left:-8px;margin-right:-8px;border-radius:10px;transition:background .35s;}
-  .item:hover{background:rgba(169,198,211,.14);}
-  .item-top{display:flex;align-items:baseline;gap:10px;}
-  .item-name{font-weight:500;letter-spacing:.05em;text-transform:uppercase;font-size:1.03rem;transition:color .3s;}
-  .item:hover .item-name{color:var(--sea);}
-  .leader{flex:1;border-bottom:1px dotted var(--line);transform:translateY(-4px);min-width:16px;}
-  .item-price{color:var(--sea);font-size:1.18rem;font-weight:500;letter-spacing:.03em;}
-  .item-desc{color:var(--ink-soft);font-weight:300;font-size:1.06rem;font-style:italic;margin-top:2px;max-width:48ch;}
-  .menu-foot{text-align:center;margin-top:34px;color:var(--ink-soft);font-style:italic;}
-
-  /* ================= visit ================= */
-  .visit{background:var(--paper);overflow:hidden;}
-  .visit::after{
-    content:"";position:absolute;right:-20%;bottom:-35%;width:62%;aspect-ratio:1;border-radius:50%;
-    background:radial-gradient(circle,var(--wash-blue-2),transparent 66%);opacity:.5;
-  }
-  .visit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:44px;position:relative;z-index:2;}
-  .visit-card{
-    text-align:center;background:var(--cream);border:1px solid var(--line-soft);border-radius:18px;
-    padding:38px 26px;transition:transform .5s var(--ease-out),box-shadow .5s var(--ease-out);
-  }
-  .visit-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -26px rgba(18,32,126,.25);}
-  .visit-card:nth-child(1){background:linear-gradient(160deg,var(--cream),var(--wash-blue-2) 160%);}
-  .visit-card:nth-child(2){background:linear-gradient(160deg,var(--cream),var(--wash-green-2) 160%);}
-  .visit-card:nth-child(3){background:linear-gradient(160deg,var(--cream),#fdf2c0 170%);}
-  .visit-card .label{display:block;margin-bottom:14px;}
-  .visit-card p{margin:2px 0;color:var(--ink-soft);font-size:1.18rem;font-weight:300;}
-  .visit-card .big{color:var(--ink);font-size:1.34rem;}
-
-  /* ================= footer ================= */
-  footer{background:var(--sea-deep);color:var(--cream);text-align:center;padding:0 24px 46px;position:relative;}
-  .foot-shore{line-height:0;transform:translateY(-1px);}
-  .foot-shore svg{width:100%;height:90px;display:block;}
-  footer .f-inner{padding-top:30px;}
-  footer .f-mark{font-weight:500;letter-spacing:.42em;font-size:2rem;padding-left:.42em;}
-  footer .f-tag{font-style:italic;color:#aebadf;margin-top:6px;}
-  .f-social{display:flex;gap:26px;justify-content:center;margin:26px 0 20px;}
-  .f-social a{
-    font-family:'Jost',sans-serif;text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;
-    color:#c5cee9;border:1px solid rgba(197,206,233,.35);padding:10px 22px;border-radius:40px;
-    transition:.35s;
-  }
-  .f-social a:hover{background:var(--cream);color:var(--sea-deep);border-color:var(--cream);}
-  .f-kali{font-style:italic;color:#f0d98c;font-size:1.15rem;margin-top:22px;}
-  .f-fine{font-family:'Jost',sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:.62rem;color:#7d89b8;margin-top:14px;}
-
-  /* ================= reveal choreography ================= */
-  .reveal{opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease-out),transform 1s var(--ease-out);}
-  .reveal.in{opacity:1;transform:none;}
-  .reveal[data-d="1"]{transition-delay:.08s;}
-  .reveal[data-d="2"]{transition-delay:.16s;}
-  .reveal[data-d="3"]{transition-delay:.24s;}
-  .reveal[data-d="4"]{transition-delay:.32s;}
-
-  /* ================= responsive ================= */
-  @media(max-width:880px){
-    body{font-size:19px;}
-    .nav-links{
-      position:fixed;inset:0 0 0 auto;width:min(78vw,320px);background:var(--paper);
-      flex-direction:column;justify-content:center;gap:32px;transform:translateX(100%);
-      transition:transform .45s var(--ease-out);box-shadow:-8px 0 40px rgba(0,0,0,.12);z-index:120;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1b2350" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Mazi" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/mazi-logo.png" />
+    <meta name="description" content="Mazi - Mediterranean beach restaurant and bar in Ras El Hekma, North Coast. Mediterranean seafood, sunset sessions, and beach dining." />
+    <link rel="canonical" href="https://mazibeach.com" />
+    <meta property="og:title" content="Mazi | Mediterranean Beach Restaurant & Bar | Ras El Hekma" />
+    <meta property="og:description" content="Mazi - Mediterranean beach restaurant and bar in Ras El Hekma, North Coast. Mediterranean seafood, sunset sessions, and beach dining." />
+    <meta property="og:image" content="https://www.mazibeach.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:url" content="https://www.mazibeach.com" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mazi | Mediterranean Beach Restaurant & Bar | Ras El Hekma" />
+    <meta name="twitter:description" content="Mazi - Mediterranean beach restaurant and bar in Ras El Hekma, North Coast. Mediterranean seafood, sunset sessions, and beach dining." />
+    <meta name="twitter:image" content="https://www.mazibeach.com/og-image.png" />
+    <title>Mazi | Mediterranean Beach Restaurant & Bar | Ras El Hekma</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "@id": "https://mazibeach.com/#organization",
+      "name": "Mazi",
+      "alternateName": "Mazi Ras El Hekma",
+      "url": "https://www.mazibeach.com",
+      "image": "https://www.mazibeach.com/og-image.png",
+      "description": "Mediterranean beach restaurant and bar in Ras El Hekma, North Coast. Mediterranean seafood, sunset sessions, and beach dining.",
+      "slogan": "Mediterranean seafood. Sunset sessions. Beach dining.",
+      "telephone": "+201000000000",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Mountain View, Ras El Hekma",
+        "addressLocality": "North Coast",
+        "addressRegion": "Matrouh Governorate",
+        "addressCountry": "EG"
+      },
+      "servesCuisine": "Mediterranean, Greek, Seafood",
+      "priceRange": "EGP 500-1200",
+      "currenciesAccepted": "EGP",
+      "paymentAccepted": "Cash, InstaPay",
+      "openingHoursSpecification": [{
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "12:00",
+        "closes": "02:00"
+      }],
+      "areaServed": { "@type": "City", "name": "Ras El Hekma" },
+      "potentialAction": {
+        "@type": "OrderAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://www.mazibeach.com",
+          "actionPlatform": [
+            "https://schema.org/DesktopWebPlatform",
+            "https://schema.org/MobileWebPlatform"
+          ]
+        }
+      },
+      "sameAs": [
+        "https://www.google.com/maps/search/Mazi+Ras+El+Hekma"
+      ]
     }
-    .nav-links.open{transform:none;}
-    .nav-toggle{display:block;}
-    .about-grid{grid-template-columns:1fr;gap:44px;}
-    .about-figure{max-width:360px;margin:0 auto;order:-1;}
-    .menu-cols{grid-template-columns:1fr;}
-    .gal-grid{grid-template-columns:1fr 1fr;gap:14px;}
-    .visit-grid{grid-template-columns:1fr;gap:20px;}
-    section{padding:80px 0;}
-    .glow{display:none;}
-  }
-  @media(prefers-reduced-motion:reduce){
-    *{animation:none!important;transition:none!important;}
-    .reveal{opacity:1;transform:none;}
-    html{scroll-behavior:auto;}
-    .grain,.glow{display:none;}
-    .marquee-track{animation:none!important;}
-  }
-</style>
-</head>
-<body>
-
-<div class="grain" aria-hidden="true"></div>
-<div class="glow" id="glow" aria-hidden="true"></div>
-<div class="progress" id="progress" aria-hidden="true"></div>
-
-<!-- ================= NAV ================= -->
-<header class="nav" id="nav">
-  <a class="nav-brand" href="#top">MAZI</a>
-  <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
-  <nav class="nav-links" id="navLinks">
-    <a href="#about">About</a>
-    <a href="#menu">Menu</a>
-    <a href="#visit">Visit</a>
-  </nav>
-</header>
-
-<!-- ================= HERO ================= -->
-<section class="hero" id="top">
-  <div class="blob b1" data-px="-.03" data-py="-.02" aria-hidden="true"></div>
-  <div class="blob b2" data-px=".04" data-py=".03" aria-hidden="true"></div>
-  <div class="blob b3" data-px="-.02" data-py=".04" aria-hidden="true"></div>
-
-  <h1 style="margin:0;"><img class="hero-logo" src="assets/logo-mazi.png" alt="Mazi — together by the sea" /></h1>
-  <p class="hero-sub">A Mediterranean beach club on Egypt's North Coast — wood-fire seafood, a raw bar from the morning boats, and the bright, generous soul of the Greek coast.</p>
-  <p class="hero-place label">Mazi · North Coast</p>
-
-  <div class="shore" aria-hidden="true">
-    <svg viewBox="0 0 1600 110" preserveAspectRatio="none">
-      <g class="w2">
-        <path fill="#a9c6d3" fill-opacity=".5" d="M0,70 C100,50 200,90 300,70 C400,50 500,90 600,70 C700,50 800,90 900,70 C1000,50 1100,90 1200,70 C1300,50 1400,90 1500,70 C1550,62 1580,66 1600,70 L2000,70 L2000,110 L0,110 Z" transform="scale(1.25,1)"/>
-      </g>
-      <g class="w1">
-        <path fill="#fbf8f0" d="M0,84 C120,66 240,100 360,84 C480,68 600,100 720,84 C840,68 960,100 1080,84 C1200,68 1320,100 1440,84 C1520,74 1570,80 1600,84 L2000,84 L2000,110 L0,110 Z" transform="scale(1.25,1)"/>
-      </g>
-    </svg>
-  </div>
-
-  <a class="scroll-cue" href="#about" aria-label="Scroll down">
-    <svg width="22" height="34" viewBox="0 0 22 34" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1" width="20" height="32" rx="10"/><line x1="11" y1="8" x2="11" y2="15" stroke-linecap="round"/></svg>
-  </a>
-</section>
-
-<!-- ================= MARQUEE ================= -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track">
-    <span>Together by the sea <i>≈</i> Wood-fire seafood <i>≈</i> Raw bar <i>≈</i> Kali orexi <i>≈</i> North Coast <i>≈</i></span>
-    <span>Together by the sea <i>≈</i> Wood-fire seafood <i>≈</i> Raw bar <i>≈</i> Kali orexi <i>≈</i> North Coast <i>≈</i></span>
-  </div>
-</div>
-
-<!-- ================= ABOUT ================= -->
-<section class="about" id="about">
-  <div class="leaf" style="width:70px;height:70px;left:6%;top:12%;" data-px=".02" data-py=".03">
-    <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 50 C22 42 38 30 52 12"/><path d="M22 40 C16 35 16 27 24 25 C26 32 28 37 22 40Z"/><path d="M34 30 C28 25 28 17 36 15 C38 22 40 27 34 30Z"/></svg>
-  </div>
-  <div class="leaf" style="width:54px;height:54px;right:8%;bottom:14%;" data-px="-.03" data-py="-.02">
-    <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 50 C22 42 38 30 52 12"/><path d="M22 40 C16 35 16 27 24 25 C26 32 28 37 22 40Z"/><circle cx="40" cy="26" r="3.4" fill="currentColor" stroke="none"/></svg>
-  </div>
-
-  <div class="wrap">
-    <div class="about-grid">
-      <div class="reveal">
-        <div class="wave" style="justify-content:flex-start;"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
-        <p class="lead">Mazi means <em>together</em>.</p>
-        <p>Long lunches that melt into golden evenings. Feet in the sand, plates made for sharing, and a table that never really ends. This is Greek and Mediterranean cooking at its most generous — raw-bar catches untouched by fire, whole fish over olive-wood embers, and salads that taste of sun.</p>
-        <p>Set on the shore of Egypt's North Coast, Mazi is where the day slows down and the sea does the talking.</p>
-      </div>
-      <div class="about-figure reveal" data-d="1" data-tilt aria-hidden="true">
-        <svg class="art-sun" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2"><circle cx="50" cy="50" r="15"/><g stroke-linecap="round"><line x1="50" y1="14" x2="50" y2="24"/><line x1="50" y1="76" x2="50" y2="86"/><line x1="14" y1="50" x2="24" y2="50"/><line x1="76" y1="50" x2="86" y2="50"/><line x1="24" y1="24" x2="31" y2="31"/><line x1="69" y1="69" x2="76" y2="76"/><line x1="76" y1="24" x2="69" y2="31"/><line x1="31" y1="69" x2="24" y2="76"/></g></svg>
-        <div class="shimmer"></div>
-        <div class="art-sea"></div>
-        <img class="ph" src="assets/photos/about-beach.jpg" alt="" onerror="this.setAttribute('data-missing','')" />
-        <div class="art-note">the North Coast, at golden hour</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= GALLERY ================= -->
-<section class="gallery" id="gallery">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="wave"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
-      <h2 class="sec-title">Moments</h2>
-      <p class="sec-note">sun, salt, and the table between</p>
-    </div>
-
-    <div class="gal-grid">
-      <figure class="gal-frame reveal" style="margin:0;">
-        <img src="assets/photos/gallery-1.jpg" alt="The beach at Mazi" onerror="this.setAttribute('data-missing','')" onload="this.closest('.gal-frame').classList.add('loaded')" />
-        <div class="gal-ph">
-          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="50" cy="42" r="13"/><line x1="50" y1="12" x2="50" y2="20"/><line x1="20" y1="42" x2="28" y2="42"/><line x1="72" y1="42" x2="80" y2="42"/><line x1="28" y1="20" x2="34" y2="26"/><line x1="72" y1="20" x2="66" y2="26"/><path d="M14 72 c6-8 12-8 18 0 s12 8 18 0 12-8 18 0 12 8 18 0"/><path d="M14 84 c6-8 12-8 18 0 s12 8 18 0 12-8 18 0 12 8 18 0"/></svg>
-          <figcaption class="gal-cap">the beach</figcaption>
-          <span class="gal-tag">photo · soon</span>
-        </div>
-      </figure>
-
-      <figure class="gal-frame reveal" data-d="1" style="margin:0;">
-        <img src="assets/photos/gallery-2.jpg" alt="Wood-fire seafood at Mazi" onerror="this.setAttribute('data-missing','')" onload="this.closest('.gal-frame').classList.add('loaded')" />
-        <div class="gal-ph">
-          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 78 C22 66 26 54 38 46 C36 56 42 60 46 62 C44 50 50 36 62 28 C58 42 68 46 70 58 C72 70 64 80 50 82 C42 83 34 82 30 78Z"/></svg>
-          <figcaption class="gal-cap">the wood fire</figcaption>
-          <span class="gal-tag">photo · soon</span>
-        </div>
-      </figure>
-
-      <figure class="gal-frame reveal" data-d="2" style="margin:0;">
-        <img src="assets/photos/gallery-3.jpg" alt="Plates made for sharing" onerror="this.setAttribute('data-missing','')" onload="this.closest('.gal-frame').classList.add('loaded')" />
-        <div class="gal-ph">
-          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="18"/></svg>
-          <figcaption class="gal-cap">the table</figcaption>
-          <span class="gal-tag">photo · soon</span>
-        </div>
-      </figure>
-
-      <figure class="gal-frame reveal" data-d="3" style="margin:0;">
-        <img src="assets/photos/gallery-4.jpg" alt="Sunset at Mazi" onerror="this.setAttribute('data-missing','')" onload="this.closest('.gal-frame').classList.add('loaded')" />
-        <div class="gal-ph">
-          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M22 62 a28 28 0 0 1 56 0"/><line x1="50" y1="18" x2="50" y2="26"/><line x1="24" y1="30" x2="30" y2="36"/><line x1="76" y1="30" x2="70" y2="36"/><line x1="14" y1="62" x2="86" y2="62"/><path d="M20 76 c6-8 12-8 18 0 s12 8 18 0 12-8 18 0"/></svg>
-          <figcaption class="gal-cap">golden hour</figcaption>
-          <span class="gal-tag">photo · soon</span>
-        </div>
-      </figure>
-    </div>
-  </div>
-</section>
-
-<!-- ================= MENU ================= -->
-<section class="menu" id="menu">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="wave"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
-      <h2 class="sec-title">The Menu</h2>
-      <p class="sec-note">from the sea, over the embers, meant for sharing</p>
-    </div>
-
-    <div class="menu-banner reveal">
-      <span class="label">Opening Menu</span>
-      <p style="margin:0;position:relative;"><strong>Our opening selection.</strong> The full à la carte arrives this <strong>Sunday</strong>.</p>
-    </div>
-
-    <div class="menu-cols">
-
-      <div class="menu-group reveal">
-        <div class="group-head"><div class="group-title">Raw Bar</div><div class="group-sub">from the sea, untouched by fire</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Truffle Ceviche</span><span class="leader"></span><span class="item-price">900</span></div>
-          <div class="item-desc">Fresh white fish cured in citrus juices and coconut milk with a Middle Eastern twist.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal" data-d="1">
-        <div class="group-head"><div class="group-title">Mediterranean Dips</div><div class="group-sub">smoked, whipped, shared</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Aubergine Dip</span><span class="leader"></span><span class="item-price">300</span></div>
-          <div class="item-desc">Fire-roasted eggplant smoked over olive wood with garlic confit, lemon, walnuts, parsley oil and pomegranate seeds.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal">
-        <div class="group-head"><div class="group-title">Hot Mezze</div><div class="group-sub">small plates from the coals</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Grilled Octopus</span><span class="leader"></span><span class="item-price">600</span></div>
-          <div class="item-desc">Slow-braised octopus tentacle charred over wood, with potato purée, pea purée, smoked paprika, capers, arugula and cherry tomatoes.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Sardines &amp; Beldi Tomato</span><span class="leader"></span><span class="item-price">400</span></div>
-          <div class="item-desc">Fire-grilled sardines with tomato relish and basil oil.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Crispy Shrimp</span><span class="leader"></span><span class="item-price">700</span></div>
-          <div class="item-desc">Crispy shrimp served with fried noodles and spicy chili mayo.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal" data-d="1">
-        <div class="group-head"><div class="group-title">Salads</div><div class="group-sub">green, bright, generous</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Mazi Greek &amp; Watermelon Salad</span><span class="leader"></span><span class="item-price">400</span></div>
-          <div class="item-desc">Compressed watermelon, Dodoni feta, fresh mint, cucumber pearls, balsamic pearls, red onion, lime zest, pink peppercorn and pea shoots, finished with Cretan olive oil.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Mazi Caesar</span><span class="leader"></span><span class="item-price">380</span></div>
-          <div class="item-desc">Crisp baby lettuce with spring rolls, smoked almonds and Caesar dressing.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Sicilian Octopus Salad</span><span class="leader"></span><span class="item-price">560</span></div>
-          <div class="item-desc">Charred octopus with Sicilian citrus vinaigrette, Kalamata olives, capers and basil.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal">
-        <div class="group-head"><div class="group-title">Pasta</div><div class="group-sub">hand-finished, from the pot</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Pasta Garides</span><span class="leader"></span><span class="item-price">750</span></div>
-          <div class="item-desc">Linguine with Alexandria red shrimp or tiger shrimp, garlic, chili, fresh tomato, white wine, parsley, lemon zest and smoked paprika oil.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal" data-d="1">
-        <div class="group-head"><div class="group-title">Wood-Fire Seafood</div><div class="group-sub">over olive-wood embers</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Mazi Mediterranean King Prawns</span><span class="leader"></span><span class="item-price">1300</span></div>
-          <div class="item-desc">King prawns with cherry tomatoes, olives, capers and extra virgin olive oil.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal">
-        <div class="group-head"><div class="group-title">Signature Seafood</div><div class="group-sub">the catch, our way</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Lemon Oil Sea Bass or Sea Bream</span><span class="leader"></span><span class="item-price">1400</span></div>
-          <div class="item-desc">Olive oil, lemon and fresh herbs.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Paprika Sea Bass or Sea Bream</span><span class="leader"></span><span class="item-price">1400</span></div>
-          <div class="item-desc">Smoked paprika marinade with herbs, cherry tomato, capers and olive oil.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Mazi Fried Red Mullet</span><span class="leader"></span><span class="item-price">1200</span></div>
-          <div class="item-desc">Golden fried red mullet with tzatziki sauce, arugula and spinach.</div>
-        </div>
-      </div>
-
-      <div class="menu-group reveal" data-d="1">
-        <div class="group-head"><div class="group-title">Sides</div><div class="group-sub">to accompany</div></div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Sautéed Seasonal Vegetables</span><span class="leader"></span><span class="item-price">200</span></div>
-          <div class="item-desc">Fresh vegetables sautéed with olive oil, garlic and herbs.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Seafood Sayadiya Rice</span><span class="leader"></span><span class="item-price">220</span></div>
-          <div class="item-desc">Fragrant caramelized rice cooked with seafood, onions and warm spices.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Baby Potatoes</span><span class="leader"></span><span class="item-price">200</span></div>
-          <div class="item-desc">Spiced aioli, feta and herbs.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Coriander Lemon Rice</span><span class="leader"></span><span class="item-price">200</span></div>
-          <div class="item-desc">Fragrant rice with fresh coriander, lemon zest and olive oil.</div>
-        </div>
-        <div class="item">
-          <div class="item-top"><span class="item-name">Truffle Fries</span><span class="leader"></span><span class="item-price">250</span></div>
-          <div class="item-desc">Crispy fries finished with truffle oil and Parmesan.</div>
-        </div>
-      </div>
-
-    </div>
-
-    <p class="menu-foot reveal">All prices in Egyptian pounds. &nbsp;·&nbsp; Catch of the day, priced by the kilogram — ask your waiter.</p>
-  </div>
-</section>
-
-<!-- ================= VISIT ================= -->
-<section class="visit" id="visit">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="wave"><svg viewBox="0 0 26 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8c3-6 6-6 9 0s6 6 9 0"/></svg></div>
-      <h2 class="sec-title">Visit</h2>
-      <p class="sec-note">come as you are, stay as long as you like</p>
-    </div>
-
-    <div class="visit-grid">
-      <div class="visit-card reveal">
-        <span class="label">Where</span>
-        <p class="big">Mazi · North Coast</p>
-        <p>Sahel, Egypt</p>
-      </div>
-      <div class="visit-card reveal" data-d="1">
-        <span class="label">Hours</span>
-        <p class="big">Daily</p>
-        <p>1:00 pm — late</p>
-        <p>Lunch · Sunset · Dinner</p>
-      </div>
-      <div class="visit-card reveal" data-d="2">
-        <span class="label">Reserve</span>
-        <p class="big">Walk-ins welcome</p>
-        <p>Groups by request</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= FOOTER ================= -->
-<footer>
-  <div class="foot-shore" aria-hidden="true">
-    <svg viewBox="0 0 1600 90" preserveAspectRatio="none">
-      <path fill="#fbf8f0" d="M0,0 L1600,0 L1600,26 C1440,54 1280,10 1120,32 C960,54 800,14 640,34 C480,54 320,12 160,32 C80,42 30,36 0,30 Z"/>
-    </svg>
-  </div>
-  <div class="f-inner">
-    <div class="f-mark">MAZI</div>
-    <div class="f-tag">— together by the sea —</div>
-    <div class="f-kali">kali orexi — enjoy</div>
-    <div class="f-fine">Mazi · North Coast · Egypt</div>
-  </div>
-</footer>
-
-<script>
-  // ---- nav shrink + scroll progress ----
-  var nav=document.getElementById('nav'),prog=document.getElementById('progress');
-  function onScroll(){
-    nav.classList.toggle('scrolled',scrollY>40);
-    var max=document.documentElement.scrollHeight-innerHeight;
-    prog.style.width=(max>0?(scrollY/max)*100:0)+'%';
-    parallax();
-  }
-  addEventListener('scroll',onScroll,{passive:true});
-
-  // ---- mobile nav ----
-  var t=document.getElementById('navToggle'),l=document.getElementById('navLinks');
-  t.addEventListener('click',function(){l.classList.toggle('open');t.classList.toggle('open');});
-  l.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){l.classList.remove('open');t.classList.remove('open');});});
-
-  // ---- reveal choreography ----
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-
-  // ---- scroll parallax on blobs & leaves ----
-  var pEls=[].slice.call(document.querySelectorAll('[data-px]'));
-  function parallax(){
-    pEls.forEach(function(el){
-      var r=el.getBoundingClientRect(),
-          c=(r.top+r.height/2-innerHeight/2),
-          x=c*parseFloat(el.dataset.px||0),
-          y=c*parseFloat(el.dataset.py||0);
-      el.style.translate=x+'px '+y+'px';
-    });
-  }
-
-  // ---- cursor glow ----
-  var glow=document.getElementById('glow'),gx=0,gy=0,tx=0,ty=0,rafG;
-  addEventListener('pointermove',function(e){
-    if(e.pointerType==='mouse'){
-      document.body.classList.add('has-mouse');
-      tx=e.clientX;ty=e.clientY;
-      if(!rafG)rafG=requestAnimationFrame(glowStep);
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://mazibeach.com/#website",
+      "name": "Mazi",
+      "url": "https://www.mazibeach.com",
+      "description": "Mazi — Mediterranean beach restaurant and bar in Ras El Hekma, North Coast. Mediterranean seafood, sunset sessions, and beach dining.",
+      "publisher": { "@id": "https://mazibeach.com/#organization" },
+      "inLanguage": "en"
     }
-  },{passive:true});
-  function glowStep(){
-    gx+=(tx-gx)*.08;gy+=(ty-gy)*.08;
-    glow.style.transform='translate('+(gx-280)+'px,'+(gy-280)+'px)';
-    rafG=(Math.abs(tx-gx)>.5||Math.abs(ty-gy)>.5)?requestAnimationFrame(glowStep):null;
-  }
-
-  // ---- gentle 3D tilt on the about figure ----
-  var tilt=document.querySelector('[data-tilt]');
-  if(tilt&&matchMedia('(pointer:fine)').matches){
-    tilt.addEventListener('pointermove',function(e){
-      var r=tilt.getBoundingClientRect(),
-          x=(e.clientX-r.left)/r.width-.5,
-          y=(e.clientY-r.top)/r.height-.5;
-      tilt.style.transform='perspective(900px) rotateY('+(x*6)+'deg) rotateX('+(-y*6)+'deg)';
-    });
-    tilt.addEventListener('pointerleave',function(){
-      tilt.style.transition='transform .8s var(--ease-out)';
-      tilt.style.transform='none';
-      setTimeout(function(){tilt.style.transition='';},800);
-    });
-  }
-
-  onScroll();
-</script>
-</body>
+    </script>
+    <script type="module" crossorigin src="/assets/index-DR-q2D-5.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C4cMftyT.css">
+  </head>
+  <body>
+    <noscript>
+      <h1>Mazi — Mediterranean Beach Restaurant & Bar in Ras El Hekma</h1>
+      <p>Mediterranean beach restaurant and bar in Ras El Hekma, North Coast. Mediterranean seafood, sunset sessions, and beach dining.</p>
+      <p>Phone: +20 100 000 0000</p>
+      <p>Address: Mountain View, Ras El Hekma, North Coast, Egypt</p>
+      <p>Hours: Daily 12:00-02:00</p>
+    </noscript>
+    <script>
+    (function(){
+      var redirect = sessionStorage.getItem("spa-redirect");
+      if (redirect) {
+        sessionStorage.removeItem("spa-redirect");
+        window.history.replaceState(null, "", redirect);
+      }
+    })();
+    </script>
+    <div id="root"></div>
+  </body>
 </html>

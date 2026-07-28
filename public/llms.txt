@@ -1,0 +1,28 @@
+# Mazi
+
+> Mazi is a Mediterranean beach restaurant and bar in Ras El Hekma, North Coast, Egypt. Mediterranean seafood, sunset sessions, and beach dining. Open daily 12:00-02:00.
+
+## About
+- [Mazi](https://www.mazibeach.com): Mediterranean beach restaurant and bar on the North Coast of Egypt, in Ras El Hekma (Mountain View).
+- Beachfront dining with Mediterranean, Greek, and seafood cuisine, cocktails, and sunset sessions.
+- Offers table reservations, beach reservations, and private events.
+
+## Menu
+- [Menu](https://www.mazibeach.com/menu): Mediterranean, Greek, and seafood dishes. Price range EGP 500-1200 per person.
+- Fresh seafood, mezze, grills, and a full bar.
+
+## Reservations & Events
+- [Reserve](https://www.mazibeach.com/reserve): Book a table or beach spot online.
+- [Events](https://www.mazibeach.com/events): Private events and group bookings.
+
+## Contact
+- Phone: +201000000000
+- Address: Mountain View, Ras El Hekma, North Coast, Matrouh Governorate, Egypt
+- Hours: Daily 12:00-02:00
+- Website: https://www.mazibeach.com
+
+## Location
+- Google Maps: https://www.google.com/maps/search/Mazi+Ras+El+Hekma
+
+## Service Area
+Ras El Hekma, North Coast (Sahel), Matrouh Governorate, Egypt.

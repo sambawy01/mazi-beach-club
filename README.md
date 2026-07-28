@@ -1,15 +1,10 @@
-# Mazi · North Coast
 
-Landing page for Mazi Beach Club — a Mediterranean beach club on Egypt's North Coast.
+  # Mazi
 
-Static site (plain HTML/CSS/JS), published via **GitHub Pages**.
+  Website for Mazi — a Mediterranean beach restaurant and bar in Ras El Hekma, North Coast, Egypt. Menu, reservations, and online ordering.
 
-## Structure
-- `index.html` — the whole landing page (self-contained; fonts from Google Fonts)
-- `assets/` — favicon and images
-- `CNAME` — custom domain for GitHub Pages
+  ## Running the code
 
-## Editing
-Edit `index.html` and push to `main`; GitHub Pages redeploys automatically.
+  Run `npm i` to install the dependencies.
 
-_together, by the sea_
+  Run `npm run dev` to start the development server.

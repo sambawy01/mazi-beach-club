@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+
+    // Mirror the `@ -> ./src` alias from vite.config.ts, and pull in vite/client
+    // so asset imports (*.png, *.svg) resolve. Without these, tsc reports ~81
+    // phantom "cannot find module" errors that Vite resolves just fine.
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+    "types": ["vite/client"],
+
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": false,
+    "noEmit": true,
+
+    "skipLibCheck": true,
+
+    // strict stays ON: it is what lets TS narrow discriminated unions like
+    // OnSiteOrderResult. (Turning strict OFF actually yields MORE errors here.)
+    "strict": true,
+
+    // Unused-variable checks are pure lint and would flag ~54 pre-existing spots
+    // across the app. Off for now so the gate is adoptable today; the point of
+    // this gate is to catch real breakage (e.g. an undeclared `API_BASE`), which
+    // it does regardless. Flip these on in a dedicated cleanup pass.
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    "noFallthroughCasesInSwitch": true
+  },
+  // vite.config.ts is intentionally not typechecked: it has a pre-existing
+  // rollup `external` overload error unrelated to app code.
+  "include": ["src"]
+}
