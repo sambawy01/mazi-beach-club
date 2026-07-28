@@ -72,7 +72,7 @@ export function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  const signatureCategories = ['Signature Starters', 'Signature Seafood', 'Wood Fire Meat'];
+  const signatureCategories = ['Raw Bar', 'Signature Seafood', 'Wood Fire Meat'];
   const dishes = menuItems
     .filter((item) => signatureCategories.includes(item.category))
     .slice(0, 6);
