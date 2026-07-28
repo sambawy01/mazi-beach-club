@@ -194,6 +194,68 @@ export function EventsPage() {
         </div>
       </section>
 
+      {/* ============ RECENT NIGHTS — POST-EVENT RECAP ============ */}
+      <section className="py-20 bg-[#efe9da]">
+        <div className="max-w-6xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">Recent Nights</span>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#1b2350] mb-4 leading-tight">Shkoon · Live at Mazi</h2>
+            <div className="flex items-center justify-center gap-3 text-[#12207e] text-sm font-semibold tracking-wide">
+              <Calendar className="w-4 h-4" />
+              <span>23 July 2026</span>
+              <span className="w-1 h-1 rounded-full bg-[#12207e]/40" />
+              <span>Beach show under the stars</span>
+            </div>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-10">
+            {[
+              { src: '/events-shkoon-1.jpg', label: 'The stage on the sand', span: 'md:col-span-2 md:row-span-2' },
+              { src: '/events-shkoon-2.jpg', label: 'Lights up' },
+              { src: '/events-shkoon-3.jpg', label: 'Till late' },
+            ].map((photo, i) => (
+              <motion.figure
+                key={photo.src}
+                initial={{ opacity: 0, scale: 0.96 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className={`group relative overflow-hidden rounded-2xl ${photo.span ?? ''}`}
+              >
+                <img
+                  src={photo.src}
+                  alt={`Shkoon live at Mazi — ${photo.label}`}
+                  loading="lazy"
+                  className="w-full h-full object-cover aspect-[4/3] transition-transform duration-[1200ms] group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1b2350]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <figcaption className="absolute bottom-4 left-5 text-[#f6f2e8] font-serif italic text-lg opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                  {photo.label}
+                </figcaption>
+              </motion.figure>
+            ))}
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-2xl mx-auto text-center text-gray-600 text-lg leading-relaxed italic"
+          >
+            On the 23rd of July, Shkoon brought their signature fusion of electronic beats and Arabic
+            melody to the sand at Mazi. The sun dropped behind the sea, the lights came up, and the
+            crowd stayed close until late — one of the defining nights of our first summer by the sea.
+          </motion.p>
+        </div>
+      </section>
+
       {/* ============ SUNSET SESSIONS FEATURE ============ */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#12207e] to-[#3c6e8f] py-20">
         {/* Floating orbs */}

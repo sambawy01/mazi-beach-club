@@ -243,21 +243,22 @@ export function HomePage() {
             >
               <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">Our Story</span>
               <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#1b2350] mb-6 leading-tight">
-                A Taste of the Mediterranean
+                Mazi Means Together
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed mb-5">
-                Mazi is a beachfront restaurant in Ras El Hekma on Egypt's North Coast, where the desert
-                landscape meets the crystal waters of the Mediterranean. Our kitchen is Greek-led and
-                sea-focused — <span className="text-[#12207e] font-semibold">fresh catch daily, charcoal-grilled</span> —
-                built around the fresh catch landed daily by local fishermen.
+                In Greek, <span className="text-[#12207e] font-semibold">mazi means together</span> — and that
+                single word is the whole idea. Set on the white sand of Ras El Hekma inside Mountain View,
+                Mazi is a Greek-Mediterranean table made for long, unhurried gatherings, where the sea
+                keeps the pace and no one is in a hurry to leave.
               </p>
               <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                Think barefoot elegance, warm hospitality, and long sunset sessions that drift into
-                night events under the stars. Whether it's sea bass crudo at golden hour or a whole grilled sea
-                bream at midnight, Mazi is where summer tastes like the sea.
+                We cook with fire and restraint — a raw bar from the morning boats, whole fish over
+                olive-wood embers, and salads bright with Cretan oil and fresh herbs. From the first
+                plate at golden hour to the last as the music rises, Mazi is where the coast, the table
+                and the people come <span className="italic">together, by the sea.</span>
               </p>
               <div className="flex flex-wrap gap-3">
-                {['Fresh Catch Daily', 'Greek Hospitality', 'Barefoot Elegance', 'Sunset Sessions'].map((tag, i) => (
+                {['Wood-Fire Seafood', 'Raw Bar Daily', 'Greek Hospitality', 'Sunset to Late'].map((tag, i) => (
                   <motion.span
                     key={tag}
                     initial={{ opacity: 0, scale: 0.8 }}
