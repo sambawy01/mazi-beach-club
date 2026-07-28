@@ -232,9 +232,9 @@ export function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">Our Story</span>
-              <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#1b2350] mb-6 leading-tight">
-                Mazi Means Together
+              <span className="eyebrow-gold block mb-5">Our Story</span>
+              <h2 className="display-xl text-5xl md:text-6xl text-[#1b2350] mb-6">
+                Mazi Means <span className="italic text-aegean-gradient">Together</span>
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed mb-5">
                 In Greek, <span className="text-[#12207e] font-semibold">mazi means together</span> — and that
@@ -277,9 +277,11 @@ export function HomePage() {
         />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">From the Sea</span>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#12207e] mb-4">Signature Dishes</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            <span className="eyebrow-gold block mb-5">From the Sea</span>
+            <h2 className="display-xl text-5xl md:text-7xl text-white mb-5">
+              Signature <span className="italic text-gold-gradient">Dishes</span>
+            </h2>
+            <p className="font-elegant text-sea-glass/90 max-w-2xl mx-auto text-xl md:text-2xl italic">
               A taste of what's coming out of our kitchen — fresh, charcoal-grilled, and sea-focused.
             </p>
           </div>
@@ -434,8 +436,8 @@ export function HomePage() {
       <section className="py-24 md:py-32 bg-[#f6f2e8]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">Gallery</span>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#1b2350] mb-4">Life at Mazi</h2>
+            <span className="eyebrow-gold block mb-5">Gallery</span>
+            <h2 className="display-xl text-5xl md:text-7xl text-[#1b2350] mb-4">Life at <span className="italic text-aegean-gradient">Mazi</span></h2>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg">Beach, food, cocktails, and golden hour — a glimpse of summer.</p>
           </div>
 
@@ -473,8 +475,8 @@ export function HomePage() {
         />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">Weekly Calendar</span>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">This Summer at Mazi</h2>
+            <span className="eyebrow-gold block mb-5">Weekly Calendar</span>
+            <h2 className="display-xl text-5xl md:text-7xl text-white mb-4">This Summer at <span className="italic text-gold-gradient">Mazi</span></h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg">Seven nights, seven moods. Find your night.</p>
           </div>
 

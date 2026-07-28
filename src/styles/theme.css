@@ -5,6 +5,7 @@
   --font-inter: 'Inter', sans-serif;
   --font-fraunces: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
   --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+  --font-cinzel: 'Cinzel', 'Cormorant Garamond', Georgia, serif;
 
   /* Brand Colors */
   --color-brand: #12207e; /* Royal Cobalt */
@@ -111,6 +112,11 @@
   --font-inter: var(--font-inter);
   --font-fraunces: var(--font-fraunces);
   --font-cormorant: var(--font-cormorant);
+  --font-cinzel: var(--font-cinzel);
+  /* Map Tailwind's default family utilities to the Mazi type system,
+     so every existing `font-serif` heading upgrades to Fraunces at once. */
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-inter);
   --color-brand: var(--color-brand);
   --color-aegean: var(--aegean);
   --color-aegean-deep: var(--aegean-deep);
@@ -138,8 +144,33 @@
 @keyframes mazi-spin-slow { to { transform: rotate(360deg); } }
 
 @layer utilities {
-  .font-display { font-family: var(--font-fraunces); font-optical-sizing: auto; }
+  .font-display { font-family: var(--font-fraunces); font-optical-sizing: auto; letter-spacing: -0.015em; }
   .font-elegant { font-family: var(--font-cormorant); }
+  .font-cinzel { font-family: var(--font-cinzel); }
+
+  /* Give every serif heading Fraunces' optical contrast + tighter, designed spacing */
+  .font-serif { font-optical-sizing: auto; letter-spacing: -0.012em; }
+
+  /* Classical Greek eyebrow label */
+  .eyebrow {
+    font-family: var(--font-cinzel);
+    text-transform: uppercase;
+    letter-spacing: 0.34em;
+    font-weight: 500;
+    font-size: 0.72rem;
+  }
+  .eyebrow-gold {
+    font-family: var(--font-cinzel);
+    text-transform: uppercase;
+    letter-spacing: 0.34em;
+    font-weight: 500;
+    font-size: 0.72rem;
+    background: linear-gradient(100deg, #b8892f, var(--gold-light) 55%, var(--gold));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* Cinematic display headline: huge, tight, high-contrast serif */
+  .display-xl { font-family: var(--font-fraunces); font-optical-sizing: auto; font-weight: 400; letter-spacing: -0.02em; line-height: 0.98; }
 
   /* Glass */
   .glass {
