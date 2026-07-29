@@ -117,6 +117,26 @@ export default async function handler(req, res) {
           const obj = Object.fromEntries((data || []).map(r => [r.key, r.value]));
           return res.status(200).json({ ok: true, data: obj });
         }
+        case 'tables': {
+          // Floor plan — every table with its live occupancy. A table counts as
+          // occupied when it has a dine-in order that isn't yet served/cancelled.
+          const [tblRes, ordRes] = await Promise.allSettled([
+            supabase.from('tables').select('*').order('zone', { ascending: true }).order('label', { ascending: true }),
+            supabase.from('orders').select('table_id, status, order_ref, total, created_at').eq('mode', 'dine_in').limit(2000),
+          ]);
+          const tables = tblRes.status === 'fulfilled' ? (tblRes.value.data || []) : [];
+          const orders = ordRes.status === 'fulfilled' ? (ordRes.value.data || []) : [];
+          if (tblRes.status === 'fulfilled' && tblRes.value.error) return res.status(500).json({ error: tblRes.value.error.message });
+          const ACTIVE = new Set(['pending_approval', 'confirmed', 'preparing', 'ready']);
+          const occupancy = {};
+          for (const o of orders) {
+            if (!o.table_id || !ACTIVE.has(o.status)) continue;
+            const cur = occupancy[o.table_id];
+            if (!cur || o.created_at > cur.since) occupancy[o.table_id] = { order_ref: o.order_ref, total: o.total, status: o.status, since: o.created_at };
+          }
+          const data = tables.map(t => ({ ...t, occupied_by: occupancy[t.id] || null }));
+          return res.status(200).json({ ok: true, data });
+        }
         case 'feedback': {
           // Reputation queue — newest first, plus rating aggregates for the
           // header. select('*') so it works whether or not the triage migration
@@ -508,6 +528,41 @@ export default async function handler(req, res) {
           }
           await writeAudit(supabase, auth, { action: 'send_outreach', target_type: 'outreach', summary: `Sent "${subject}" to ${sent}/${emails.length} recipients` });
           return res.status(200).json({ ok: true, data: { total: emails.length, sent, failed } });
+        }
+        case 'create_table': {
+          const { label, zone, capacity, qr_code } = body;
+          if (!label || !zone) return res.status(400).json({ error: 'Label and zone are required' });
+          if (!['dining', 'bar', 'daybed'].includes(zone)) return res.status(400).json({ error: 'Invalid zone' });
+          const { data, error } = await supabase.from('tables').insert({
+            label: String(label).trim(), zone, capacity: parseInt(capacity) || 2, qr_code: qr_code || null,
+          }).select('*').single();
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'create_table', target_type: 'table', target_id: data.id, summary: `Added table ${data.label} (${zone})` });
+          return res.status(200).json({ ok: true, data });
+        }
+        case 'update_table': {
+          const { id, label, zone, capacity, qr_code, is_active } = body;
+          if (!id) return res.status(400).json({ error: 'Missing id' });
+          if (zone !== undefined && !['dining', 'bar', 'daybed'].includes(zone)) return res.status(400).json({ error: 'Invalid zone' });
+          const updates = {};
+          if (label !== undefined) updates.label = String(label).trim();
+          if (zone !== undefined) updates.zone = zone;
+          if (capacity !== undefined) updates.capacity = parseInt(capacity) || 2;
+          if (qr_code !== undefined) updates.qr_code = qr_code || null;
+          if (is_active !== undefined) updates.is_active = !!is_active;
+          if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Nothing to update' });
+          const { error } = await supabase.from('tables').update(updates).eq('id', id);
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'update_table', target_type: 'table', target_id: id, summary: 'Updated table' });
+          return res.status(200).json({ ok: true });
+        }
+        case 'delete_table': {
+          const { id } = body;
+          if (!id) return res.status(400).json({ error: 'Missing id' });
+          const { error } = await supabase.from('tables').delete().eq('id', id);
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'delete_table', target_type: 'table', target_id: id, summary: 'Removed table' });
+          return res.status(200).json({ ok: true });
         }
         case 'resolve_feedback': {
           const { id, resolved, staff_note } = body;

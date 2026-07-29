@@ -104,6 +104,26 @@ export async function getAuditLog(password: string): Promise<AuditEntry[]> {
   return adminFetch<AuditEntry[]>(password, 'list_audit');
 }
 
+// ── Floor & tables (Phase 07) ──────────────────────────────────────────────
+export type TableZone = 'dining' | 'bar' | 'daybed';
+export type FloorTable = {
+  id: string; label: string; zone: TableZone; capacity: number;
+  qr_code: string | null; is_active: boolean; created_at: string;
+  occupied_by: { order_ref: string; total: number; status: string; since: string } | null;
+};
+export async function getTables(password: string): Promise<FloorTable[]> {
+  return adminFetch<FloorTable[]>(password, 'tables');
+}
+export async function createTable(password: string, t: { label: string; zone: TableZone; capacity: number; qr_code?: string }): Promise<FloorTable> {
+  return adminUpdateReturning<FloorTable>(password, 'create_table', t as unknown as Record<string, unknown>);
+}
+export async function updateTable(password: string, id: string, patch: Partial<{ label: string; zone: TableZone; capacity: number; qr_code: string; is_active: boolean }>): Promise<void> {
+  return adminUpdate(password, 'update_table', { id, ...patch });
+}
+export async function deleteTable(password: string, id: string): Promise<void> {
+  return adminUpdate(password, 'delete_table', { id });
+}
+
 // ── Feedback (Phase 06) — reputation queue ─────────────────────────────────
 export type FeedbackEntry = {
   id: string; order_ref: string | null; tracking_token: string | null;

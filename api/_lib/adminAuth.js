@@ -25,6 +25,10 @@ const PERMISSIONS = {
   resolve_feedback: ['manager', 'accounting'],
   customers: ['manager', 'host'],
   settings: ['manager'],
+  tables: ['manager', 'host'],
+  create_table: ['manager'],
+  update_table: ['manager'],
+  delete_table: ['manager'],
   // reservation ops
   update_order: ['manager', 'host', 'chef'],
   update_reservation: ['manager', 'host'],

@@ -9,7 +9,7 @@ import { PantryTab } from './PantryTab';
 import { RamadanTab } from './RamadanTab';
 import { InventoryTab } from './InventoryTab';
 import { RequisitionsTab } from './RequisitionsTab';
-import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal, LayoutDashboard, Users, MessageSquare } from 'lucide-react';
+import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal, LayoutDashboard, Users, MessageSquare, LayoutGrid } from 'lucide-react';
 import { OrdersTab } from './OrdersTab';
 import { ReservationsTab } from './ReservationsTab';
 import { CalendarTab } from './CalendarTab';
@@ -21,6 +21,7 @@ import { SettingsTab } from './SettingsTab';
 import { DashboardTab } from './DashboardTab';
 import { CustomersTab } from './CustomersTab';
 import { FeedbackTab } from './FeedbackTab';
+import { TablesTab } from './TablesTab';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   owner: { en: 'Owner', ar: 'المالك' },
@@ -239,6 +240,11 @@ export function AdminPage() {
                 <UtensilsCrossed className="size-4 mr-1.5" /> Reservations
               </TabsTrigger>
               {(isFull || role === 'host') && (
+                <TabsTrigger value="floor">
+                  <LayoutGrid className="size-4 mr-1.5" /> Floor
+                </TabsTrigger>
+              )}
+              {(isFull || role === 'host') && (
                 <TabsTrigger value="customers">
                   <Users className="size-4 mr-1.5" /> Customers
                 </TabsTrigger>
@@ -261,6 +267,7 @@ export function AdminPage() {
 
             <TabsContent value="orders"><OrdersTab l={l} /></TabsContent>
             <TabsContent value="reservations"><ReservationsTab /></TabsContent>
+            {(isFull || role === 'host') && <TabsContent value="floor"><TablesTab role={role!} /></TabsContent>}
             {(isFull || role === 'host') && <TabsContent value="customers"><CustomersTab /></TabsContent>}
             {(isFull || role === 'accounting') && <TabsContent value="feedback"><FeedbackTab /></TabsContent>}
             <TabsContent value="calendar"><CalendarTab l={l} /></TabsContent>
