@@ -9,7 +9,7 @@ import { PantryTab } from './PantryTab';
 import { RamadanTab } from './RamadanTab';
 import { InventoryTab } from './InventoryTab';
 import { RequisitionsTab } from './RequisitionsTab';
-import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal, LayoutDashboard } from 'lucide-react';
+import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal, LayoutDashboard, Users } from 'lucide-react';
 import { OrdersTab } from './OrdersTab';
 import { ReservationsTab } from './ReservationsTab';
 import { CalendarTab } from './CalendarTab';
@@ -19,6 +19,7 @@ import { StaffTab } from './StaffTab';
 import { ActivityTab } from './ActivityTab';
 import { SettingsTab } from './SettingsTab';
 import { DashboardTab } from './DashboardTab';
+import { CustomersTab } from './CustomersTab';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   owner: { en: 'Owner', ar: 'المالك' },
@@ -236,6 +237,11 @@ export function AdminPage() {
               <TabsTrigger value="reservations">
                 <UtensilsCrossed className="size-4 mr-1.5" /> Reservations
               </TabsTrigger>
+              {(isFull || role === 'host') && (
+                <TabsTrigger value="customers">
+                  <Users className="size-4 mr-1.5" /> Customers
+                </TabsTrigger>
+              )}
               <TabsTrigger value="calendar">
                 <CalendarDays className="size-4 mr-1.5" /> Calendar
               </TabsTrigger>
@@ -249,6 +255,7 @@ export function AdminPage() {
 
             <TabsContent value="orders"><OrdersTab l={l} /></TabsContent>
             <TabsContent value="reservations"><ReservationsTab /></TabsContent>
+            {(isFull || role === 'host') && <TabsContent value="customers"><CustomersTab /></TabsContent>}
             <TabsContent value="calendar"><CalendarTab l={l} /></TabsContent>
             <TabsContent value="events"><EventsTab /></TabsContent>
             <TabsContent value="outreach"><OutreachTab /></TabsContent>

@@ -104,6 +104,19 @@ export async function getAuditLog(password: string): Promise<AuditEntry[]> {
   return adminFetch<AuditEntry[]>(password, 'list_audit');
 }
 
+// ── Customers (Phase 05) — Customer 360 CRM ────────────────────────────────
+export type Customer = {
+  email: string; name: string; phone: string; has_account: boolean;
+  orders: number; spend: number; cancelled_orders: number;
+  reservations: number; confirmed_reservations: number;
+  first_seen: string | null; last_seen: string | null;
+  last_order_at: string | null; last_reservation_at: string | null;
+  visits: number; last_activity: string | null;
+};
+export async function getCustomers(password: string): Promise<Customer[]> {
+  return adminFetch<Customer[]>(password, 'customers');
+}
+
 // ── Dashboard (Phase 02) — Command Center snapshot ─────────────────────────
 export type DashboardStats = {
   orders_today: number; revenue_today: number; open_orders: number;

@@ -117,6 +117,69 @@ export default async function handler(req, res) {
           const obj = Object.fromEntries((data || []).map(r => [r.key, r.value]));
           return res.status(200).json({ ok: true, data: obj });
         }
+        case 'customers': {
+          // Customer 360 — one row per guest (keyed by lowercased email), built
+          // by folding every order and reservation together. Gives lifetime
+          // value, visit counts, first/last seen, and channel mix so staff can
+          // recognise regulars and VIPs.
+          const [ordRes, resvRes, profRes] = await Promise.allSettled([
+            supabase.from('orders').select('customer_email, customer_name, customer_phone, total, status, created_at').limit(5000),
+            supabase.from('reservations').select('customer_email, customer_name, customer_phone, status, res_date, party_size, created_at').limit(5000),
+            supabase.from('profiles').select('email, full_name, phone, created_at').limit(5000),
+          ]);
+          const orders = ordRes.status === 'fulfilled' ? (ordRes.value.data || []) : [];
+          const reservations = resvRes.status === 'fulfilled' ? (resvRes.value.data || []) : [];
+          const profiles = profRes.status === 'fulfilled' ? (profRes.value.data || []) : [];
+
+          const map = new Map();
+          const norm = (e) => (e && /@/.test(e)) ? String(e).toLowerCase().trim() : null;
+          const touch = (email, name, phone, createdAt) => {
+            const key = norm(email);
+            if (!key) return null;
+            let c = map.get(key);
+            if (!c) {
+              c = { email: key, name: name || '', phone: phone || '', has_account: false,
+                    orders: 0, spend: 0, cancelled_orders: 0, reservations: 0, confirmed_reservations: 0,
+                    first_seen: createdAt || null, last_seen: createdAt || null, last_order_at: null, last_reservation_at: null };
+              map.set(key, c);
+            }
+            if (name && !c.name) c.name = name;
+            if (phone && !c.phone) c.phone = phone;
+            if (createdAt) {
+              if (!c.first_seen || createdAt < c.first_seen) c.first_seen = createdAt;
+              if (!c.last_seen || createdAt > c.last_seen) c.last_seen = createdAt;
+            }
+            return c;
+          };
+
+          for (const o of orders) {
+            const c = touch(o.customer_email, o.customer_name, o.customer_phone, o.created_at);
+            if (!c) continue;
+            if (o.status === 'cancelled' || o.status === 'declined') { c.cancelled_orders++; continue; }
+            c.orders++;
+            c.spend += Number(o.total) || 0;
+            if (!c.last_order_at || o.created_at > c.last_order_at) c.last_order_at = o.created_at;
+          }
+          for (const r of reservations) {
+            const c = touch(r.customer_email, r.customer_name, r.customer_phone, r.created_at);
+            if (!c) continue;
+            c.reservations++;
+            if (r.status === 'confirmed' || r.status === 'completed') c.confirmed_reservations++;
+            if (!c.last_reservation_at || r.created_at > c.last_reservation_at) c.last_reservation_at = r.created_at;
+          }
+          for (const p of profiles) {
+            const c = touch(p.email, p.full_name, p.phone, p.created_at);
+            if (c) c.has_account = true;
+          }
+
+          const customers = [...map.values()].map(c => ({
+            ...c,
+            visits: c.orders + c.confirmed_reservations,
+            last_activity: [c.last_order_at, c.last_reservation_at].filter(Boolean).sort().pop() || c.last_seen,
+          })).sort((a, b) => b.spend - a.spend);
+
+          return res.status(200).json({ ok: true, data: customers });
+        }
         case 'dashboard': {
           // Command Center snapshot — one round-trip of parallel queries feeding
           // the at-a-glance cards, action queues, and a 14-day revenue sparkline.
