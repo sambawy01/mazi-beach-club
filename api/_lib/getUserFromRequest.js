@@ -5,10 +5,10 @@ import { createClient } from '@supabase/supabase-js';
 // the anon/publishable key (never the service role key) because getUser must
 // validate the JWT as the token's own subject, not as an elevated actor.
 const supabaseUrl =
-  process.env.VITE_SUPABASE_URL || 'https://YOUR-MAZI-PROJECT.supabase.co';
+  process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const envAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 const supabaseAnonKey =
-  envAnonKey || 'sb_publishable_REPLACE_WITH_MAZI_ANON_KEY';
+  envAnonKey || 'sb_publishable_-iAxzxG6uQQvBcl0oZ4nfg_TonqTspM';
 
 // VITE_SUPABASE_ANON_KEY is a client-build convention, so it is easy to define
 // for the build but NOT for the serverless function runtime. When that happens

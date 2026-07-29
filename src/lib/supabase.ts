@@ -3,11 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 // ── Public (anon) client — safe for frontend ─────────────────────────────
 const supabaseUrl =
   (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  'https://YOUR-MAZI-PROJECT.supabase.co';
+  'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 
 const supabaseAnonKey =
   (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
-  'sb_publishable_REPLACE_WITH_MAZI_ANON_KEY';
+  'sb_publishable_-iAxzxG6uQQvBcl0oZ4nfg_TonqTspM';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
