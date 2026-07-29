@@ -23,6 +23,8 @@ const COBALT = '#12207e';
 const GOLD = '#c9a24a';
 const GOLD_LT = '#e3c878';
 const CREAM = '#f1ece0';
+const BABY = '#d3e6f4';      // washed baby blue — email header/footer
+const BABY_DEEP = '#c2dbee';
 const SERIF = "Georgia,'Times New Roman',serif";
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
 
@@ -43,25 +45,25 @@ function ctaButton(href, label) {
 
 /** Wrap inner content in the branded Mazi frame. */
 function brandedShell(inner, preheader = '') {
-  const logo = `${SITE_URL}/mazi-logo-full-white.png`;
+  const logo = `${SITE_URL}/mazi-logo-full.png`;
   return `<div style="background:${CREAM};padding:28px 12px;font-family:${SANS};">
   ${preheader ? `<div style="display:none!important;max-height:0;overflow:hidden;opacity:0;color:${CREAM};">${preheader}</div>` : ''}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;border-collapse:separate;">
-    <tr><td style="background:${INK};border-radius:18px 18px 0 0;padding:36px 24px 26px;text-align:center;">
+    <tr><td style="background:${BABY};border-radius:18px 18px 0 0;padding:36px 24px 26px;text-align:center;">
       <img src="${logo}" alt="Mazi" width="150" style="width:150px;max-width:58%;height:auto;display:inline-block;margin-bottom:12px;" />
-      <div style="color:${GOLD_LT};font-family:${SERIF};font-style:italic;font-size:16px;letter-spacing:.4px;">— together by the sea —</div>
+      <div style="color:${COBALT};font-family:${SERIF};font-style:italic;font-size:16px;letter-spacing:.4px;">— together by the sea —</div>
     </td></tr>
     <tr><td style="height:3px;line-height:3px;font-size:0;background:${GOLD};">&nbsp;</td></tr>
     <tr><td style="background:#ffffff;padding:34px 30px;color:#2a2f45;">
       ${inner}
     </td></tr>
-    <tr><td style="background:${INK};border-radius:0 0 18px 18px;padding:24px;text-align:center;">
-      <div style="color:${GOLD};font-family:${SERIF};font-size:16px;letter-spacing:4px;">M A Z I</div>
-      <div style="color:#8b96c0;font-size:12px;margin-top:8px;">Mediterranean Beach Club &middot; Ras El Hekma, North Coast</div>
-      <div style="color:#8b96c0;font-size:12px;margin-top:3px;"><a href="mailto:hello@mazibeach.com" style="color:${GOLD_LT};text-decoration:none;">hello@mazibeach.com</a></div>
+    <tr><td style="background:${BABY};border-radius:0 0 18px 18px;padding:24px;text-align:center;">
+      <div style="color:${COBALT};font-family:${SERIF};font-size:16px;letter-spacing:4px;">M A Z I</div>
+      <div style="color:#5a6a86;font-size:12px;margin-top:8px;">Mediterranean Beach Club &middot; Ras El Hekma, North Coast</div>
+      <div style="color:#5a6a86;font-size:12px;margin-top:3px;"><a href="mailto:hello@mazibeach.com" style="color:${COBALT};text-decoration:none;font-weight:600;">hello@mazibeach.com</a></div>
     </td></tr>
   </table>
-  <div style="text-align:center;color:#b3ab98;font-family:${SERIF};font-style:italic;font-size:13px;margin-top:16px;">kali orexi — enjoy</div>
+  <div style="text-align:center;color:#9aa8b8;font-family:${SERIF};font-style:italic;font-size:13px;margin-top:16px;">kali orexi — enjoy</div>
 </div>`;
 }
 
