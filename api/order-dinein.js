@@ -35,51 +35,6 @@ async function checkPhoneVerified(phone) {
   return { verified: !!data };
 }
 
-/**
- * Push order to Foodics POS (fire-and-forget, non-blocking).
- * Logs success/failure but doesn't block the order response.
- */
-async function pushToFoodics(orderData) {
-  try {
-    const foodicsUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}/api/foodics-push`
-      : null;
-
-    // In production, call the foodics-push API directly
-    // For now, we just log — the foodics-push.js route handles the actual API call
-    if (foodicsUrl) {
-      const https = require('https');
-      const url = new URL(foodicsUrl);
-      const postData = JSON.stringify(orderData);
-      return new Promise((resolve) => {
-        const req = https.request({
-          hostname: url.hostname,
-          path: url.pathname,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(postData),
-          },
-        }, (response) => {
-          let data = '';
-          response.on('data', chunk => { data += chunk; });
-          response.on('end', () => {
-            try { resolve(JSON.parse(data)); }
-            catch { resolve({ ok: false }); }
-          });
-        });
-        req.on('error', () => resolve({ ok: false }));
-        req.write(postData);
-        req.end();
-      });
-    }
-    return { ok: false, dev_mode: true };
-  } catch (e) {
-    console.error('[DineIn] Foodics push error:', e.message);
-    return { ok: false };
-  }
-}
-
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -212,24 +167,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── Push to Foodics POS (non-blocking) ─────────────────────────────────
-    const foodicsResult = await pushToFoodics({
-      orderRef: orderId,
-      orderDbId: dbId,
-      tableId,
-      tableLabel,
-      items,
-      subtotal,
-      vatAmount: vat,
-      serviceAmount: service,
-      total,
-      customerName,
-      customerPhone,
-      note,
-    });
-    if (foodicsResult?.ok) {
-      console.log('[DineIn] Foodics sync OK for', orderId);
-    }
+    // POS sync (Golden Soft) is handled out-of-band; no push from here.
 
     // ── Telegram notification ─────────────────────────────────────────────
     const itemList = items.map(it =>

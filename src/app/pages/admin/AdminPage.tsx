@@ -22,6 +22,7 @@ import { DashboardTab } from './DashboardTab';
 import { CustomersTab } from './CustomersTab';
 import { FeedbackTab } from './FeedbackTab';
 import { TablesTab } from './TablesTab';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   owner: { en: 'Owner', ar: 'المالك' },
@@ -158,12 +159,12 @@ export function AdminPage() {
       {/* Top-level section switcher — only show if user has more than 1 section */}
       {sections.length > 1 && (
         <div className="bg-white border-b">
-          <div className="max-w-6xl mx-auto px-4 flex gap-1 py-1">
+          <div className="max-w-6xl mx-auto px-4 flex gap-1 py-1 overflow-x-auto">
             {sections.map(s => (
               <button
                 key={s.key + s.label}
                 onClick={() => setSection(s.key)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                   section === s.key
                     ? 'bg-[#1b2350] text-white'
                     : 'text-muted-foreground hover:bg-muted'
@@ -177,6 +178,7 @@ export function AdminPage() {
       )}
 
       <main className="max-w-6xl mx-auto px-4 py-6">
+        <ErrorBoundary key={section}>
         {/* Overview / Command Center — full roles, host & accounting */}
         {section === 'overview' && canSeeOverview && (
           <DashboardTab onNavigate={(sec) => { if (canSeeOrders) setSection(sec); }} />
@@ -188,7 +190,7 @@ export function AdminPage() {
             defaultValue={sessionStorage.getItem('bc-admin-tab-website') || 'menu'}
             onValueChange={v => sessionStorage.setItem('bc-admin-tab-website', v)}
           >
-            <TabsList className="mb-6">
+            <TabsList className="mb-6 max-w-full overflow-x-auto justify-start">
               <TabsTrigger value="menu">
                 <UtensilsCrossed className="size-4 mr-1.5" /> {tr('menu')}
               </TabsTrigger>
@@ -212,7 +214,7 @@ export function AdminPage() {
             defaultValue={sessionStorage.getItem('bc-admin-tab-inventory') || 'stock'}
             onValueChange={v => sessionStorage.setItem('bc-admin-tab-inventory', v)}
           >
-            <TabsList className="mb-6">
+            <TabsList className="mb-6 max-w-full overflow-x-auto justify-start">
               <TabsTrigger value="stock">
                 <BoxesIcon className="size-4 mr-1.5" /> {tr('inv_stock_items')}
               </TabsTrigger>
@@ -232,7 +234,7 @@ export function AdminPage() {
             defaultValue={sessionStorage.getItem('bc-admin-tab-orders') || 'orders'}
             onValueChange={v => sessionStorage.setItem('bc-admin-tab-orders', v)}
           >
-            <TabsList className="mb-6">
+            <TabsList className="mb-6 max-w-full overflow-x-auto justify-start">
               <TabsTrigger value="orders">
                 <ShoppingBag className="size-4 mr-1.5" /> Orders
               </TabsTrigger>
@@ -282,7 +284,7 @@ export function AdminPage() {
             defaultValue={sessionStorage.getItem('bc-admin-tab-team') || 'staff'}
             onValueChange={v => sessionStorage.setItem('bc-admin-tab-team', v)}
           >
-            <TabsList className="mb-6">
+            <TabsList className="mb-6 max-w-full overflow-x-auto justify-start">
               <TabsTrigger value="staff"><UserCog className="size-4 mr-1.5" /> Staff</TabsTrigger>
               <TabsTrigger value="activity"><History className="size-4 mr-1.5" /> Activity</TabsTrigger>
               <TabsTrigger value="settings"><SlidersHorizontal className="size-4 mr-1.5" /> Settings</TabsTrigger>
@@ -292,6 +294,7 @@ export function AdminPage() {
             <TabsContent value="settings"><SettingsTab /></TabsContent>
           </Tabs>
         )}
+        </ErrorBoundary>
       </main>
     </div>
   );

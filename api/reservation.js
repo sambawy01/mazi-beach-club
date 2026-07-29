@@ -113,7 +113,7 @@ export default async function handler(req, res) {
     // check-in token is stored on the row and the QR email is sent only after
     // an admin confirms the reservation (Telegram bot or admin panel).
     const message = [
-      `🌵 NEW RESERVATION REQUEST`,
+      `🏖️ NEW RESERVATION REQUEST`,
       `#${resId}`,
       dbId ? `DB: ${dbId}` : '',
       ``,

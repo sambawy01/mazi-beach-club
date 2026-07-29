@@ -880,7 +880,7 @@ export default async function handler(req, res) {
 
       if (text === '/start' || text.toLowerCase().includes('start')) {
         await tgSendMessage(chatId,
-          `🌵 Mazi Reservation Bot\n\nThis bot manages reservation requests from mazibeach.com.\n\nNew reservations will appear here with Confirm/Reject buttons.\n\nCommands:\n/status — Check bot status`
+          `🏖️ Mazi Reservation Bot\n\nThis bot manages reservation requests from mazibeach.com.\n\nNew reservations will appear here with Confirm/Reject buttons.\n\nCommands:\n/status — Check bot status`
         );
         return res.status(200).json({ ok: true });
       }
