@@ -12,7 +12,7 @@
  *
  * Env vars needed on Vercel:
  *   RESEND_API_KEY = re_...        (get from resend.com)
- *   MAZI_EMAIL_FROM = Mazi <orders@mazibeach.com>
+ *   MAZI_EMAIL_FROM = Mazi <hello@mazibeach.com>
  *
  * If RESEND_API_KEY is not set, emails are skipped silently (fail open).
  */

@@ -37,7 +37,7 @@ function normaliseBilling(billing) {
   return {
     first_name: billing?.first_name || NA,
     last_name: billing?.last_name || NA,
-    email: billing?.email || 'guest@mazibeach.com',
+    email: billing?.email || 'hello@mazibeach.com',
     phone_number: billing?.phone_number || NA,
     apartment: billing?.apartment || NA,
     floor: billing?.floor || NA,
