@@ -8,6 +8,7 @@
 // Auth: Authorization: Bearer <ADMIN_PASSWORD>. Success -> { ok:true, data? };
 // error -> { ok:false, error }. Records expose `id` (uuid), never a row index.
 import { createClient } from '@supabase/supabase-js';
+import { resolveAuth } from './_lib/adminAuth.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -19,13 +20,9 @@ const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
   : null;
 
+// Accepts the break-glass owner password OR a signed staff token.
 function checkAuth(req) {
-  // Fail closed: an unset/empty ADMIN_PASSWORD denies every request rather than
-  // authenticating against a default.
-  if (!adminPassword) return false;
-  const auth = req.headers.authorization || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  return Boolean(token) && token === adminPassword;
+  return resolveAuth(req) !== null;
 }
 
 // Writable columns per resource (id/created_at are never client-set).

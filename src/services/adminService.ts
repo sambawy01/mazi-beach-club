@@ -3,7 +3,7 @@ import { API_BASE } from '../lib/apiConfig';
 const STORAGE_KEY = 'bc-admin-pw';
 const ROLE_KEY = 'bc-admin-role';
 
-export type Role = 'admin' | 'chef' | 'accounting';
+export type Role = 'owner' | 'manager' | 'host' | 'chef' | 'accounting';
 
 export interface AdminItem {
   id: string; // uuid
@@ -57,19 +57,51 @@ async function apiGet<T>(params: Record<string, string>): Promise<T> {
   return res.json();
 }
 
-export async function verifyPassword(password: string): Promise<{ valid: boolean; role?: Role }> {
+/** Verify a bearer token (break-glass owner password OR staff session token). */
+export async function verifyPassword(token: string): Promise<{ valid: boolean; role?: Role; name?: string }> {
   try {
     const res = await fetch(`${API_BASE}/api/admin?action=verify`, {
       method: 'GET',
-      headers: { Authorization: `Bearer ${password}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
-      return { valid: true, role: 'admin' };
+      const j = await res.json().catch(() => ({}));
+      return { valid: true, role: (j.role as Role) || 'owner', name: j.name };
     }
     return { valid: false };
   } catch {
     return { valid: false };
   }
+}
+
+// ── Staff auth & management (Phase 00) ────────────────────────────────────
+export async function staffLogin(email: string, password: string): Promise<{ token: string; role: Role; name: string }> {
+  const res = await fetch(`${API_BASE}/api/admin-auth`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.token) throw new Error(j.error || 'Login failed');
+  return { token: j.token, role: j.staff.role as Role, name: j.staff.name };
+}
+
+export type StaffMember = { id: string; email: string; name: string; role: Role; is_active: boolean; created_at: string; last_login_at: string | null };
+export async function getStaff(password: string): Promise<StaffMember[]> {
+  return adminFetch<StaffMember[]>(password, 'list_staff');
+}
+export async function createStaff(password: string, s: { email: string; name: string; role: Role; password: string }): Promise<StaffMember> {
+  return adminUpdateReturning<StaffMember>(password, 'create_staff', s as unknown as Record<string, unknown>);
+}
+export async function updateStaff(password: string, id: string, patch: Partial<{ name: string; role: Role; is_active: boolean; password: string }>): Promise<void> {
+  return adminUpdate(password, 'update_staff', { id, ...patch });
+}
+export async function deleteStaff(password: string, id: string): Promise<void> {
+  return adminUpdate(password, 'delete_staff', { id });
+}
+
+export type AuditEntry = { id: string; actor: string; actor_role: string; action: string; target_type: string | null; target_id: string | null; summary: string | null; created_at: string };
+export async function getAuditLog(password: string): Promise<AuditEntry[]> {
+  return adminFetch<AuditEntry[]>(password, 'list_audit');
 }
 
 // ── Native catalog API (api/menu.js) — Menu & Pantry tabs ──────────────────

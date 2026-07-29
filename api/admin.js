@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendOutreachEmail } from './email.js';
 import { generateCheckinToken } from './_lib/checkinToken.js';
+import { resolveAuth, can, writeAudit } from './_lib/adminAuth.js';
+import { hashPassword } from './_lib/staffAuth.js';
 
 // Note: We no longer send status-update emails. The customer gets a single
 // confirmation email at order placement with a tracking link and feedback
@@ -8,34 +10,31 @@ import { generateCheckinToken } from './_lib/checkinToken.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const adminPassword = process.env.ADMIN_PASSWORD || 'mazi2025';
-
 const supabase = supabaseKey
   ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
   : null;
-
-function checkAuth(req) {
-  const auth = req.headers.authorization || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  if (!token || token !== adminPassword) return false;
-  return true;
-}
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  if (!checkAuth(req)) {
+  // Break-glass owner password OR a signed staff token (see _lib/adminAuth).
+  const auth = resolveAuth(req);
+  if (!auth) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const action = req.query.action;
 
-  // Password verification only depends on checkAuth passing — reaching here
-  // means the bearer token matched ADMIN_PASSWORD. No database needed.
+  // 'verify' reports the caller's real role — drives the client role-gating.
   if (req.method === 'GET' && action === 'verify') {
-    return res.status(200).json({ ok: true, role: 'admin' });
+    return res.status(200).json({ ok: true, role: auth.role, name: auth.name });
+  }
+
+  // Per-action authorization, enforced server-side (not just hidden buttons).
+  if (!can(auth.role, action)) {
+    return res.status(403).json({ error: 'Your role does not permit this action' });
   }
 
   if (!supabase) {
@@ -93,6 +92,24 @@ export default async function handler(req, res) {
           if (ord.status === 'fulfilled') (ord.value.data || []).forEach(o => add(o.customer_email, o.customer_name));
           if (prof.status === 'fulfilled') (prof.value.data || []).forEach(p => add(p.email, p.full_name));
           return res.status(200).json({ ok: true, data: [...map.values()] });
+        }
+        case 'list_staff': {
+          // Never expose pw_salt / pw_hash to the client.
+          const { data, error } = await supabase
+            .from('staff')
+            .select('id, email, name, role, is_active, created_at, last_login_at')
+            .order('created_at', { ascending: true });
+          if (error) return res.status(500).json({ error: error.message });
+          return res.status(200).json({ ok: true, data });
+        }
+        case 'list_audit': {
+          const { data, error } = await supabase
+            .from('audit_log')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(300);
+          if (error) return res.status(500).json({ error: error.message });
+          return res.status(200).json({ ok: true, data });
         }
         default:
           return res.status(400).json({ error: 'Unknown action' });
@@ -283,6 +300,7 @@ export default async function handler(req, res) {
             try { await sendReservationConfirmationEmail(data); }
             catch (e) { console.error('admin create_reservation email failed:', e.message); }
           }
+          await writeAudit(supabase, auth, { action: 'create_reservation', target_type: 'reservation', target_id: data.id, summary: `Created ${row.type} reservation for ${name}` });
           return res.status(200).json({ ok: true, data });
         }
         case 'send_outreach': {
@@ -320,7 +338,45 @@ export default async function handler(req, res) {
               if (id) sent++; else failed++;
             } catch (e) { failed++; console.error('outreach send failed for', to, e.message); }
           }
+          await writeAudit(supabase, auth, { action: 'send_outreach', target_type: 'outreach', summary: `Sent "${subject}" to ${sent}/${emails.length} recipients` });
           return res.status(200).json({ ok: true, data: { total: emails.length, sent, failed } });
+        }
+        case 'create_staff': {
+          const { email, name, role, password } = body;
+          if (!email || !name || !role || !password) return res.status(400).json({ error: 'Email, name, role and password are required' });
+          if (String(password).length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+          const { salt, hash } = hashPassword(password);
+          const { data, error } = await supabase.from('staff').insert({
+            email: String(email).toLowerCase().trim(), name, role, pw_salt: salt, pw_hash: hash,
+          }).select('id, email, name, role, is_active').single();
+          if (error) return res.status(error.code === '23505' ? 409 : 500).json({ error: error.code === '23505' ? 'A staff member with that email already exists' : error.message });
+          await writeAudit(supabase, auth, { action: 'create_staff', target_type: 'staff', target_id: data.id, summary: `Added ${name} (${role})` });
+          return res.status(200).json({ ok: true, data });
+        }
+        case 'update_staff': {
+          const { id, name, role, is_active, password } = body;
+          if (!id) return res.status(400).json({ error: 'Missing id' });
+          const updates = { updated_at: new Date().toISOString() };
+          if (name !== undefined) updates.name = name;
+          if (role !== undefined) updates.role = role;
+          if (is_active !== undefined) updates.is_active = !!is_active;
+          if (password) {
+            if (String(password).length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+            const { salt, hash } = hashPassword(password);
+            updates.pw_salt = salt; updates.pw_hash = hash;
+          }
+          const { error } = await supabase.from('staff').update(updates).eq('id', id);
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'update_staff', target_type: 'staff', target_id: id, summary: `Updated staff${password ? ' (password reset)' : ''}` });
+          return res.status(200).json({ ok: true });
+        }
+        case 'delete_staff': {
+          const { id } = body;
+          if (!id) return res.status(400).json({ error: 'Missing id' });
+          const { error } = await supabase.from('staff').delete().eq('id', id);
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'delete_staff', target_type: 'staff', target_id: id, summary: 'Removed staff member' });
+          return res.status(200).json({ ok: true });
         }
         default:
           return res.status(400).json({ error: 'Unknown action' });

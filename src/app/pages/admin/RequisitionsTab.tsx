@@ -55,9 +55,9 @@ export function RequisitionsTab({ l, role }: { l: AdminLang; role: Role }) {
   const [approvingRow, setApprovingRow] = useState<string | null>(null);
 
   const isChef = role === 'chef';
-  const canApprove = role === 'admin' || role === 'accounting';
-  const canRestock = role === 'admin' || role === 'accounting';
-  const canSubmitReqs = role === 'admin' || role === 'chef';
+  const canApprove = role === 'owner' || role === 'manager' || role === 'accounting';
+  const canRestock = role === 'owner' || role === 'manager' || role === 'accounting';
+  const canSubmitReqs = role === 'owner' || role === 'manager' || role === 'chef';
 
   const fetchAll = useCallback(async () => {
     try {

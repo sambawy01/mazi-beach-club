@@ -9,15 +9,19 @@ import { PantryTab } from './PantryTab';
 import { RamadanTab } from './RamadanTab';
 import { InventoryTab } from './InventoryTab';
 import { RequisitionsTab } from './RequisitionsTab';
-import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail } from 'lucide-react';
+import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History } from 'lucide-react';
 import { OrdersTab } from './OrdersTab';
 import { ReservationsTab } from './ReservationsTab';
 import { CalendarTab } from './CalendarTab';
 import { EventsTab } from './EventsTab';
 import { OutreachTab } from './OutreachTab';
+import { StaffTab } from './StaffTab';
+import { ActivityTab } from './ActivityTab';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
-  admin: { en: 'Admin', ar: 'إدارة' },
+  owner: { en: 'Owner', ar: 'المالك' },
+  manager: { en: 'Manager', ar: 'مدير' },
+  host: { en: 'Host', ar: 'مضيف' },
   chef: { en: 'Chef', ar: 'شيف' },
   accounting: { en: 'Accounting', ar: 'محاسبة' },
 };
@@ -26,10 +30,10 @@ export function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
   const [role, setRole] = useState<Role | null>(null);
-  const [section, setSectionState] = useState<'website' | 'inventory' | 'orders'>(
-    () => (sessionStorage.getItem('bc-admin-section') as 'website' | 'inventory' | 'orders') || 'website'
+  const [section, setSectionState] = useState<'website' | 'inventory' | 'orders' | 'team'>(
+    () => (sessionStorage.getItem('bc-admin-section') as 'website' | 'inventory' | 'orders' | 'team') || 'website'
   );
-  function setSection(s: 'website' | 'inventory' | 'orders') {
+  function setSection(s: 'website' | 'inventory' | 'orders' | 'team') {
     setSectionState(s);
     sessionStorage.setItem('bc-admin-section', s);
   }
@@ -49,6 +53,7 @@ export function AdminPage() {
         // Only set default section if none saved
         if (!sessionStorage.getItem('bc-admin-section')) {
           if (result.role === 'accounting') setSection('inventory');
+          else if (result.role === 'host') setSection('orders');
           else setSection('website');
         }
       } else {
@@ -63,6 +68,7 @@ export function AdminPage() {
     setAuthed(true);
     setRole(r);
     if (r === 'accounting') setSection('inventory');
+    else if (r === 'host') setSection('orders');
     else setSection('website');
   }
 
@@ -98,13 +104,15 @@ export function AdminPage() {
     );
   }
 
-  // Role-based visibility
-  const canSeeWebsite = role === 'admin' || role === 'chef' || role === 'accounting';
-  const canSeeInventory = role === 'admin' || role === 'accounting' || role === 'chef';
-  const canSeeOrders = role === 'admin' || role === 'chef';
+  // Role-based visibility (owner & manager see everything).
+  const isFull = role === 'owner' || role === 'manager';
+  const canSeeWebsite = isFull || role === 'chef';
+  const canSeeInventory = isFull || role === 'chef' || role === 'accounting';
+  const canSeeOrders = isFull || role === 'host' || role === 'accounting';
+  const canSeeTeam = isFull;
 
   // Determine available sections for this role
-  const sections: { key: 'website' | 'inventory' | 'orders'; label: string; icon: React.ReactNode }[] = [];
+  const sections: { key: 'website' | 'inventory' | 'orders' | 'team'; label: string; icon: React.ReactNode }[] = [];
   if (canSeeWebsite) {
     sections.push({ key: 'website', label: tr('section_website'), icon: <Globe className="size-4" /> });
   }
@@ -112,7 +120,10 @@ export function AdminPage() {
     sections.push({ key: 'inventory', label: tr('section_inventory'), icon: <Warehouse className="size-4" /> });
   }
   if (canSeeOrders) {
-    sections.push({ key: 'orders', label: 'Orders', icon: <ShoppingBag className="size-4" /> });
+    sections.push({ key: 'orders', label: 'Operations', icon: <ShoppingBag className="size-4" /> });
+  }
+  if (canSeeTeam) {
+    sections.push({ key: 'team', label: 'Team', icon: <UserCog className="size-4" /> });
   }
 
   return (
@@ -231,6 +242,21 @@ export function AdminPage() {
             <TabsContent value="calendar"><CalendarTab l={l} /></TabsContent>
             <TabsContent value="events"><EventsTab /></TabsContent>
             <TabsContent value="outreach"><OutreachTab /></TabsContent>
+          </Tabs>
+        )}
+
+        {/* Team section — owner & manager */}
+        {section === 'team' && canSeeTeam && (
+          <Tabs
+            defaultValue={sessionStorage.getItem('bc-admin-tab-team') || 'staff'}
+            onValueChange={v => sessionStorage.setItem('bc-admin-tab-team', v)}
+          >
+            <TabsList className="mb-6">
+              <TabsTrigger value="staff"><UserCog className="size-4 mr-1.5" /> Staff</TabsTrigger>
+              <TabsTrigger value="activity"><History className="size-4 mr-1.5" /> Activity</TabsTrigger>
+            </TabsList>
+            <TabsContent value="staff"><StaffTab /></TabsContent>
+            <TabsContent value="activity"><ActivityTab /></TabsContent>
           </Tabs>
         )}
       </main>

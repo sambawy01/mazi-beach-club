@@ -50,7 +50,7 @@ const categoryRowColor: Record<string, string> = {
 
 export function InventoryTab({ l, role }: { l: AdminLang; role: Role }) {
   const { tr } = l;
-  const canEdit = role === 'admin' || role === 'accounting';
+  const canEdit = role === 'owner' || role === 'manager' || role === 'accounting';
   const [items, setItems] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);

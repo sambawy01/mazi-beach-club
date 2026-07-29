@@ -1,11 +1,11 @@
 // api/reservation-checkin.js
 import { createClient } from '@supabase/supabase-js';
 import { evaluateCheckin } from './_lib/evaluateCheckin.js';
+import { resolveAuth } from './_lib/adminAuth.js';
 
 const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   : null;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'mazi2025';
 
 function cairoToday() {
   // en-CA yields YYYY-MM-DD; timeZone pins to venue-local calendar day.
@@ -27,8 +27,7 @@ async function notifyTelegram(text) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const auth = req.headers.authorization || '';
-  if (auth.replace(/^Bearer\s+/i, '') !== ADMIN_PASSWORD) {
+  if (!resolveAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   if (!supabase) return res.status(503).json({ error: 'Database not configured' });
