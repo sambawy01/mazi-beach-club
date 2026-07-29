@@ -104,6 +104,26 @@ export async function getAuditLog(password: string): Promise<AuditEntry[]> {
   return adminFetch<AuditEntry[]>(password, 'list_audit');
 }
 
+// ── Dashboard (Phase 02) — Command Center snapshot ─────────────────────────
+export type DashboardStats = {
+  orders_today: number; revenue_today: number; open_orders: number;
+  reservations_today: number; covers_today: number; pending_reservations: number;
+  awaiting_payment: number; pending_events: number;
+};
+export type DashboardData = {
+  today: string;
+  stats: DashboardStats;
+  queues: {
+    pendingReservations: { id: string; name: string; type: string; date: string; party: number; sunbeds: number }[];
+    pendingOrders: { id: string; ref: string; name: string; total: number; mode: string }[];
+  };
+  revenueSpark: { date: string; total: number }[];
+  statusBreakdown: { orders: Record<string, number>; reservations: Record<string, number> };
+};
+export async function getDashboard(password: string): Promise<DashboardData> {
+  return adminFetch<DashboardData>(password, 'dashboard');
+}
+
 // ── Settings (Phase 01) — key/value store, values are JSON ──────────────────
 // The API returns a flat { key: value } object; updates upsert one or more keys.
 export type SettingsMap = Record<string, unknown>;

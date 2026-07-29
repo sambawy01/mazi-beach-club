@@ -9,7 +9,7 @@ import { PantryTab } from './PantryTab';
 import { RamadanTab } from './RamadanTab';
 import { InventoryTab } from './InventoryTab';
 import { RequisitionsTab } from './RequisitionsTab';
-import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal } from 'lucide-react';
+import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal, LayoutDashboard } from 'lucide-react';
 import { OrdersTab } from './OrdersTab';
 import { ReservationsTab } from './ReservationsTab';
 import { CalendarTab } from './CalendarTab';
@@ -18,6 +18,7 @@ import { OutreachTab } from './OutreachTab';
 import { StaffTab } from './StaffTab';
 import { ActivityTab } from './ActivityTab';
 import { SettingsTab } from './SettingsTab';
+import { DashboardTab } from './DashboardTab';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   owner: { en: 'Owner', ar: 'المالك' },
@@ -31,10 +32,10 @@ export function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
   const [role, setRole] = useState<Role | null>(null);
-  const [section, setSectionState] = useState<'website' | 'inventory' | 'orders' | 'team'>(
-    () => (sessionStorage.getItem('bc-admin-section') as 'website' | 'inventory' | 'orders' | 'team') || 'website'
+  const [section, setSectionState] = useState<'overview' | 'website' | 'inventory' | 'orders' | 'team'>(
+    () => (sessionStorage.getItem('bc-admin-section') as 'overview' | 'website' | 'inventory' | 'orders' | 'team') || 'website'
   );
-  function setSection(s: 'website' | 'inventory' | 'orders' | 'team') {
+  function setSection(s: 'overview' | 'website' | 'inventory' | 'orders' | 'team') {
     setSectionState(s);
     sessionStorage.setItem('bc-admin-section', s);
   }
@@ -51,11 +52,11 @@ export function AdminPage() {
       if (result.valid && result.role) {
         setAuthed(true);
         setRole(result.role);
-        // Only set default section if none saved
+        // Only set default section if none saved. Everyone who can see the
+        // Command Center lands there; chef (no overview) lands on website.
         if (!sessionStorage.getItem('bc-admin-section')) {
-          if (result.role === 'accounting') setSection('inventory');
-          else if (result.role === 'host') setSection('orders');
-          else setSection('website');
+          if (result.role === 'chef') setSection('website');
+          else setSection('overview');
         }
       } else {
         clearStoredPassword();
@@ -68,9 +69,8 @@ export function AdminPage() {
   function handleLogin(r: Role) {
     setAuthed(true);
     setRole(r);
-    if (r === 'accounting') setSection('inventory');
-    else if (r === 'host') setSection('orders');
-    else setSection('website');
+    if (r === 'chef') setSection('website');
+    else setSection('overview');
   }
 
   function handleLogout() {
@@ -111,9 +111,13 @@ export function AdminPage() {
   const canSeeInventory = isFull || role === 'chef' || role === 'accounting';
   const canSeeOrders = isFull || role === 'host' || role === 'accounting';
   const canSeeTeam = isFull;
+  const canSeeOverview = isFull || role === 'host' || role === 'accounting';
 
   // Determine available sections for this role
-  const sections: { key: 'website' | 'inventory' | 'orders' | 'team'; label: string; icon: React.ReactNode }[] = [];
+  const sections: { key: 'overview' | 'website' | 'inventory' | 'orders' | 'team'; label: string; icon: React.ReactNode }[] = [];
+  if (canSeeOverview) {
+    sections.push({ key: 'overview', label: 'Overview', icon: <LayoutDashboard className="size-4" /> });
+  }
   if (canSeeWebsite) {
     sections.push({ key: 'website', label: tr('section_website'), icon: <Globe className="size-4" /> });
   }
@@ -170,6 +174,11 @@ export function AdminPage() {
       )}
 
       <main className="max-w-6xl mx-auto px-4 py-6">
+        {/* Overview / Command Center — full roles, host & accounting */}
+        {section === 'overview' && canSeeOverview && (
+          <DashboardTab onNavigate={(sec) => { if (canSeeOrders) setSection(sec); }} />
+        )}
+
         {/* Website section — admin & chef */}
         {section === 'website' && canSeeWebsite && (
           <Tabs

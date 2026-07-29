@@ -117,6 +117,87 @@ export default async function handler(req, res) {
           const obj = Object.fromEntries((data || []).map(r => [r.key, r.value]));
           return res.status(200).json({ ok: true, data: obj });
         }
+        case 'dashboard': {
+          // Command Center snapshot — one round-trip of parallel queries feeding
+          // the at-a-glance cards, action queues, and a 14-day revenue sparkline.
+          // "Today" is Cairo local (UTC+2, no DST since 2015) so day boundaries
+          // match how staff think about the shift, not UTC midnight.
+          const CAIRO_OFFSET_MS = 2 * 60 * 60 * 1000;
+          const nowMs = Date.now();
+          const cairoNow = new Date(nowMs + CAIRO_OFFSET_MS);
+          const todayStr = cairoNow.toISOString().split('T')[0];
+          const since14 = new Date(nowMs - 13 * 86400000 + CAIRO_OFFSET_MS).toISOString().split('T')[0];
+
+          const [ordRes, resvRes, evRes] = await Promise.allSettled([
+            supabase.from('orders').select('id, status, total, created_at, customer_name, order_ref, mode').order('created_at', { ascending: false }).limit(500),
+            supabase.from('reservations').select('id, status, res_date, party_size, sunbeds, customer_name, type, created_at').order('created_at', { ascending: false }).limit(500),
+            supabase.from('event_bookings').select('id, status, created_at').limit(500),
+          ]);
+          const orders = ordRes.status === 'fulfilled' ? (ordRes.value.data || []) : [];
+          const reservations = resvRes.status === 'fulfilled' ? (resvRes.value.data || []) : [];
+          const events = evRes.status === 'fulfilled' ? (evRes.value.data || []) : [];
+
+          const cairoDay = (iso) => iso ? new Date(new Date(iso).getTime() + CAIRO_OFFSET_MS).toISOString().split('T')[0] : null;
+          const OPEN_ORDER = new Set(['pending_approval', 'confirmed', 'preparing', 'ready', 'out_for_delivery']);
+
+          const ordersToday = orders.filter(o => cairoDay(o.created_at) === todayStr);
+          const revenueToday = ordersToday
+            .filter(o => o.status !== 'cancelled' && o.status !== 'declined')
+            .reduce((s, o) => s + (Number(o.total) || 0), 0);
+
+          // 14-day revenue sparkline (completed/active orders per Cairo day).
+          const revByDay = {};
+          for (let i = 0; i < 14; i++) {
+            const d = new Date(nowMs - (13 - i) * 86400000 + CAIRO_OFFSET_MS).toISOString().split('T')[0];
+            revByDay[d] = 0;
+          }
+          orders.forEach(o => {
+            const d = cairoDay(o.created_at);
+            if (d && d >= since14 && o.status !== 'cancelled' && o.status !== 'declined') {
+              revByDay[d] = (revByDay[d] || 0) + (Number(o.total) || 0);
+            }
+          });
+          const revenueSpark = Object.keys(revByDay).sort().map(d => ({ date: d, total: revByDay[d] }));
+
+          const reservationsToday = reservations.filter(r => r.res_date === todayStr);
+          const coversToday = reservationsToday
+            .filter(r => r.status === 'confirmed')
+            .reduce((s, r) => s + (Number(r.party_size) || 0), 0);
+
+          // Action queues — the "needs a human" lists, most recent first.
+          const pendingReservations = reservations
+            .filter(r => r.status === 'pending')
+            .slice(0, 8)
+            .map(r => ({ id: r.id, name: r.customer_name, type: r.type, date: r.res_date, party: r.party_size, sunbeds: r.sunbeds }));
+          const awaitingPayment = reservations.filter(r => r.status === 'awaiting_payment').length;
+          const pendingOrders = orders
+            .filter(o => o.status === 'pending_approval')
+            .slice(0, 8)
+            .map(o => ({ id: o.id, ref: o.order_ref, name: o.customer_name, total: o.total, mode: o.mode }));
+
+          return res.status(200).json({
+            ok: true,
+            data: {
+              today: todayStr,
+              stats: {
+                orders_today: ordersToday.length,
+                revenue_today: revenueToday,
+                open_orders: orders.filter(o => OPEN_ORDER.has(o.status)).length,
+                reservations_today: reservationsToday.length,
+                covers_today: coversToday,
+                pending_reservations: reservations.filter(r => r.status === 'pending').length,
+                awaiting_payment: awaitingPayment,
+                pending_events: events.filter(e => e.status === 'pending' || e.status === 'new').length,
+              },
+              queues: { pendingReservations, pendingOrders },
+              revenueSpark,
+              statusBreakdown: {
+                orders: orders.reduce((m, o) => { m[o.status] = (m[o.status] || 0) + 1; return m; }, {}),
+                reservations: reservations.reduce((m, r) => { m[r.status] = (m[r.status] || 0) + 1; return m; }, {}),
+              },
+            },
+          });
+        }
         default:
           return res.status(400).json({ error: 'Unknown action' });
       }
