@@ -297,8 +297,8 @@ export function HomePage() {
               <motion.div
                 key={dish.id}
                 variants={itemVariants}
-                whileHover={{ y: -6 }}
-                className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden group flex flex-col ${
+                whileHover={{ y: -8 }}
+                className={`glass-dark sheen rounded-3xl overflow-hidden group flex flex-col transition-all duration-500 hover:ring-gold hover:shadow-luxe ${
                   dish.status === 'sold_out' ? 'opacity-60 grayscale' : ''
                 }`}
               >
@@ -313,14 +313,11 @@ export function HomePage() {
                   ) : (
                     // Branded no-photo treatment matching the dark section aesthetic.
                     // Lights up automatically once a real image is provided.
-                    <div className="w-full h-full flex flex-col items-center justify-center text-center px-6 bg-gradient-to-br from-[#12207e] to-[#1b2350]">
-                      <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-[10px] mb-3">
-                        {dish.category}
-                      </span>
-                      <span className="font-serif text-xl font-bold text-[#f0e6d2] leading-tight">
-                        {dish.name}
-                      </span>
-                      <span className="mt-4 h-px w-10 bg-[#3c6e8f]/50" />
+                    <div className="w-full h-full flex flex-col items-center justify-center text-center px-6 bg-gradient-to-br from-[#12207e] to-[#0e1533] relative overflow-hidden">
+                      <div className="pointer-events-none absolute -top-8 -right-8 w-40 h-40 rounded-full blur-2xl" style={{ background: 'radial-gradient(circle, rgba(201,162,74,0.2), transparent 65%)' }} />
+                      <span className="eyebrow-gold !text-[0.6rem] mb-3 relative">{dish.category}</span>
+                      <span className="font-display text-2xl text-[#f0e6d2] leading-tight relative">{dish.name}</span>
+                      <span className="mt-4 h-px w-12 rule-gold relative" />
                     </div>
                   )}
                   {dish.status === 'sold_out' && (
@@ -330,10 +327,10 @@ export function HomePage() {
                   )}
                 </div>
                 <div className="p-6 flex flex-col flex-1">
-                  <h3 className="font-serif text-xl font-bold text-white leading-tight mb-2">{dish.name}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed line-clamp-2 mb-4 flex-1">{dish.description}</p>
+                  <h3 className="font-display text-2xl text-white leading-tight mb-2">{dish.name}</h3>
+                  <p className="text-sea-glass/70 text-sm leading-relaxed line-clamp-2 mb-4 flex-1">{dish.description}</p>
                   <div className="flex items-center justify-between mt-auto">
-                    <span className="text-[#3c6e8f] font-bold text-lg">EGP {dish.price}</span>
+                    <span className="font-display text-xl text-gold-gradient"><span className="text-[10px] align-top tracking-widest mr-0.5 opacity-70">EGP</span>{dish.price}</span>
                     {dish.status === 'sold_out' ? (
                       <Button disabled className="bg-white/10 text-white/40 border-none rounded-full px-4 h-9 text-sm">
                         Unavailable
@@ -341,7 +338,7 @@ export function HomePage() {
                     ) : (
                       <Button
                         onClick={() => addItem({ id: dish.id, name: dish.name, price: dish.price, image: dish.image })}
-                        className="bg-[#12207e] hover:bg-[#3c6e8f] text-white border-none rounded-full px-4 h-9 text-sm font-semibold transition-all"
+                        className="sheen bg-gradient-to-r from-[#c9a24a] to-[#e3c878] hover:from-[#e3c878] hover:to-[#c9a24a] text-[#1b2350] border-none rounded-full px-5 h-9 text-xs uppercase tracking-[0.12em] font-semibold transition-all"
                       >
                         <Plus className="w-4 h-4 mr-1" /> Add
                       </Button>
@@ -389,15 +386,16 @@ export function HomePage() {
         />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
+            <span className="eyebrow block mb-5 text-gold-light">Golden Hour</span>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="font-serif text-4xl md:text-6xl font-bold text-white mb-3"
+              className="display-xl text-5xl md:text-7xl text-white mb-4"
             >
-              Sunset Sessions
+              Sunset <span className="italic text-gold-gradient">Sessions</span>
             </motion.h2>
-            <p className="text-[#f0e6d2] text-lg md:text-xl font-light tracking-wide mb-4">Every evening from 6 PM</p>
+            <p className="font-elegant italic text-[#f0e6d2] text-xl md:text-2xl tracking-wide mb-4">every evening, from 6 PM till late</p>
             <p className="text-white/80 max-w-2xl mx-auto text-lg leading-relaxed">
               As the sun dips into the Mediterranean, Mazi comes alive. DJ sets, signature cocktails,
               and golden hour on the beach — the way summer was meant to be spent.
@@ -416,15 +414,15 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center hover:bg-white/15 transition-all duration-300 group"
+                className="glass sheen rounded-3xl p-8 text-center hover-lift hover:ring-gold transition-all duration-500 group"
               >
                 <motion.div
                   whileHover={{ scale: 1.15, rotate: 5 }}
-                  className="w-16 h-16 bg-[#f0e6d2] rounded-full flex items-center justify-center mx-auto mb-6 transition-transform"
+                  className="w-16 h-16 bg-gradient-to-br from-[#c9a24a] to-[#e3c878] rounded-full flex items-center justify-center mx-auto mb-6 transition-transform shadow-gold"
                 >
-                  <feature.icon className="w-8 h-8 text-[#12207e]" />
+                  <feature.icon className="w-8 h-8 text-[#1b2350]" />
                 </motion.div>
-                <h3 className="font-serif text-2xl font-bold text-white mb-3">{feature.title}</h3>
+                <h3 className="font-display text-2xl text-white mb-3">{feature.title}</h3>
                 <p className="text-white/80 leading-relaxed">{feature.desc}</p>
               </motion.div>
             ))}
@@ -449,17 +447,18 @@ export function HomePage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`relative overflow-hidden rounded-2xl group ${img.span}`}
+                className={`relative overflow-hidden rounded-3xl group hover-lift shadow-float ${img.span}`}
               >
                 <img
                   src={img.url}
                   alt={img.label}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1b2350]/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-semibold text-sm tracking-wide">{img.label}</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e1533]/85 via-[#0e1533]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
+                  <span className="eyebrow-gold !text-[0.62rem] translate-y-2 group-hover:translate-y-0 transition-transform duration-500">{img.label}</span>
                 </div>
+                <span className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ring-gold" />
               </motion.div>
             ))}
           </div>
@@ -489,17 +488,17 @@ export function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
                 whileHover={{ scale: 1.03 }}
-                className={`rounded-2xl p-6 border transition-all duration-300 ${
+                className={`sheen rounded-3xl p-6 transition-all duration-500 ${
                   event.day === 'Wednesday'
-                    ? 'bg-gradient-to-br from-[#12207e] to-[#3c6e8f] border-transparent col-span-1 lg:col-span-1'
-                    : 'bg-white/5 border-white/10 hover:border-[#3c6e8f]/40'
+                    ? 'bg-gradient-to-br from-[#12207e] to-[#2f6f9e] ring-gold shadow-luxe'
+                    : 'glass-dark hover:ring-gold'
                 }`}
               >
-                <p className={`text-xs uppercase tracking-[0.2em] font-bold mb-2 ${event.day === 'Wednesday' ? 'text-[#f0e6d2]' : 'text-[#3c6e8f]'}`}>
+                <p className={`eyebrow ${event.day === 'Wednesday' ? 'text-gold-light' : 'text-gold-gradient'} !text-[0.6rem] mb-3`}>
                   {event.day}
                 </p>
-                <h3 className="font-serif text-xl font-bold text-white mb-2 leading-tight">{event.theme}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{event.desc}</p>
+                <h3 className="font-display text-2xl text-white mb-2 leading-tight">{event.theme}</h3>
+                <p className="text-sea-glass/70 text-sm leading-relaxed">{event.desc}</p>
               </motion.div>
             ))}
           </div>
