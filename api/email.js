@@ -22,9 +22,9 @@ const INK = '#0e1533';
 const COBALT = '#12207e';
 const GOLD = '#c9a24a';
 const GOLD_LT = '#e3c878';
+const GOLD_DK = '#a97b23';   // gold text on light backgrounds (readable contrast)
 const CREAM = '#f1ece0';
-const BABY = '#d3e6f4';      // washed baby blue — email header/footer
-const BABY_DEEP = '#c2dbee';
+const PAPER = '#ffffff';
 const SERIF = "Georgia,'Times New Roman',serif";
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
 
@@ -38,44 +38,56 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-/** Cobalt CTA button (primary action). */
+/** Gold CTA button (primary action) — high contrast on the white body. */
 function ctaButton(href, label) {
-  return `<a href="${href}" style="display:inline-block;background:${COBALT};color:#ffffff;text-decoration:none;padding:15px 34px;border-radius:999px;font-family:${SANS};font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;">${label}</a>`;
+  return `<a href="${href}" style="display:inline-block;background:${GOLD};color:${INK};text-decoration:none;padding:15px 38px;border-radius:999px;font-family:${SANS};font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 8px 20px rgba(201,162,74,0.32);">${label}</a>`;
 }
 
 /** Wrap inner content in the branded Mazi frame. */
 function brandedShell(inner, preheader = '') {
-  const logo = `${SITE_URL}/mazi-logo-full.png`;
-  return `<div style="background:${CREAM};padding:28px 12px;font-family:${SANS};">
-  ${preheader ? `<div style="display:none!important;max-height:0;overflow:hidden;opacity:0;color:${CREAM};">${preheader}</div>` : ''}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;border-collapse:separate;">
-    <tr><td style="background:${BABY};border-radius:18px 18px 0 0;padding:36px 24px 26px;text-align:center;">
-      <img src="${logo}" alt="Mazi" width="150" style="width:150px;max-width:58%;height:auto;display:inline-block;margin-bottom:12px;" />
-      <div style="color:${COBALT};font-family:${SERIF};font-style:italic;font-size:16px;letter-spacing:.4px;">— together by the sea —</div>
-    </td></tr>
-    <tr><td style="height:3px;line-height:3px;font-size:0;background:${GOLD};">&nbsp;</td></tr>
-    <tr><td style="background:#ffffff;padding:34px 30px;color:#2a2f45;">
-      ${inner}
-    </td></tr>
-    <tr><td style="background:${BABY};border-radius:0 0 18px 18px;padding:24px;text-align:center;">
-      <div style="color:${COBALT};font-family:${SERIF};font-size:16px;letter-spacing:4px;">M A Z I</div>
-      <div style="color:#5a6a86;font-size:12px;margin-top:8px;">Mediterranean Beach Club &middot; Ras El Hekma, North Coast</div>
-      <div style="color:#5a6a86;font-size:12px;margin-top:3px;"><a href="mailto:hello@mazibeach.com" style="color:${COBALT};text-decoration:none;font-weight:600;">hello@mazibeach.com</a></div>
-    </td></tr>
-  </table>
-  <div style="text-align:center;color:#9aa8b8;font-family:${SERIF};font-style:italic;font-size:13px;margin-top:16px;">kali orexi — enjoy</div>
-</div>`;
+  const logo = `${SITE_URL}/mazi-logo-full-white.png`;
+  const sun = `${SITE_URL}/email/sun.png`;
+  const wave = `${SITE_URL}/email/wave.png`;
+  const tex = `${SITE_URL}/email/texture.png`;
+  return `<div style="margin:0;padding:0;background-color:${CREAM};">
+  <div style="background-color:${CREAM};background-image:url('${tex}');background-repeat:repeat;padding:30px 12px;font-family:${SANS};">
+    ${preheader ? `<div style="display:none!important;max-height:0;overflow:hidden;opacity:0;color:${CREAM};">${preheader}</div>` : ''}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;border-collapse:separate;">
+      <tr><td style="height:4px;line-height:4px;font-size:0;background:${GOLD};border-radius:20px 20px 0 0;">&nbsp;</td></tr>
+      <tr><td align="center" style="background-color:${COBALT};padding:34px 24px 6px;">
+        <img src="${sun}" alt="" width="46" height="46" style="display:block;margin:0 auto 14px;width:46px;height:46px;" />
+        <img src="${logo}" alt="Mazi" width="168" style="display:block;margin:0 auto;width:168px;max-width:60%;height:auto;" />
+        <div style="color:${GOLD_LT};font-family:${SERIF};font-style:italic;font-size:16px;letter-spacing:.4px;margin-top:12px;">— together by the sea —</div>
+      </td></tr>
+      <tr><td style="background-color:${COBALT};font-size:0;line-height:0;"><img src="${wave}" alt="" width="560" style="display:block;width:100%;height:auto;" /></td></tr>
+      <tr><td style="background-color:${PAPER};padding:16px 34px 40px;color:#3a4053;">
+        ${inner}
+      </td></tr>
+      <tr><td style="height:4px;line-height:4px;font-size:0;background:${GOLD};">&nbsp;</td></tr>
+      <tr><td align="center" style="background-color:${COBALT};padding:26px 24px;border-radius:0 0 20px 20px;">
+        <div style="color:${GOLD_LT};font-family:${SERIF};font-size:17px;letter-spacing:5px;">M A Z I</div>
+        <div style="color:#aeb9dd;font-size:12px;margin-top:8px;">Mediterranean Beach Club &middot; Ras El Hekma, North Coast</div>
+        <div style="color:#aeb9dd;font-size:12px;margin-top:3px;"><a href="mailto:hello@mazibeach.com" style="color:${GOLD_LT};text-decoration:none;">hello@mazibeach.com</a></div>
+      </td></tr>
+    </table>
+    <div style="text-align:center;color:#a99a7f;font-family:${SERIF};font-style:italic;font-size:13px;margin-top:16px;">kali orexi — enjoy</div>
+  </div></div>`;
 }
 
-/** Small caps gold eyebrow above a heading. */
+/** Small-caps gold eyebrow above a heading (readable on white). */
 function eyebrow(text) {
-  return `<div style="text-align:center;color:${GOLD};font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin-bottom:6px;">${text}</div>`;
+  return `<div style="text-align:center;color:${GOLD_DK};font-family:${SERIF};font-size:12px;letter-spacing:.26em;text-transform:uppercase;font-weight:700;margin:6px 0 6px;">${text}</div>`;
 }
 function heading(text) {
-  return `<h1 style="text-align:center;font-family:${SERIF};color:${COBALT};font-size:28px;font-weight:600;margin:0 0 6px;line-height:1.15;">${text}</h1>`;
+  return `<h1 style="text-align:center;font-family:${SERIF};color:${COBALT};font-size:27px;font-weight:600;margin:0 0 4px;line-height:1.18;">${text}</h1>`;
 }
+/** Gold hairline with a small centred diamond — an elegant divider. */
 function goldRule() {
-  return `<div style="width:56px;height:2px;background:${GOLD};margin:14px auto 22px;"></div>`;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:14px auto 22px;"><tr>
+    <td style="width:44px;height:1px;background:${GOLD};font-size:0;line-height:0;">&nbsp;</td>
+    <td style="padding:0 8px;color:${GOLD};font-size:10px;line-height:1;">&#9670;</td>
+    <td style="width:44px;height:1px;background:${GOLD};font-size:0;line-height:0;">&nbsp;</td>
+  </tr></table>`;
 }
 
 async function sendEmail(to, subject, html) {
@@ -187,16 +199,17 @@ export async function sendReservationDeclinedEmail(reservation, reasonText) {
   const safeReason = reasonText ? escapeHtml(reasonText) : '';
 
   const inner = `
-    ${eyebrow('Reservation update')}
-    ${heading('About your reservation')}
+    ${eyebrow('With our sincere apologies')}
+    ${heading('We\'re so sorry')}
     ${goldRule()}
-    <p style="text-align:center;color:#5a6072;font-size:15px;margin:0 0 18px;">Hi ${safeName}, thank you for wanting to join us — unfortunately we're unable to confirm this reservation.</p>
-    <div style="background:${CREAM};border-radius:14px;padding:20px;text-align:center;margin-bottom:20px;">
+    <p style="text-align:center;color:#4a5064;font-size:15px;line-height:1.65;margin:0 0 18px;">Dear ${safeName}, thank you, truly, for choosing Mazi. It is with genuine regret that, on this occasion, we are unable to confirm your reservation.</p>
+    <div style="background:${CREAM};border-radius:14px;padding:18px 20px;text-align:center;margin:0 0 20px;">
       <div style="font-family:${SERIF};color:${COBALT};font-size:20px;font-weight:600;">${safeDate}</div>
       <div style="color:#5a6072;font-size:15px;margin-top:4px;">${safeTime} &middot; ${partyLine}</div>
     </div>
-    ${safeReason ? `<p style="text-align:center;color:#5a6072;font-size:14px;margin:0 0 18px;"><strong style="color:${COBALT};">Reason:</strong> ${safeReason}</p>` : ''}
-    <p style="text-align:center;color:#5a6072;font-size:15px;margin:0 0 8px;">We'd love to welcome you another time — just reply to this email or reach us at <a href="mailto:hello@mazibeach.com" style="color:${COBALT};text-decoration:none;font-weight:600;">hello@mazibeach.com</a> and we'll do our best to find you a spot.</p>`;
+    ${safeReason ? `<p style="text-align:center;color:#4a5064;font-size:14px;line-height:1.6;margin:0 0 18px;"><span style="color:${GOLD_DK};font-family:${SERIF};font-style:italic;">A note from our team —</span><br/>${safeReason}</p>` : ''}
+    <p style="text-align:center;color:#4a5064;font-size:15px;line-height:1.65;margin:0 0 18px;">This is never how we wish to begin. We would be honoured to welcome you another time — simply reply to this email or write to <a href="mailto:hello@mazibeach.com" style="color:${COBALT};text-decoration:none;font-weight:600;">hello@mazibeach.com</a>, and we will personally do everything we can to find you the perfect place by the sea.</p>
+    <p style="text-align:center;color:${GOLD_DK};font-family:${SERIF};font-style:italic;font-size:16px;margin:22px 0 0;">With warmth,<br/>The Mazi Family</p>`;
 
   const id = await sendEmail(reservation.customer_email, 'About your Mazi reservation', brandedShell(inner, 'An update on your Mazi reservation'));
   return { sent: !!id };
