@@ -310,7 +310,7 @@ export function ReservationPage() {
             onClick={() => handleTypeChange('beach')}
             className={`p-6 rounded-2xl border-2 transition-all text-center ${
               resType === 'beach'
-                ? 'border-[#12207e] bg-[#12207e] text-white shadow-lg'
+                ? 'border-transparent ring-gold bg-gradient-to-br from-[#12207e] to-[#2f6f9e] text-white shadow-float'
                 : 'border-gray-200 bg-white text-gray-600 hover:border-[#12207e]/30'
             }`}
           >
@@ -324,7 +324,7 @@ export function ReservationPage() {
             onClick={() => handleTypeChange('restaurant')}
             className={`p-6 rounded-2xl border-2 transition-all text-center ${
               resType === 'restaurant'
-                ? 'border-[#12207e] bg-[#12207e] text-white shadow-lg'
+                ? 'border-transparent ring-gold bg-gradient-to-br from-[#12207e] to-[#2f6f9e] text-white shadow-float'
                 : 'border-gray-200 bg-white text-gray-600 hover:border-[#12207e]/30'
             }`}
           >
@@ -498,7 +498,7 @@ export function ReservationPage() {
                           onClick={() => updateField('partySize', n)}
                           className={`w-12 h-12 rounded-xl border-2 font-bold transition-all ${
                             form.partySize === n
-                              ? 'border-[#12207e] bg-[#12207e] text-white'
+                              ? 'border-transparent bg-gradient-to-r from-[#12207e] to-[#2f6f9e] text-white shadow-float'
                               : 'border-gray-200 bg-white text-gray-600 hover:border-[#12207e]/30'
                           }`}
                         >
@@ -518,7 +518,7 @@ export function ReservationPage() {
                           onClick={() => updateField('sunbeds', String(n))}
                           className={`w-12 h-12 rounded-xl border-2 font-bold transition-all ${
                             form.sunbeds === String(n)
-                              ? 'border-[#12207e] bg-[#12207e] text-white'
+                              ? 'border-transparent bg-gradient-to-r from-[#12207e] to-[#2f6f9e] text-white shadow-float'
                               : 'border-gray-200 bg-white text-gray-600 hover:border-[#12207e]/30'
                           }`}
                         >

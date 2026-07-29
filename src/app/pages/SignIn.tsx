@@ -193,8 +193,8 @@ export function SignIn() {
               className="h-14 w-auto object-contain mx-auto"
             />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {step === 'profile' ? 'Complete your profile' : 'Sign in to Mazi'}
+          <h1 className="display-xl text-4xl text-[#1b2350]">
+            {step === 'profile' ? 'Complete your profile' : (<>Welcome to <span className="italic text-aegean-gradient">Mazi</span></>)}
           </h1>
           <p className="text-sm text-gray-500 mt-2">
             {step === 'email' &&

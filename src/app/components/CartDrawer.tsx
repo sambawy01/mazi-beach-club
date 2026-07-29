@@ -245,9 +245,9 @@ export function CartDrawer() {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 h-full w-full sm:max-w-md bg-white z-50 shadow-2xl flex flex-col"
           >
-            <div className="p-6 border-b flex items-center justify-between bg-[#f6f2e8]">
-              <h2 className="font-montserrat font-bold text-xl flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-[#12207e]" />
+            <div className="p-6 border-b border-[#12207e]/10 flex items-center justify-between bg-[#f6f2e8]">
+              <h2 className="display-xl text-2xl text-[#1b2350] flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5 text-[#c9a24a]" />
                 Your Order
               </h2>
               <button onClick={toggleCart} className="p-2 hover:bg-black/5 rounded-full">
