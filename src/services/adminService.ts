@@ -295,6 +295,42 @@ async function adminUpdate(password: string, action: string, body: Record<string
   }
 }
 
+/** POST admin action that returns data. */
+async function adminUpdateReturning<T>(password: string, action: string, body: Record<string, unknown>): Promise<T> {
+  const res = await fetch(`${API_BASE}/api/admin?action=${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${password}` },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.error) throw new Error(json.error || `HTTP ${res.status}`);
+  return json.data as T;
+}
+
+// ── Outreach + admin-created reservations ────────────────────────────────
+export type Contact = { email: string; name: string };
+export async function getContacts(password: string): Promise<Contact[]> {
+  return adminFetch<Contact[]>(password, 'contacts');
+}
+
+export type OutreachPayload = {
+  subject: string; title?: string; body: string;
+  ctaLabel?: string; ctaUrl?: string; imageUrl?: string;
+  recipients: 'all' | string | string[];
+};
+export async function sendOutreach(password: string, payload: OutreachPayload): Promise<{ total: number; sent: number; failed: number }> {
+  return adminUpdateReturning(password, 'send_outreach', payload as unknown as Record<string, unknown>);
+}
+
+export type NewReservationPayload = {
+  type: 'beach' | 'restaurant'; name: string; phone?: string; email?: string;
+  date: string; time: string; partySize?: number | string; sunbeds?: number | string;
+  notes?: string; notify?: boolean;
+};
+export async function createReservationAdmin(password: string, payload: NewReservationPayload): Promise<unknown> {
+  return adminUpdateReturning(password, 'create_reservation', payload as unknown as Record<string, unknown>);
+}
+
 export async function fetchOrdersFromSupabase(password: string): Promise<SupabaseOrder[]> {
   return adminFetch<SupabaseOrder[]>(password, 'orders');
 }

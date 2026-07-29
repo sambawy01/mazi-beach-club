@@ -215,6 +215,24 @@ export async function sendReservationDeclinedEmail(reservation, reasonText) {
   return { sent: !!id };
 }
 
+// ── Outreach / broadcast email (admin promotions & communication) ─────────
+export async function sendOutreachEmail(to, { subject, title, body, ctaLabel, ctaUrl, imageUrl }) {
+  if (!to) return null;
+  const paras = String(body || '').trim().split(/\n{2,}/).filter(Boolean).map(p =>
+    `<p style="color:#3a4053;font-size:15px;line-height:1.7;margin:0 0 16px;text-align:center;">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`
+  ).join('');
+
+  const inner = `
+    ${eyebrow('A note from Mazi')}
+    ${title ? heading(escapeHtml(title)) : ''}
+    ${goldRule()}
+    ${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="" width="480" style="display:block;width:100%;max-width:100%;height:auto;border-radius:14px;margin:0 auto 20px;" />` : ''}
+    ${paras}
+    ${ctaLabel && ctaUrl ? `<div style="text-align:center;margin:26px 0 6px;">${ctaButton(escapeHtml(ctaUrl), escapeHtml(ctaLabel))}</div>` : ''}`;
+
+  return sendEmail(to, subject || 'A note from Mazi', brandedShell(inner, subject || 'A note from Mazi'));
+}
+
 // ── Payment request (approval → awaiting_payment) ─────────────────────────
 export async function sendPaymentRequestEmail({
   customer_name, customer_email, type, res_date, res_time, party_size, sunbeds, amount, payment_link,

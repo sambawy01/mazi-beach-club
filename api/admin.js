@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { sendReservationConfirmationEmail, sendPaymentRequestEmail } from './email.js';
+import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendOutreachEmail } from './email.js';
+import { generateCheckinToken } from './_lib/checkinToken.js';
 
 // Note: We no longer send status-update emails. The customer gets a single
 // confirmation email at order placement with a tracking link and feedback
@@ -72,6 +73,26 @@ export default async function handler(req, res) {
             .limit(200);
           if (error) return res.status(500).json({ error: error.message });
           return res.status(200).json({ ok: true, data });
+        }
+        case 'contacts': {
+          // Distinct customer contacts for outreach — union of reservations,
+          // orders, and account profiles, de-duped by email (case-insensitive).
+          const results = await Promise.allSettled([
+            supabase.from('reservations').select('customer_email, customer_name'),
+            supabase.from('orders').select('customer_email, customer_name'),
+            supabase.from('profiles').select('email, full_name'),
+          ]);
+          const map = new Map();
+          const add = (email, name) => {
+            if (!email || !/@/.test(email)) return;
+            const key = String(email).toLowerCase();
+            if (!map.has(key)) map.set(key, { email, name: name || '' });
+          };
+          const [resv, ord, prof] = results;
+          if (resv.status === 'fulfilled') (resv.value.data || []).forEach(r => add(r.customer_email, r.customer_name));
+          if (ord.status === 'fulfilled') (ord.value.data || []).forEach(o => add(o.customer_email, o.customer_name));
+          if (prof.status === 'fulfilled') (prof.value.data || []).forEach(p => add(p.email, p.full_name));
+          return res.status(200).json({ ok: true, data: [...map.values()] });
         }
         default:
           return res.status(400).json({ error: 'Unknown action' });
@@ -231,6 +252,75 @@ export default async function handler(req, res) {
           const { error } = await supabase.from('event_bookings').update(updates).eq('id', id);
           if (error) return res.status(500).json({ error: error.message });
           return res.status(200).json({ ok: true });
+        }
+        case 'create_reservation': {
+          // Admin-created reservation (e.g. a phone booking). Created directly as
+          // confirmed with a check-in token; optionally emails the guest.
+          const { type, name, phone, email, date, time, partySize, sunbeds, notes, notify } = body;
+          if (!name || !date || !time) return res.status(400).json({ error: 'Missing name, date, or time' });
+          const isBeach = type === 'beach';
+          const now = new Date().toISOString();
+          const checkin_token = generateCheckinToken();
+          const adminNote = '[created by admin — phone reservation]';
+          const row = {
+            type: isBeach ? 'beach' : 'restaurant',
+            status: 'confirmed',
+            customer_name: name,
+            customer_phone: phone || '',
+            customer_email: email || '',
+            res_date: date,
+            res_time: time,
+            party_size: parseInt(partySize) || 0,
+            sunbeds: isBeach ? (parseInt(sunbeds) || 0) : 0,
+            notes: notes ? `${notes}\n${adminNote}` : adminNote,
+            checkin_token,
+            confirmed_at: now,
+            rules_accepted_at: now,
+          };
+          const { data, error } = await supabase.from('reservations').insert(row).select('*').single();
+          if (error) return res.status(500).json({ error: error.message });
+          if (notify && email) {
+            try { await sendReservationConfirmationEmail(data); }
+            catch (e) { console.error('admin create_reservation email failed:', e.message); }
+          }
+          return res.status(200).json({ ok: true, data });
+        }
+        case 'send_outreach': {
+          // Promotional / communication email. recipients = 'all' (every distinct
+          // contact) OR an array of emails OR a single email string.
+          const { subject, title, body: msgBody, ctaLabel, ctaUrl, imageUrl, recipients } = body;
+          if (!subject || !msgBody) return res.status(400).json({ error: 'Missing subject or message' });
+
+          let emails = [];
+          if (recipients === 'all') {
+            const results = await Promise.allSettled([
+              supabase.from('reservations').select('customer_email'),
+              supabase.from('orders').select('customer_email'),
+              supabase.from('profiles').select('email'),
+            ]);
+            const set = new Set();
+            const push = (e) => { if (e && /@/.test(e)) set.add(String(e).toLowerCase()); };
+            const [rv, od, pf] = results;
+            if (rv.status === 'fulfilled') (rv.value.data || []).forEach(r => push(r.customer_email));
+            if (od.status === 'fulfilled') (od.value.data || []).forEach(o => push(o.customer_email));
+            if (pf.status === 'fulfilled') (pf.value.data || []).forEach(p => push(p.email));
+            emails = [...set];
+          } else if (Array.isArray(recipients)) {
+            emails = recipients;
+          } else if (typeof recipients === 'string') {
+            emails = [recipients];
+          }
+          emails = [...new Set(emails.filter(e => e && /@/.test(e)).map(e => String(e).trim()))];
+          if (emails.length === 0) return res.status(400).json({ error: 'No valid recipients' });
+
+          let sent = 0, failed = 0;
+          for (const to of emails) {
+            try {
+              const id = await sendOutreachEmail(to, { subject, title, body: msgBody, ctaLabel, ctaUrl, imageUrl });
+              if (id) sent++; else failed++;
+            } catch (e) { failed++; console.error('outreach send failed for', to, e.message); }
+          }
+          return res.status(200).json({ ok: true, data: { total: emails.length, sent, failed } });
         }
         default:
           return res.status(400).json({ error: 'Unknown action' });

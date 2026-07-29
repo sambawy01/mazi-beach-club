@@ -9,11 +9,12 @@ import { PantryTab } from './PantryTab';
 import { RamadanTab } from './RamadanTab';
 import { InventoryTab } from './InventoryTab';
 import { RequisitionsTab } from './RequisitionsTab';
-import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays } from 'lucide-react';
+import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail } from 'lucide-react';
 import { OrdersTab } from './OrdersTab';
 import { ReservationsTab } from './ReservationsTab';
 import { CalendarTab } from './CalendarTab';
 import { EventsTab } from './EventsTab';
+import { OutreachTab } from './OutreachTab';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   admin: { en: 'Admin', ar: 'إدارة' },
@@ -220,12 +221,16 @@ export function AdminPage() {
               <TabsTrigger value="events">
                 <Moon className="size-4 mr-1.5" /> Events
               </TabsTrigger>
+              <TabsTrigger value="outreach">
+                <Mail className="size-4 mr-1.5" /> Outreach
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="orders"><OrdersTab l={l} /></TabsContent>
             <TabsContent value="reservations"><ReservationsTab /></TabsContent>
             <TabsContent value="calendar"><CalendarTab l={l} /></TabsContent>
             <TabsContent value="events"><EventsTab /></TabsContent>
+            <TabsContent value="outreach"><OutreachTab /></TabsContent>
           </Tabs>
         )}
       </main>

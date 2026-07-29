@@ -14,11 +14,12 @@ import {
   approveReservation,
   confirmReservation,
   markPaidReservation,
+  createReservationAdmin,
   getStoredPassword,
   SupabaseReservation,
 } from '@/services/adminService';
 import { toast } from 'sonner';
-import { Loader2, Check, X, RefreshCw, UtensilsCrossed, Umbrella, CreditCard, BadgeCheck } from 'lucide-react';
+import { Loader2, Check, X, RefreshCw, UtensilsCrossed, Umbrella, CreditCard, BadgeCheck, Plus } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
   pending: { label: 'Pending', className: 'bg-amber-100 text-amber-800 border-amber-200' },
@@ -47,6 +48,30 @@ export function ReservationsTab() {
   const [linkInput, setLinkInput] = useState('');
   const [amountInput, setAmountInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Admin-created (phone) reservation
+  const emptyForm = { type: 'restaurant' as 'restaurant' | 'beach', name: '', phone: '', email: '', date: '', time: '', partySize: '2', sunbeds: '0', notes: '', notify: true };
+  const [newOpen, setNewOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [nf, setNf] = useState(emptyForm);
+
+  async function submitNewReservation() {
+    const pw = getStoredPassword();
+    if (!pw) { toast.error('Not authenticated'); return; }
+    if (!nf.name.trim() || !nf.date || !nf.time) { toast.error('Name, date and time are required'); return; }
+    if (nf.notify && !/@/.test(nf.email)) { toast.error('Add an email to send a confirmation, or turn off "email the guest"'); return; }
+    setCreating(true);
+    try {
+      await createReservationAdmin(pw, { ...nf });
+      toast.success('Reservation created' + (nf.notify && nf.email ? ' — guest emailed' : ''));
+      setNewOpen(false);
+      setNf(emptyForm);
+      setLoading(true);
+      await fetchReservations();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Failed to create reservation');
+    } finally { setCreating(false); }
+  }
 
   const fetchReservations = useCallback(async () => {
     const pw = getStoredPassword();
@@ -148,9 +173,14 @@ export function ReservationsTab() {
             <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">{pendingCount} pending</Badge>
           )}
         </h2>
-        <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchReservations(); }}>
-          <RefreshCw className="size-3 mr-1" /> Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" className="bg-[#12207e] hover:bg-[#0e1533] text-white" onClick={() => setNewOpen(true)}>
+            <Plus className="size-3 mr-1" /> New reservation
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchReservations(); }}>
+            <RefreshCw className="size-3 mr-1" /> Refresh
+          </Button>
+        </div>
       </div>
 
       <Table>
@@ -337,6 +367,45 @@ export function ReservationsTab() {
             >
               {submitting ? <Loader2 className="size-4 mr-1 animate-spin" /> : <BadgeCheck className="size-4 mr-1" />}
               Confirm without payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* New reservation — admin / phone booking (created confirmed) */}
+      <Dialog open={newOpen} onOpenChange={(o) => { if (!creating) setNewOpen(o); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Plus className="size-5" /> New reservation</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setNf({ ...nf, type: 'restaurant' })} className={`p-2 rounded-lg border text-sm flex items-center justify-center gap-1.5 transition-colors ${nf.type === 'restaurant' ? 'border-transparent bg-[#12207e] text-white' : 'border-gray-200 text-gray-600'}`}><UtensilsCrossed className="size-4" /> Restaurant</button>
+              <button type="button" onClick={() => setNf({ ...nf, type: 'beach' })} className={`p-2 rounded-lg border text-sm flex items-center justify-center gap-1.5 transition-colors ${nf.type === 'beach' ? 'border-transparent bg-[#12207e] text-white' : 'border-gray-200 text-gray-600'}`}><Umbrella className="size-4" /> Beach</button>
+            </div>
+            <div><label className="text-xs font-medium text-gray-600">Guest name *</label><Input value={nf.name} onChange={e => setNf({ ...nf, name: e.target.value })} placeholder="Full name" /></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><label className="text-xs font-medium text-gray-600">Phone</label><Input value={nf.phone} onChange={e => setNf({ ...nf, phone: e.target.value })} placeholder="+20…" /></div>
+              <div><label className="text-xs font-medium text-gray-600">Email</label><Input type="email" value={nf.email} onChange={e => setNf({ ...nf, email: e.target.value })} placeholder="optional" /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><label className="text-xs font-medium text-gray-600">Date *</label><Input type="date" value={nf.date} onChange={e => setNf({ ...nf, date: e.target.value })} /></div>
+              <div><label className="text-xs font-medium text-gray-600">Time *</label><Input value={nf.time} onChange={e => setNf({ ...nf, time: e.target.value })} placeholder="e.g. 8:30 PM" /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><label className="text-xs font-medium text-gray-600">{nf.type === 'beach' ? 'People' : 'Party size'}</label><Input type="number" min="1" value={nf.partySize} onChange={e => setNf({ ...nf, partySize: e.target.value })} /></div>
+              {nf.type === 'beach' && <div><label className="text-xs font-medium text-gray-600">Sunbeds</label><Input type="number" min="0" value={nf.sunbeds} onChange={e => setNf({ ...nf, sunbeds: e.target.value })} /></div>}
+            </div>
+            <div><label className="text-xs font-medium text-gray-600">Notes</label><Input value={nf.notes} onChange={e => setNf({ ...nf, notes: e.target.value })} placeholder="optional" /></div>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={nf.notify} onChange={e => setNf({ ...nf, notify: e.target.checked })} />
+              Email the guest a confirmation (needs an email)
+            </label>
+          </div>
+          <DialogFooter className="gap-2 sm:justify-between">
+            <Button variant="outline" onClick={() => setNewOpen(false)} disabled={creating}>Cancel</Button>
+            <Button className="bg-[#12207e] hover:bg-[#0e1533] text-white" onClick={submitNewReservation} disabled={creating}>
+              {creating ? <><Loader2 className="size-4 mr-2 animate-spin" /> Creating…</> : 'Create reservation'}
             </Button>
           </DialogFooter>
         </DialogContent>
