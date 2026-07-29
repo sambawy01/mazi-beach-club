@@ -22,6 +22,7 @@ const PERMISSIONS = {
   list_audit: ['manager'],
   dashboard: ['manager', 'host', 'accounting'],
   feedback: ['manager', 'accounting'],
+  resolve_feedback: ['manager', 'accounting'],
   customers: ['manager', 'host'],
   settings: ['manager'],
   // reservation ops

@@ -104,6 +104,21 @@ export async function getAuditLog(password: string): Promise<AuditEntry[]> {
   return adminFetch<AuditEntry[]>(password, 'list_audit');
 }
 
+// ── Feedback (Phase 06) — reputation queue ─────────────────────────────────
+export type FeedbackEntry = {
+  id: string; order_ref: string | null; tracking_token: string | null;
+  customer_name: string | null; customer_email: string | null;
+  rating: number; comment: string; created_at: string;
+  resolved?: boolean; resolved_at?: string | null; staff_note?: string;
+};
+export type FeedbackSummary = { count: number; avg: number; distribution: Record<string, number>; unresolved: number };
+export async function getFeedback(password: string): Promise<{ rows: FeedbackEntry[]; summary: FeedbackSummary }> {
+  return adminFetch<{ rows: FeedbackEntry[]; summary: FeedbackSummary }>(password, 'feedback');
+}
+export async function resolveFeedback(password: string, id: string, patch: { resolved?: boolean; staff_note?: string }): Promise<void> {
+  return adminUpdate(password, 'resolve_feedback', { id, ...patch });
+}
+
 // ── Customers (Phase 05) — Customer 360 CRM ────────────────────────────────
 export type Customer = {
   email: string; name: string; phone: string; has_account: boolean;

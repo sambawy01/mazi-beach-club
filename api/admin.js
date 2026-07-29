@@ -117,6 +117,24 @@ export default async function handler(req, res) {
           const obj = Object.fromEntries((data || []).map(r => [r.key, r.value]));
           return res.status(200).json({ ok: true, data: obj });
         }
+        case 'feedback': {
+          // Reputation queue — newest first, plus rating aggregates for the
+          // header. select('*') so it works whether or not the triage migration
+          // (resolved / staff_note) has been applied yet.
+          const { data, error } = await supabase
+            .from('feedback')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(500);
+          if (error) return res.status(500).json({ error: error.message });
+          const rows = data || [];
+          const count = rows.length;
+          const avg = count ? rows.reduce((s, r) => s + (Number(r.rating) || 0), 0) / count : 0;
+          const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+          rows.forEach(r => { const k = Math.round(Number(r.rating) || 0); if (distribution[k] !== undefined) distribution[k]++; });
+          const unresolved = rows.filter(r => !r.resolved && (Number(r.rating) || 0) <= 3).length;
+          return res.status(200).json({ ok: true, data: { rows, summary: { count, avg, distribution, unresolved } } });
+        }
         case 'customers': {
           // Customer 360 — one row per guest (keyed by lowercased email), built
           // by folding every order and reservation together. Gives lifetime
@@ -490,6 +508,21 @@ export default async function handler(req, res) {
           }
           await writeAudit(supabase, auth, { action: 'send_outreach', target_type: 'outreach', summary: `Sent "${subject}" to ${sent}/${emails.length} recipients` });
           return res.status(200).json({ ok: true, data: { total: emails.length, sent, failed } });
+        }
+        case 'resolve_feedback': {
+          const { id, resolved, staff_note } = body;
+          if (!id) return res.status(400).json({ error: 'Missing id' });
+          const updates = {};
+          if (resolved !== undefined) {
+            updates.resolved = !!resolved;
+            updates.resolved_at = resolved ? new Date().toISOString() : null;
+          }
+          if (staff_note !== undefined) updates.staff_note = String(staff_note);
+          if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Nothing to update' });
+          const { error } = await supabase.from('feedback').update(updates).eq('id', id);
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'resolve_feedback', target_type: 'feedback', target_id: id, summary: resolved === false ? 'Reopened feedback' : 'Resolved feedback' });
+          return res.status(200).json({ ok: true });
         }
         case 'update_settings': {
           // body.settings = { key: value, ... } — values stored as JSONB verbatim.
