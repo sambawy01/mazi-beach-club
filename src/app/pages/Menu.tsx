@@ -232,29 +232,38 @@ export function MenuPage() {
   return (
     <div className="min-h-screen bg-[#f6f2e8]">
       {/* ===== HERO HEADER ===== */}
-      <section className="relative bg-[#1b2350] py-24 md:py-32 overflow-hidden">
+      <section className="relative bg-[#0e1533] py-28 md:py-36 overflow-hidden noise">
         <img
-          src="https://placehold.co/1920x600/1b2350/12207e?text=Our+Menu"
+          src="/hero-6.jpg"
           alt="Our Menu"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover opacity-45 animate-kenburns"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1b2350]/50 to-[#1b2350]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0e1533]/70 via-[#0e1533]/55 to-[#0e1533]" />
+        <div className="pointer-events-none absolute -top-1/4 left-1/2 -translate-x-1/2 w-[60vw] h-[60vw] rounded-full blur-3xl animate-aurora" style={{ background: 'radial-gradient(circle, rgba(201,162,74,0.16), transparent 62%)' }} />
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+          <motion.span
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="eyebrow-gold block mb-5"
+          >
+            The Table
+          </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="font-serif text-5xl md:text-7xl font-bold text-white mb-4"
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="display-xl text-6xl md:text-8xl text-white mb-5"
           >
-            Our Menu
+            Our <span className="italic text-gold-gradient">Menu</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="font-serif italic text-[#f0e6d2] text-lg md:text-2xl tracking-wide"
+            className="font-elegant italic text-sea-glass text-xl md:text-2xl tracking-wide"
           >
-            — where the desert meets the sea —
+            — from the boats, over the embers, meant for sharing —
           </motion.p>
           <motion.p
             initial={{ opacity: 0 }}
@@ -395,15 +404,15 @@ export function MenuPage() {
                       return (
                         <section key={category}>
                           <div className="text-center mb-8">
-                            <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#1b2350]">
+                            <h2 className="display-xl text-4xl md:text-6xl text-[#1b2350]">
                               {category}
                             </h2>
                             {meta?.tagline && (
-                              <p className="font-serif italic text-lg text-[#12207e]/70 mt-1">
+                              <p className="font-elegant italic text-xl md:text-2xl text-[#12207e]/70 mt-2">
                                 {meta.tagline}
                               </p>
                             )}
-                            <div className="w-16 h-1 bg-gradient-to-r from-[#12207e] to-[#3c6e8f] rounded-full mx-auto mt-4" />
+                            <div className="w-20 h-px rule-gold mx-auto mt-5" />
                           </div>
                           <div className={gridClass}>
                             {items.map((item, index) => (

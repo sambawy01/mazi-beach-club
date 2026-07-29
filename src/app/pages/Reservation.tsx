@@ -287,9 +287,11 @@ export function ReservationPage() {
       <div className="container mx-auto px-4 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="font-montserrat font-bold text-4xl mb-3 text-[#1b2350]">Reservations</h1>
-          <p className="text-gray-600 max-w-lg mx-auto">
-            Book your spot at Mazi — beach sunbeds or a restaurant table.
+          <span className="eyebrow-gold block mb-4">Join Us</span>
+          <h1 className="display-xl text-5xl md:text-6xl mb-4 text-[#1b2350]">Reserve <span className="italic text-aegean-gradient">Your Table</span></h1>
+          <div className="w-16 h-px rule-gold mx-auto mb-4" />
+          <p className="font-elegant italic text-xl text-[#12207e]/70 max-w-lg mx-auto">
+            beach sunbeds or a table by the sea — tell us when, and we'll have it ready.
           </p>
         </div>
 

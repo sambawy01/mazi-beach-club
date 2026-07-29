@@ -106,11 +106,12 @@ export function EventsPage() {
             >
               <Sparkles className="w-10 h-10 text-[#3c6e8f]" />
             </motion.div>
-            <h1 className="font-serif text-5xl md:text-7xl font-bold text-white tracking-tight">
+            <span className="eyebrow-gold block mb-4">Nights at Mazi</span>
+            <h1 className="display-xl text-6xl md:text-8xl text-white">
               Events
             </h1>
-            <p className="mt-4 text-lg md:text-xl text-white/70 font-light">
-              Sunset sessions, live music, and DJs on the beach
+            <p className="mt-5 font-elegant italic text-xl md:text-2xl text-sea-glass">
+              sunset sessions, live music, and DJs on the sand
             </p>
           </motion.div>
         </div>
@@ -120,8 +121,8 @@ export function EventsPage() {
       <section className="py-20 bg-[#f6f2e8]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-[#12207e] font-bold tracking-widest uppercase mb-4 block text-sm">What's On</span>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#1b2350] mb-4">Upcoming Events</h2>
+            <span className="eyebrow-gold block mb-5">What's On</span>
+            <h2 className="display-xl text-4xl md:text-6xl text-[#1b2350] mb-4">Upcoming <span className="italic text-aegean-gradient">Events</span></h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               From daily sunset sessions to monthly international guest DJs, there's always something happening at Mazi.
             </p>
@@ -204,8 +205,8 @@ export function EventsPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <span className="text-[#3c6e8f] font-bold tracking-[0.3em] uppercase text-sm block mb-4">Recent Nights</span>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#1b2350] mb-4 leading-tight">Shkoon · Live at Mazi</h2>
+            <span className="eyebrow-gold block mb-5">Recent Nights</span>
+            <h2 className="display-xl text-5xl md:text-6xl text-[#1b2350] mb-4">Shkoon <span className="italic text-aegean-gradient">· Live at Mazi</span></h2>
             <div className="flex items-center justify-center gap-3 text-[#12207e] text-sm font-semibold tracking-wide">
               <Calendar className="w-4 h-4" />
               <span>23 July 2026</span>
