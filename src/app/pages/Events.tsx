@@ -139,13 +139,13 @@ export function EventsPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.08 }}
                   whileHover={{ y: -8 }}
-                  className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col ${
-                    event.featured ? 'ring-2 ring-[#3c6e8f]' : ''
+                  className={`card-luxe sheen shadow-float group flex flex-col ${
+                    event.featured ? 'ring-gold' : ''
                   }`}
                 >
                   {event.featured && (
-                    <div className="absolute top-0 right-0 bg-[#3c6e8f] text-white text-xs font-bold px-4 py-1 rounded-bl-lg z-10">
-                      SIGNATURE
+                    <div className="eyebrow-gold absolute top-0 right-0 bg-[#0e1533] px-4 py-1.5 rounded-bl-2xl z-10 !text-[0.6rem]">
+                      Signature
                     </div>
                   )}
                   <div className="h-2 w-full" style={{ backgroundColor: event.color }} />
@@ -164,7 +164,7 @@ export function EventsPage() {
                       </span>
                     </div>
 
-                    <h3 className="font-serif text-xl font-bold text-[#1b2350] leading-tight mb-2">{event.title}</h3>
+                    <h3 className="font-display text-2xl text-[#1b2350] leading-tight mb-2">{event.title}</h3>
                     <p className="text-gray-500 text-sm leading-relaxed mb-4 flex-1">{event.description}</p>
 
                     {/* Highlights */}

@@ -33,7 +33,7 @@ function MenuCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.05 }}
-      className={`bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col ${
+      className={`card-luxe sheen shadow-float flex flex-col ${
         item.status === 'sold_out' ? 'opacity-70 grayscale' : ''
       }`}
     >
@@ -73,7 +73,7 @@ function MenuCard({
       ) : (
         // Elegant text-only header when no photo is available yet:
         // a slim brand-teal accent bar keeps the card intentional, not empty.
-        <div className="h-1.5 bg-gradient-to-r from-[#12207e] to-[#3c6e8f] shrink-0" />
+        <div className="h-1 rule-gold shrink-0" />
       )}
       <div className="p-5 flex flex-col flex-1">
         {/* No-image case: pills + status live in the body */}
@@ -101,9 +101,9 @@ function MenuCard({
           </div>
         )}
         <div className="flex justify-between items-start gap-2 mb-2">
-          <h3 className="font-serif text-lg font-bold text-[#1b2350] leading-tight">{item.name}</h3>
-          <span className="font-bold text-[#12207e] whitespace-nowrap">
-            EGP {item.price}
+          <h3 className="font-display text-xl text-[#1b2350] leading-tight">{item.name}</h3>
+          <span className="font-display text-lg text-[#12207e] whitespace-nowrap">
+            <span className="text-[10px] align-top tracking-widest text-[#12207e]/50 mr-0.5">EGP</span>{item.price}
             {item.unit === 'kg' && <span className="font-normal text-gray-400 text-sm"> / kg</span>}
           </span>
         </div>
@@ -124,14 +124,14 @@ function MenuCard({
             // estimated line to the cart. Same footprint as Add-to-Cart.
             <Button
               onClick={() => onKiloAdd(item)}
-              className="w-full bg-[#12207e] hover:bg-[#3c6e8f] text-white transition-all duration-300 shadow-md hover:shadow-[#3c6e8f]/25 h-11 rounded-xl text-sm font-semibold group-hover:-translate-y-0.5"
+              className="w-full bg-gradient-to-r from-[#12207e] to-[#2f6f9e] hover:from-[#0e1533] hover:to-[#12207e] text-white transition-all duration-300 shadow-float hover:shadow-luxe h-11 rounded-full text-xs uppercase tracking-[0.14em] font-semibold group-hover:-translate-y-0.5"
             >
               <Plus className="w-4 h-4 mr-2" /> Add to order
             </Button>
           ) : (
             <Button
               onClick={() => onAdd(item)}
-              className="w-full bg-[#12207e] hover:bg-[#3c6e8f] text-white transition-all duration-300 shadow-md hover:shadow-[#3c6e8f]/25 h-11 rounded-xl text-sm font-semibold group-hover:-translate-y-0.5"
+              className="w-full bg-gradient-to-r from-[#12207e] to-[#2f6f9e] hover:from-[#0e1533] hover:to-[#12207e] text-white transition-all duration-300 shadow-float hover:shadow-luxe h-11 rounded-full text-xs uppercase tracking-[0.14em] font-semibold group-hover:-translate-y-0.5"
             >
               <Plus className="w-4 h-4 mr-2" /> Add to Cart
             </Button>
