@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { getAuditLog, getStoredPassword, AuditEntry } from '@/services/adminService';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, History } from 'lucide-react';
+import { Loader2, RefreshCw, History, Download } from 'lucide-react';
+import { exportToCsv } from './lib/csv';
 
 function timeAgo(iso: string) {
   const d = new Date(iso).getTime();
@@ -27,13 +28,29 @@ export function ActivityTab() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
+  function exportCsv() {
+    exportToCsv('mazi-activity-log', [
+      { header: 'When', value: (r: AuditEntry) => r.created_at },
+      { header: 'Actor', value: (r: AuditEntry) => r.actor },
+      { header: 'Role', value: (r: AuditEntry) => r.actor_role },
+      { header: 'Action', value: (r: AuditEntry) => r.action },
+      { header: 'Target', value: (r: AuditEntry) => r.target_type || '' },
+      { header: 'Target ID', value: (r: AuditEntry) => r.target_id || '' },
+      { header: 'Summary', value: (r: AuditEntry) => r.summary || '' },
+    ], rows);
+    toast.success(`Exported ${rows.length} entr${rows.length === 1 ? 'y' : 'ies'}`);
+  }
+
   if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold flex items-center gap-2"><History className="size-5" /> Activity log</h2>
-        <Button variant="outline" size="sm" onClick={load}><RefreshCw className="size-3 mr-1" /> Refresh</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={rows.length === 0}><Download className="size-3 mr-1" /> Export</Button>
+          <Button variant="outline" size="sm" onClick={load}><RefreshCw className="size-3 mr-1" /> Refresh</Button>
+        </div>
       </div>
       <p className="text-sm text-muted-foreground mb-4">Every action taken in the admin — who, what, and when. Newest first.</p>
 

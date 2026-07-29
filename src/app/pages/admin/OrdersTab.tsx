@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
+import { Input } from '@/app/components/ui/input';
 import {
   fetchOrdersFromSupabase,
   updateOrderStatusInSupabase,
@@ -10,9 +11,10 @@ import {
 } from '@/services/adminService';
 import { AdminLang } from './useAdminLang';
 import { toast } from 'sonner';
+import { exportToCsv } from './lib/csv';
 import {
   Loader2, Check, X, ChefHat, Bike, PackageCheck, Ban, RefreshCw, UtensilsCrossed,
-  MapPin, CreditCard, Mail, StickyNote, Phone,
+  MapPin, CreditCard, Mail, StickyNote, Phone, Search, Download,
 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
@@ -70,6 +72,47 @@ export function OrdersTab({ l }: { l: AdminLang }) {
   const [orders, setOrders] = useState<SupabaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'pending_approval' | 'delivered' | 'served' | 'declined' | 'cancelled'>('all');
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return orders.filter(o => {
+      if (statusFilter === 'active') {
+        if (TERMINAL_STATUSES.has(o.status)) return false;
+      } else if (statusFilter !== 'all' && o.status !== statusFilter) {
+        return false;
+      }
+      if (!q) return true;
+      return (
+        (o.order_ref || '').toLowerCase().includes(q) ||
+        (o.customer_name || '').toLowerCase().includes(q) ||
+        (o.customer_phone || '').toLowerCase().includes(q) ||
+        (o.customer_email || '').toLowerCase().includes(q)
+      );
+    });
+  }, [orders, query, statusFilter]);
+
+  function exportCsv() {
+    exportToCsv('mazi-orders', [
+      { header: 'Ref', value: (o: SupabaseOrder) => o.order_ref },
+      { header: 'Created', value: (o: SupabaseOrder) => o.created_at },
+      { header: 'Mode', value: (o: SupabaseOrder) => o.mode },
+      { header: 'Status', value: (o: SupabaseOrder) => o.status },
+      { header: 'Customer', value: (o: SupabaseOrder) => o.customer_name },
+      { header: 'Phone', value: (o: SupabaseOrder) => o.customer_phone },
+      { header: 'Email', value: (o: SupabaseOrder) => o.customer_email },
+      { header: 'Address', value: (o: SupabaseOrder) => o.delivery_address || '' },
+      { header: 'Slot', value: (o: SupabaseOrder) => o.delivery_slot || '' },
+      { header: 'Items', value: (o: SupabaseOrder) => (o.items || []).map(i => `${i.quantity}x ${i.name}`).join('; ') },
+      { header: 'Subtotal', value: (o: SupabaseOrder) => o.subtotal },
+      { header: 'VAT', value: (o: SupabaseOrder) => o.vat_amount },
+      { header: 'Service', value: (o: SupabaseOrder) => o.service_amount },
+      { header: 'Total', value: (o: SupabaseOrder) => o.total },
+      { header: 'Payment', value: (o: SupabaseOrder) => o.payment_method },
+    ], visible);
+    toast.success(`Exported ${visible.length} order${visible.length === 1 ? '' : 's'}`);
+  }
 
   const fetchOrders = useCallback(async () => {
     const pw = getStoredPassword();
@@ -229,27 +272,62 @@ export function OrdersTab({ l }: { l: AdminLang }) {
 
   const pendingCount = orders.filter(o => o.status === 'pending_approval').length;
 
+  const STATUS_FILTERS: { key: typeof statusFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'pending_approval', label: 'Pending' },
+    { key: 'delivered', label: 'Delivered' },
+    { key: 'served', label: 'Served' },
+    { key: 'declined', label: 'Declined' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
+
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">
-          Orders ({orders.length})
+          Orders ({visible.length}{visible.length !== orders.length ? ` of ${orders.length}` : ''})
           {pendingCount > 0 && (
             <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">{pendingCount} pending</Badge>
           )}
         </h2>
-        <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchOrders(); }}>
-          <RefreshCw className="size-3 mr-1" /> Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={visible.length === 0}>
+            <Download className="size-3 mr-1" /> Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchOrders(); }}>
+            <RefreshCw className="size-3 mr-1" /> Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* Search + status filter */}
+      <div className="mb-5 space-y-2">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search ref, name, phone, email…" className="pl-9" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {STATUS_FILTERS.map(f => (
+            <button key={f.key} onClick={() => setStatusFilter(f.key)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${statusFilter === f.key ? 'bg-[#12207e] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'}`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {orders.length === 0 ? (
         <div className="rounded-2xl border bg-white py-16 text-center text-muted-foreground shadow-sm">
           No orders yet.
         </div>
+      ) : visible.length === 0 ? (
+        <div className="rounded-2xl border bg-white py-16 text-center text-muted-foreground shadow-sm">
+          No orders match your search.
+        </div>
       ) : (
         <div className="space-y-5">
-          {orders.map((order, idx) => {
+          {visible.map((order, idx) => {
             const badge = STATUS_BADGE[order.status];
             const isDineIn = order.mode === 'dine_in';
             const isPending = order.status === 'pending_approval';

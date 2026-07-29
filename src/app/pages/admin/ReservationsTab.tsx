@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
 } from '@/app/components/ui/table';
@@ -19,7 +19,8 @@ import {
   SupabaseReservation,
 } from '@/services/adminService';
 import { toast } from 'sonner';
-import { Loader2, Check, X, RefreshCw, UtensilsCrossed, Umbrella, CreditCard, BadgeCheck, Plus } from 'lucide-react';
+import { Loader2, Check, X, RefreshCw, UtensilsCrossed, Umbrella, CreditCard, BadgeCheck, Plus, Search, Download } from 'lucide-react';
+import { exportToCsv } from './lib/csv';
 
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
   pending: { label: 'Pending', className: 'bg-amber-100 text-amber-800 border-amber-200' },
@@ -42,6 +43,39 @@ export function ReservationsTab() {
   const [reservations, setReservations] = useState<SupabaseReservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return reservations.filter(r => {
+      if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+      if (!q) return true;
+      return (
+        (r.customer_name || '').toLowerCase().includes(q) ||
+        (r.customer_phone || '').toLowerCase().includes(q) ||
+        (r.customer_email || '').toLowerCase().includes(q)
+      );
+    });
+  }, [reservations, query, statusFilter]);
+
+  function exportCsv() {
+    exportToCsv('mazi-reservations', [
+      { header: 'Created', value: (r: SupabaseReservation) => r.created_at },
+      { header: 'Type', value: (r: SupabaseReservation) => r.type },
+      { header: 'Status', value: (r: SupabaseReservation) => r.status },
+      { header: 'Date', value: (r: SupabaseReservation) => r.res_date },
+      { header: 'Time', value: (r: SupabaseReservation) => r.res_time },
+      { header: 'Customer', value: (r: SupabaseReservation) => r.customer_name },
+      { header: 'Phone', value: (r: SupabaseReservation) => r.customer_phone },
+      { header: 'Email', value: (r: SupabaseReservation) => r.customer_email },
+      { header: 'Party', value: (r: SupabaseReservation) => r.party_size },
+      { header: 'Sunbeds', value: (r: SupabaseReservation) => r.sunbeds },
+      { header: 'Amount', value: (r: SupabaseReservation) => r.payment_amount ?? '' },
+      { header: 'Notes', value: (r: SupabaseReservation) => r.notes },
+    ], visible);
+    toast.success(`Exported ${visible.length} reservation${visible.length === 1 ? '' : 's'}`);
+  }
 
   // Approve dialog (pending → awaiting_payment: collect payment link + amount)
   const [approveTarget, setApproveTarget] = useState<SupabaseReservation | null>(null);
@@ -168,7 +202,7 @@ export function ReservationsTab() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">
-          Reservations ({reservations.length})
+          Reservations ({visible.length}{visible.length !== reservations.length ? ` of ${reservations.length}` : ''})
           {pendingCount > 0 && (
             <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">{pendingCount} pending</Badge>
           )}
@@ -177,9 +211,28 @@ export function ReservationsTab() {
           <Button size="sm" className="bg-[#12207e] hover:bg-[#0e1533] text-white" onClick={() => setNewOpen(true)}>
             <Plus className="size-3 mr-1" /> New reservation
           </Button>
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={visible.length === 0}>
+            <Download className="size-3 mr-1" /> Export
+          </Button>
           <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchReservations(); }}>
             <RefreshCw className="size-3 mr-1" /> Refresh
           </Button>
+        </div>
+      </div>
+
+      {/* Search + status filter */}
+      <div className="mb-4 space-y-2">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search name, phone, email…" className="pl-9" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {['all', 'pending', 'awaiting_payment', 'confirmed', 'declined', 'cancelled', 'completed', 'no_show'].map(k => (
+            <button key={k} onClick={() => setStatusFilter(k)}
+              className={`px-3 py-1 rounded-full text-xs font-medium capitalize transition-colors ${statusFilter === k ? 'bg-[#12207e] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'}`}>
+              {k === 'all' ? 'All' : (STATUS_BADGE[k]?.label ?? k.replace('_', ' '))}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -196,7 +249,7 @@ export function ReservationsTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {reservations.map(res => {
+          {visible.map(res => {
             const badge = STATUS_BADGE[res.status];
             return (
               <TableRow key={res.id} className={res.status === 'pending' ? 'bg-amber-50/50' : undefined}>
@@ -285,8 +338,8 @@ export function ReservationsTab() {
               </TableRow>
             );
           })}
-          {reservations.length === 0 && (
-            <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No reservations yet.</TableCell></TableRow>
+          {visible.length === 0 && (
+            <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">{reservations.length === 0 ? 'No reservations yet.' : 'No reservations match your search.'}</TableCell></TableRow>
           )}
         </TableBody>
       </Table>
