@@ -173,6 +173,35 @@ export async function sendReservationConfirmationEmail(reservation) {
   return { sent: !!id };
 }
 
+// ── Reservation declined notification ─────────────────────────────────────
+export async function sendReservationDeclinedEmail(reservation, reasonText) {
+  if (!process.env.RESEND_API_KEY) return { sent: false, skipped: 'no RESEND_API_KEY' };
+  if (!reservation.customer_email) return { sent: false, skipped: 'no email' };
+
+  const partyLine = reservation.type === 'beach'
+    ? `${escapeHtml(String(reservation.sunbeds))} sunbed(s)`
+    : `Party of ${escapeHtml(String(reservation.party_size))}`;
+  const safeName = escapeHtml(reservation.customer_name);
+  const safeDate = escapeHtml(reservation.res_date);
+  const safeTime = escapeHtml(reservation.res_time);
+  const safeReason = reasonText ? escapeHtml(reasonText) : '';
+
+  const inner = `
+    ${eyebrow('Reservation update')}
+    ${heading('About your reservation')}
+    ${goldRule()}
+    <p style="text-align:center;color:#5a6072;font-size:15px;margin:0 0 18px;">Hi ${safeName}, thank you for wanting to join us — unfortunately we're unable to confirm this reservation.</p>
+    <div style="background:${CREAM};border-radius:14px;padding:20px;text-align:center;margin-bottom:20px;">
+      <div style="font-family:${SERIF};color:${COBALT};font-size:20px;font-weight:600;">${safeDate}</div>
+      <div style="color:#5a6072;font-size:15px;margin-top:4px;">${safeTime} &middot; ${partyLine}</div>
+    </div>
+    ${safeReason ? `<p style="text-align:center;color:#5a6072;font-size:14px;margin:0 0 18px;"><strong style="color:${COBALT};">Reason:</strong> ${safeReason}</p>` : ''}
+    <p style="text-align:center;color:#5a6072;font-size:15px;margin:0 0 8px;">We'd love to welcome you another time — just reply to this email or reach us at <a href="mailto:hello@mazibeach.com" style="color:${COBALT};text-decoration:none;font-weight:600;">hello@mazibeach.com</a> and we'll do our best to find you a spot.</p>`;
+
+  const id = await sendEmail(reservation.customer_email, 'About your Mazi reservation', brandedShell(inner, 'An update on your Mazi reservation'));
+  return { sent: !!id };
+}
+
 // ── Payment request (approval → awaiting_payment) ─────────────────────────
 export async function sendPaymentRequestEmail({
   customer_name, customer_email, type, res_date, res_time, party_size, sunbeds, amount, payment_link,

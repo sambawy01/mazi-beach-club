@@ -1,6 +1,6 @@
 import https from 'https';
 import { createClient } from '@supabase/supabase-js';
-import { sendReservationConfirmationEmail, sendPaymentRequestEmail } from './email.js';
+import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendReservationDeclinedEmail } from './email.js';
 import { parsePaymentReply } from './_lib/parsePaymentReply.js';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -129,6 +129,26 @@ function formatReservation(r) {
     `📅 ${r.res_date} at ${r.res_time}`,
     `👥 ${sizeLabel}`,
   ].join('\n');
+}
+
+// Atomic pending→declined + notify the guest by email. Returns a small status
+// object so both the immediate-reason path and the custom-reason reply path can
+// render the right Telegram feedback. `reasonText` is the human-facing reason.
+async function declineAndEmail(id, reasonText) {
+  const { data: r, error: fetchErr } = await supabase
+    .from('reservations').select('*').eq('id', id).single();
+  if (fetchErr || !r) return { notFound: true };
+  if (r.status !== 'pending') return { notPending: true, r };
+  const note = [r.notes, `[declined] ${reasonText}`].filter(Boolean).join('\n');
+  const { data: rows, error: updErr } = await supabase
+    .from('reservations')
+    .update({ status: 'declined', declined_at: new Date().toISOString(), notes: note })
+    .eq('id', id).eq('status', 'pending').select('id');
+  if (updErr) return { dbError: updErr.message, r };
+  if (!rows || rows.length === 0) return { raceLost: true, r };
+  try { await sendReservationDeclinedEmail(r, reasonText); }
+  catch (e) { console.error('decline email failed:', e.message); }
+  return { declined: true, r };
 }
 
 // Warn only once per cold start that the webhook is running unauthenticated.
@@ -303,64 +323,49 @@ export default async function handler(req, res) {
         const sep = rest.indexOf(':');
         const id = sep === -1 ? rest : rest.slice(0, sep);
         const reason = sep === -1 ? 'other' : rest.slice(sep + 1);
-        const reasonLabel = REASON_LABELS[reason] || REASON_LABELS.other;
-
         if (!supabase) {
           await tgAnswerCallback(callbackId, 'DB not configured');
           return res.status(200).json({ ok: true });
         }
 
-        const { data: r, error: fetchErr } = await supabase
-          .from('reservations')
-          .select('*')
-          .eq('id', id)
-          .single();
+        // "Other Reason" → optionally type a custom reason for the guest's email.
+        // Send a force_reply prompt; the reply (text, or "skip") is matched back
+        // in the update.message handler below and drives the decline.
+        if (reason === 'other') {
+          const sent = await tgSendMessage(chatId,
+            '✍️ Reply with a decline reason to include in the guest\'s email — or reply "skip" to decline without one.',
+            { force_reply: true });
+          const promptMessageId = sent && sent.result && sent.result.message_id;
+          if (!promptMessageId) {
+            await tgAnswerCallback(callbackId, 'Could not start — try again');
+            return res.status(200).json({ ok: true });
+          }
+          await supabase.from('telegram_prompts').delete()
+            .eq('reservation_id', id).eq('kind', 'await_decline_reason').is('consumed_at', null);
+          await supabase.from('telegram_prompts').insert({
+            chat_id: chatId, prompt_message_id: promptMessageId, reservation_id: id, kind: 'await_decline_reason',
+          });
+          await tgEditMessage(chatId, messageId, `📝 Awaiting a decline reason — reply to the prompt (or "skip").`);
+          await tgAnswerCallback(callbackId, 'Type a reason or "skip"');
+          return res.status(200).json({ ok: true });
+        }
 
-        if (fetchErr || !r) {
+        // Fixed reasons decline immediately + email the guest their status.
+        const reasonLabel = REASON_LABELS[reason] || REASON_LABELS.other;
+        const result = await declineAndEmail(id, reasonLabel);
+        if (result.notFound) {
           await tgEditMessage(chatId, messageId, `⚠️ Reservation not found (${id}).`);
           await tgAnswerCallback(callbackId, 'Not found');
-          return res.status(200).json({ ok: true });
-        }
-
-        // Idempotency: only a pending reservation may be moved to a final state.
-        // Guards against stale buttons on old Telegram messages re-flipping it.
-        if (r.status !== 'pending') {
-          await tgAnswerCallback(callbackId, `Already ${r.status}`);
-          return res.status(200).json({ ok: true });
-        }
-
-        const appendedNotes = [r.notes, `[declined] ${reasonLabel}`]
-          .filter(Boolean).join('\n');
-
-        // Atomic pending→declined. The `.eq('status','pending')` makes the flip
-        // conditional inside the DB, closing the TOCTOU gap after the fetch
-        // above — only ONE concurrent press (or a genuinely still-pending row)
-        // gets a row back. We must NOT claim "declined" unless a row changed.
-        const { data: declinedRows, error: updErr } = await supabase
-          .from('reservations')
-          .update({ status: 'declined', declined_at: new Date().toISOString(), notes: appendedNotes })
-          .eq('id', id)
-          .eq('status', 'pending')
-          .select('id');
-
-        if (updErr) {
-          console.error('Supabase decline update error:', updErr.message);
+        } else if (result.dbError) {
+          console.error('Supabase decline update error:', result.dbError);
           await tgAnswerCallback(callbackId, 'DB update failed');
-          return res.status(200).json({ ok: true });
-        }
-
-        if (declinedRows && declinedRows.length > 0) {
+        } else if (result.declined) {
           await tgEditMessage(chatId, messageId,
-            `❌ RESERVATION DECLINED\n\n${formatReservation(r)}\n\nReason: ${reasonLabel}`
-          );
-          await tgAnswerCallback(callbackId, 'Declined');
+            `❌ RESERVATION DECLINED — guest notified.\n\n${formatReservation(result.r)}\n\nReason: ${reasonLabel}`);
+          await tgAnswerCallback(callbackId, 'Declined & emailed');
         } else {
-          // Lost the race / no longer pending — do NOT claim it was declined.
           await tgEditMessage(chatId, messageId,
-            `ℹ️ No longer pending — not declined.\n\n${formatReservation(r)}`
-          );
-          // `r` was fetched as pending, so its cached status is stale here —
-          // report the generic "No longer pending" rather than "Already pending".
+            `ℹ️ No longer pending — not declined.\n\n${formatReservation(result.r)}`);
           await tgAnswerCallback(callbackId, 'No longer pending');
         }
         return res.status(200).json({ ok: true });
@@ -758,6 +763,28 @@ export default async function handler(req, res) {
       // matching un-consumed telegram_prompts row and parse the link+amount.
       if (supabase && update.message.reply_to_message) {
         const replyToId = update.message.reply_to_message.message_id;
+
+        // ── Decline-reason reply (from the "Other Reason" force_reply) ──────
+        const { data: dPrompt } = await supabase
+          .from('telegram_prompts').select('*')
+          .eq('chat_id', chatId).eq('prompt_message_id', replyToId)
+          .eq('kind', 'await_decline_reason').is('consumed_at', null).maybeSingle();
+        if (dPrompt) {
+          const raw = (text || '').trim();
+          const reasonText = (!raw || /^skip$/i.test(raw)) ? REASON_LABELS.other : raw;
+          const result = await declineAndEmail(dPrompt.reservation_id, reasonText);
+          await supabase.from('telegram_prompts')
+            .update({ consumed_at: new Date().toISOString() })
+            .eq('chat_id', chatId).eq('prompt_message_id', replyToId).eq('kind', 'await_decline_reason');
+          if (result.declined) {
+            await tgSendMessage(chatId, `❌ Declined — guest notified by email.\nReason: ${reasonText}\n\n${formatReservation(result.r)}`);
+          } else if (result.notFound) {
+            await tgSendMessage(chatId, '⚠️ Reservation not found.');
+          } else {
+            await tgSendMessage(chatId, 'ℹ️ That reservation is no longer pending — not declined.');
+          }
+          return res.status(200).json({ ok: true });
+        }
 
         const { data: prompt, error: promptErr } = await supabase
           .from('telegram_prompts')
