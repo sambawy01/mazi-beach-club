@@ -300,9 +300,9 @@ export function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
-              { icon: Music, title: 'Live DJ Sets', desc: 'Resident and guest DJs spinning from sunset till late.' },
-              { icon: Sunset, title: 'Signature Cocktails', desc: 'Mazi Sunset, Aegean Spritz, and Mediterranean Negroni.' },
-              { icon: Wine, title: 'Beachfront Dining', desc: 'Tables on the sand, toes in the water, stars overhead.' },
+              { icon: Music, title: 'Live DJ Sets', desc: 'Resident and guest DJs spinning from sunset till late.', img: '/sunset-2.jpg' },
+              { icon: Sunset, title: 'Signature Cocktails', desc: 'Mazi Sunset, Aegean Spritz, and Mediterranean Negroni.', img: '/sunset-3.jpg' },
+              { icon: Wine, title: 'Beachfront Dining', desc: 'Tables on the sand, toes in the water, stars overhead.', img: '/sunset-1.jpg' },
             ].map((feature, i) => (
               <motion.div
                 key={feature.title}
@@ -310,16 +310,23 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="glass sheen rounded-3xl p-8 text-center hover-lift hover:ring-gold transition-all duration-500 group"
+                className="relative rounded-3xl overflow-hidden hover-lift shadow-luxe group aspect-[4/5]"
               >
-                <motion.div
-                  whileHover={{ scale: 1.15, rotate: 5 }}
-                  className="w-16 h-16 bg-gradient-to-br from-[#c9a24a] to-[#e3c878] rounded-full flex items-center justify-center mx-auto mb-6 transition-transform shadow-gold"
-                >
-                  <feature.icon className="w-8 h-8 text-[#1b2350]" />
-                </motion.div>
-                <h3 className="font-display text-2xl text-white mb-3">{feature.title}</h3>
-                <p className="text-white/80 leading-relaxed">{feature.desc}</p>
+                <img
+                  src={feature.img}
+                  alt={feature.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e1533]/90 via-[#0e1533]/25 to-transparent" />
+                <span className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ring-gold" />
+                <div className="absolute inset-x-0 bottom-0 p-7 text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#c9a24a] to-[#e3c878] rounded-full flex items-center justify-center mx-auto mb-4 shadow-gold transition-transform group-hover:scale-110">
+                    <feature.icon className="w-6 h-6 text-[#1b2350]" />
+                  </div>
+                  <h3 className="font-display text-2xl text-white mb-1.5">{feature.title}</h3>
+                  <p className="text-sea-glass/85 text-sm leading-relaxed">{feature.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
