@@ -334,6 +334,17 @@ export async function markPaidReservation(id: string): Promise<void> {
   return adminUpdate(password, 'mark_paid_reservation', { id });
 }
 
+/**
+ * Confirm a pending reservation WITHOUT requesting payment.
+ * Moves pending → confirmed directly and releases the QR ticket email,
+ * skipping the awaiting_payment step. Use when the per-person charge is waived.
+ */
+export async function confirmReservation(id: string): Promise<void> {
+  const password = getStoredPassword();
+  if (!password) throw new Error('Not authenticated');
+  return adminUpdate(password, 'confirm_reservation', { id });
+}
+
 export async function fetchEventsFromSupabase(password: string): Promise<SupabaseEvent[]> {
   return adminFetch<SupabaseEvent[]>(password, 'events');
 }

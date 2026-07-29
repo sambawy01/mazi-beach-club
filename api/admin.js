@@ -5,7 +5,7 @@ import { sendReservationConfirmationEmail, sendPaymentRequestEmail } from './ema
 // confirmation email at order placement with a tracking link and feedback
 // link. They use the tracking link to see live status updates.
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://cdlcovqtltfwqrnpdstn.supabase.co';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const adminPassword = process.env.ADMIN_PASSWORD || 'mazi2025';
 
@@ -187,6 +187,39 @@ export default async function handler(req, res) {
             return res.status(200).json({ ok: true });
           }
           return res.status(409).json({ ok: false, error: 'Reservation is not awaiting payment' });
+        }
+        case 'confirm_reservation': {
+          // Direct pending→confirmed with NO payment step. This is the "just
+          // confirm" path — used when staff waive the per-person charge. It
+          // releases the QR ticket immediately, exactly like mark_paid does,
+          // but skips awaiting_payment entirely (no payment link / amount).
+          const { id } = body;
+          if (!id) return res.status(400).json({ error: 'Missing id' });
+          const now = new Date().toISOString();
+
+          // Atomic pending→confirmed: only the winning update returns a row, so
+          // the QR confirmation email is sent exactly once. Skip the email if
+          // the row has no checkin_token (would email a broken link).
+          const { data: rows, error } = await supabase
+            .from('reservations')
+            .update({
+              status: 'confirmed',
+              confirmed_at: now,
+              updated_at: now,
+            })
+            .eq('id', id)
+            .eq('status', 'pending')
+            .select('customer_name, customer_email, type, res_date, res_time, party_size, sunbeds, checkin_token');
+          if (error) return res.status(500).json({ error: error.message });
+
+          if (rows && rows.length > 0) {
+            if (rows[0].checkin_token) {
+              try { await sendReservationConfirmationEmail(rows[0]); }
+              catch (e) { console.error('reservation confirmation email failed:', e); }
+            }
+            return res.status(200).json({ ok: true });
+          }
+          return res.status(409).json({ ok: false, error: 'Reservation is not pending' });
         }
         case 'update_event': {
           const { id, status, quoted_price, paymob_link } = body;

@@ -12,6 +12,7 @@ import {
   fetchReservationsFromSupabase,
   updateReservationStatusInSupabase,
   approveReservation,
+  confirmReservation,
   markPaidReservation,
   getStoredPassword,
   SupabaseReservation,
@@ -99,6 +100,21 @@ export function ReservationsTab() {
       await fetchReservations();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to approve reservation');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function submitConfirmNoPayment() {
+    if (!approveTarget) return;
+    setSubmitting(true);
+    try {
+      await confirmReservation(approveTarget.id);
+      toast.success('Reservation confirmed — QR ticket released');
+      setApproveTarget(null);
+      await fetchReservations();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to confirm reservation');
     } finally {
       setSubmitting(false);
     }
@@ -250,19 +266,31 @@ export function ReservationsTab() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="size-5" /> Approve &amp; request payment
+              <Check className="size-5" /> Confirm reservation
             </DialogTitle>
           </DialogHeader>
 
           {approveTarget && (
             <p className="text-sm text-muted-foreground -mt-1">
               {approveTarget.customer_name} · {formatDate(approveTarget.res_date)} · {approveTarget.res_time}
+              {' · '}
+              {approveTarget.type === 'beach'
+                ? `${approveTarget.party_size} guests · ${approveTarget.sunbeds} sunbeds`
+                : `${approveTarget.party_size} guests`}
             </p>
           )}
 
-          <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Request a payment (e.g. a minimum charge per person) before releasing the
+            QR ticket, or confirm directly without payment.
+          </p>
+
+          <div className="space-y-4 rounded-lg border p-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <CreditCard className="size-4" /> Request payment
+            </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Payment link *</label>
+              <label className="text-sm font-medium mb-1 block">Payment link</label>
               <Input
                 type="url"
                 inputMode="url"
@@ -272,7 +300,7 @@ export function ReservationsTab() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Amount (EGP) *</label>
+              <label className="text-sm font-medium mb-1 block">Amount (EGP)</label>
               <Input
                 type="number"
                 min="1"
@@ -281,20 +309,34 @@ export function ReservationsTab() {
                 onChange={e => setAmountInput(e.target.value)}
                 placeholder="500"
               />
+              {approveTarget && parsedAmount > 0 && (approveTarget.party_size ?? 0) > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  ≈ EGP {(parsedAmount / approveTarget.party_size).toLocaleString('en-US', { maximumFractionDigits: 2 })} per guest
+                  {' '}({approveTarget.party_size} guests)
+                </p>
+              )}
             </div>
+            <Button
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              onClick={submitApprove}
+              disabled={submitting || !canApprove}
+            >
+              {submitting ? <Loader2 className="size-4 mr-1 animate-spin" /> : <CreditCard className="size-4 mr-1" />}
+              Approve &amp; send payment request
+            </Button>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-between">
             <Button variant="outline" onClick={() => setApproveTarget(null)} disabled={submitting}>
               Cancel
             </Button>
             <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={submitApprove}
-              disabled={submitting || !canApprove}
+              variant="secondary"
+              onClick={submitConfirmNoPayment}
+              disabled={submitting}
             >
-              {submitting ? <Loader2 className="size-4 mr-1 animate-spin" /> : <Check className="size-4 mr-1" />}
-              Approve &amp; send request
+              {submitting ? <Loader2 className="size-4 mr-1 animate-spin" /> : <BadgeCheck className="size-4 mr-1" />}
+              Confirm without payment
             </Button>
           </DialogFooter>
         </DialogContent>

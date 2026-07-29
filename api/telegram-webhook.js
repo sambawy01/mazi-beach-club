@@ -8,7 +8,7 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 // ── Supabase client (server-side, service role) ───────────────────────────
 // Serverless-safe: each Telegram button press is a separate function
 // invocation, so reservation state MUST live in Supabase, not in memory.
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://cdlcovqtltfwqrnpdstn.supabase.co';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = supabaseKey
@@ -366,12 +366,12 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // ── Approve flow: confirm:<uuid> ────────────────────────────────────
-      // CHANGED (payment gate): approving no longer confirms + emails the QR.
-      // Instead it asks the admin (via force_reply) for the payment link +
-      // amount. The reservation stays `pending` until that reply arrives (see
-      // the `update.message` payment-details handler), guarding against a
-      // half-approved state. QR release now happens on the later `paid:` step.
+      // ── Approve flow: confirm:<uuid> → choose how to confirm ────────────
+      // Approving no longer commits to a single path. It presents two options:
+      //   💳 Request Payment  → reqpay:<uuid> (force_reply for link + amount)
+      //   ✅ Confirm (no pay) → confnp:<uuid> (direct pending→confirmed + QR)
+      // The row stays `pending` while the menu is shown, so no half-state is
+      // created and either branch (or Decline) can still act on it.
       if (data.startsWith('confirm:')) {
         const id = data.slice(8);
 
@@ -399,11 +399,57 @@ export default async function handler(req, res) {
           return res.status(200).json({ ok: true });
         }
 
+        const choiceControls = {
+          inline_keyboard: [
+            [{ text: '💳 Request Payment', callback_data: `reqpay:${id}` }],
+            [{ text: '✅ Confirm — no payment', callback_data: `confnp:${id}` }],
+            [{ text: '❌ Decline', callback_data: `reject:${id}` }],
+          ],
+        };
+        await tgEditMessage(chatId, messageId,
+          `Approve this reservation — choose how:\n\n${formatReservation(r)}`,
+          choiceControls
+        );
+        await tgAnswerCallback(callbackId, 'Choose payment option');
+        return res.status(200).json({ ok: true });
+      }
+
+      // ── Request Payment: reqpay:<uuid> ──────────────────────────────────
+      // Asks the admin (via force_reply) for the payment link + amount. The
+      // reservation stays `pending` until that reply arrives (see the
+      // `update.message` payment-details handler), guarding against a
+      // half-approved state. QR release happens on the later `paid:` step.
+      if (data.startsWith('reqpay:')) {
+        const id = data.slice(7);
+
+        if (!supabase) {
+          await tgAnswerCallback(callbackId, 'DB not configured');
+          return res.status(200).json({ ok: true });
+        }
+
+        const { data: r, error: fetchErr } = await supabase
+          .from('reservations')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (fetchErr || !r) {
+          await tgEditMessage(chatId, messageId, `⚠️ Reservation not found (${id}).`);
+          await tgAnswerCallback(callbackId, 'Not found');
+          return res.status(200).json({ ok: true });
+        }
+
+        // Idempotency: only a pending reservation may enter the payment flow.
+        if (r.status !== 'pending') {
+          await tgAnswerCallback(callbackId, `Already ${r.status}`);
+          return res.status(200).json({ ok: true });
+        }
+
         // Send a force_reply prompt and capture the prompt message id so the
         // admin's reply can be matched back to THIS reservation. The bot has no
         // memory between invocations, so this mapping lives in `telegram_prompts`.
         const promptText =
-          'Reservation approved. Reply to this message with the payment link and amount in EGP — e.g. `https://pay.link/abc 500`.';
+          'Reply to this message with the payment link and amount in EGP — e.g. `https://pay.link/abc 500`.';
         const sent = await tgSendMessage(chatId, promptText, { force_reply: true });
         const promptMessageId = sent && sent.result && sent.result.message_id;
 
@@ -413,7 +459,7 @@ export default async function handler(req, res) {
           return res.status(200).json({ ok: true });
         }
 
-        // De-dupe: a double-Approve would otherwise leave two live force_reply
+        // De-dupe: a double-tap would otherwise leave two live force_reply
         // prompts for the same reservation, either of which could fire the
         // payment email. Drop any prior un-consumed prompt before inserting the
         // fresh one. Best-effort — a failure here must not block approval.
@@ -454,6 +500,83 @@ export default async function handler(req, res) {
           approvedControls
         );
         await tgAnswerCallback(callbackId, 'Approved — send payment details');
+        return res.status(200).json({ ok: true });
+      }
+
+      // ── Confirm without payment: confnp:<uuid> ──────────────────────────
+      // Direct pending→confirmed with NO payment step. Releases the QR ticket
+      // immediately (like paid:), but skips awaiting_payment entirely. Used
+      // when staff waive the per-person charge. Idempotent + atomic.
+      if (data.startsWith('confnp:')) {
+        const id = data.slice(7);
+
+        if (!supabase) {
+          await tgAnswerCallback(callbackId, 'DB not configured');
+          return res.status(200).json({ ok: true });
+        }
+
+        const { data: r, error: fetchErr } = await supabase
+          .from('reservations')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (fetchErr || !r) {
+          await tgEditMessage(chatId, messageId, `⚠️ Reservation not found (${id}).`);
+          await tgAnswerCallback(callbackId, 'Not found');
+          return res.status(200).json({ ok: true });
+        }
+
+        // Idempotency: only a pending reservation may be confirmed here.
+        if (r.status !== 'pending') {
+          await tgAnswerCallback(callbackId, `Already ${r.status}`);
+          return res.status(200).json({ ok: true });
+        }
+
+        // Atomic pending→confirmed. The `.eq('status','pending')` makes the flip
+        // conditional inside the DB — exactly ONE concurrent press gets a row
+        // back, so the QR email fires at most once.
+        const { data: confirmedRows, error: updErr } = await supabase
+          .from('reservations')
+          .update({ status: 'confirmed', confirmed_at: new Date().toISOString() })
+          .eq('id', id)
+          .eq('status', 'pending')
+          .select('checkin_token, customer_name, customer_email, type, res_date, res_time, party_size, sunbeds');
+
+        if (updErr) {
+          console.error('Supabase confirm (no payment) update error:', updErr.message);
+          await tgAnswerCallback(callbackId, 'DB update failed');
+          return res.status(200).json({ ok: true });
+        }
+
+        // Answer Telegram FIRST so the (un-timeout'd) Resend call below can never
+        // delay the callback near the function timeout.
+        await tgEditMessage(chatId, messageId,
+          `✅ CONFIRMED (no payment) — QR ticket emailed.\n\n${formatReservation(r)}`
+        );
+        await tgAnswerCallback(callbackId, 'Confirmed — no payment');
+
+        // Release the QR ticket — ONLY if this invocation won the atomic
+        // transition AND the row carries a checkin_token. Email failure must
+        // NEVER break the webhook.
+        const won = confirmedRows && confirmedRows.length > 0 ? confirmedRows[0] : null;
+        if (won && won.checkin_token) {
+          try {
+            await sendReservationConfirmationEmail({
+              customer_name: won.customer_name,
+              customer_email: won.customer_email,
+              type: won.type,
+              res_date: won.res_date,
+              res_time: won.res_time,
+              party_size: won.party_size,
+              sunbeds: won.sunbeds,
+              checkin_token: won.checkin_token,
+            });
+          } catch (e) {
+            console.error('reservation confirmation email failed:', e);
+          }
+        }
+
         return res.status(200).json({ ok: true });
       }
 

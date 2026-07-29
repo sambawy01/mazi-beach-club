@@ -8,7 +8,6 @@ import { getAvailability, slotLabel, placeOrderOnSite, Availability, SlotInfo } 
 import { MapPickerModal, loadAddressBook, saveAddressBook, SavedAddress } from './MapPickerModal';
 import { useAuth } from '../auth/AuthProvider';
 
-const MIN_DELIVERY = 2000;
 const VAT_RATE = 0.14;
 const SERVICE_RATE = 0.12;
 
@@ -133,8 +132,7 @@ export function CartDrawer() {
   const vatAmount = Math.round(subtotal * VAT_RATE);
   const serviceAmount = Math.round(subtotal * SERVICE_RATE);
   const grandTotal = subtotal + vatAmount + serviceAmount;
-  const belowMin = subtotal < MIN_DELIVERY;
-  const checkoutBlocked = orderingPaused || noSlotsLeft || belowMin;
+  const checkoutBlocked = orderingPaused || noSlotsLeft;
 
   const handleCheckout = async () => {
     if (isSubmitting || checkoutBlocked) return;
@@ -666,22 +664,6 @@ export function CartDrawer() {
                     </p>
                   )}
                 </div>
-                {belowMin && (
-                  <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-800">
-                    <p className="font-semibold mb-1">
-                      Add EGP {MIN_DELIVERY - subtotal} more to checkout
-                    </p>
-                    <p className="text-amber-600">
-                      Minimum delivery order is EGP {MIN_DELIVERY}.
-                    </p>
-                    <div className="mt-2 h-2 bg-amber-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#12207e] rounded-full transition-all"
-                        style={{ width: `${Math.min(100, (subtotal / MIN_DELIVERY) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
                 {checkoutError && (
                   <div className="mb-3 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
                     {checkoutError}{' '}
@@ -695,7 +677,7 @@ export function CartDrawer() {
                   disabled={isSubmitting || checkoutBlocked}
                   className="w-full h-14 text-lg font-bold rounded-xl shadow-lg shadow-[#12207e]/20 disabled:opacity-70"
                 >
-                  {isSubmitting ? 'Placing order...' : belowMin ? `EGP ${MIN_DELIVERY - subtotal} to go` : 'Place Order'}
+                  {isSubmitting ? 'Placing order...' : 'Place Order'}
                 </Button>
                 <p className="text-center text-xs text-gray-500 mt-4">
                   Beachside delivery across Ras El Hekma

@@ -213,7 +213,10 @@ export function SignIn() {
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
           {/* Step 1 — email */}
           {step === 'email' && (
-            <form onSubmit={handleSendCode} className="space-y-5">
+            // noValidate: don't let the browser block "Send code" on a
+            // malformed-looking address. There's no point pre-verifying the
+            // email — a wrong or fake one simply never receives the code.
+            <form onSubmit={handleSendCode} className="space-y-5" noValidate>
               <div>
                 <label
                   htmlFor="signin-email"
