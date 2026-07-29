@@ -41,8 +41,11 @@ export default async function handler(req, res) {
     const trackingToken = crypto.randomUUID();
 
     // Link to the signed-in account when a verified bearer token is present.
-    // Guests (no/invalid token) → null. Never read user_id from req.body.
+    // Never read user_id from req.body.
     const userId = await getUserIdFromRequest(req);
+    // Members-only: ordering requires a signed-in account (server-side gate,
+    // mirrors the client SignInGate so a direct API call can't bypass it).
+    if (!userId) return res.status(401).json({ error: 'Please sign in to place an order.' });
 
     // ── Save to Supabase ──────────────────────────────────────────────────
     let dbId = null;

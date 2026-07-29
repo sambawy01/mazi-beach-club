@@ -1,7 +1,8 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { Button } from './ui/button';
-import { Minus, Plus, Trash2, ShoppingBag, MapPin } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, MapPin, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { getAvailability, slotLabel, placeOrderOnSite, Availability, SlotInfo } from '../../services/orderService';
@@ -132,7 +133,7 @@ export function CartDrawer() {
   const vatAmount = Math.round(subtotal * VAT_RATE);
   const serviceAmount = Math.round(subtotal * SERVICE_RATE);
   const grandTotal = subtotal + vatAmount + serviceAmount;
-  const checkoutBlocked = orderingPaused || noSlotsLeft;
+  const checkoutBlocked = orderingPaused || noSlotsLeft || !session;
 
   const handleCheckout = async () => {
     if (isSubmitting || checkoutBlocked) return;
@@ -672,15 +673,23 @@ export function CartDrawer() {
                     </a>
                   </div>
                 )}
-                <Button
-                  onClick={handleCheckout}
-                  disabled={isSubmitting || checkoutBlocked}
-                  className="w-full h-14 text-lg font-bold rounded-xl shadow-lg shadow-[#12207e]/20 disabled:opacity-70"
-                >
-                  {isSubmitting ? 'Placing order...' : 'Place Order'}
-                </Button>
+                {!session ? (
+                  <Link to="/signin?redirect=/menu" onClick={toggleCart} className="block">
+                    <Button className="sheen w-full h-14 text-sm font-semibold uppercase tracking-[0.14em] rounded-xl bg-gradient-to-r from-[#c9a24a] to-[#e3c878] hover:from-[#e3c878] hover:to-[#c9a24a] text-[#1b2350] shadow-gold">
+                      <Lock className="w-4 h-4 mr-2" /> Sign in to place your order
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={isSubmitting || checkoutBlocked}
+                    className="w-full h-14 text-lg font-bold rounded-xl shadow-lg shadow-[#12207e]/20 disabled:opacity-70"
+                  >
+                    {isSubmitting ? 'Placing order...' : 'Place Order'}
+                  </Button>
+                )}
                 <p className="text-center text-xs text-gray-500 mt-4">
-                  Beachside delivery across Ras El Hekma
+                  {!session ? 'Ordering is for members — sign in or create your account.' : 'Beachside delivery across Ras El Hekma'}
                 </p>
               </div>
             )}

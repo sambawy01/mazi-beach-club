@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { API_BASE } from '../../lib/apiConfig';
 import { useAuth } from '../auth/AuthProvider';
+import { SignInGate } from '../components/SignInGate';
 import { supabase } from '../../lib/supabase';
 
 type ReservationType = 'beach' | 'restaurant';
@@ -277,6 +278,25 @@ export function ReservationPage() {
               Make Another Reservation
             </Button>
           </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Members-only: guests can browse the menu, but reserving requires an account.
+  if (!session) {
+    return (
+      <div className="bg-[#f6f2e8] min-h-screen py-16">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="text-center mb-10">
+            <span className="eyebrow-gold block mb-4">Join Us</span>
+            <h1 className="display-xl text-5xl md:text-6xl mb-4 text-[#1b2350]">Reserve <span className="italic text-aegean-gradient">Your Table</span></h1>
+            <div className="w-16 h-px rule-gold mx-auto mb-4" />
+          </div>
+          <SignInGate
+            title="Members only"
+            message="Reservations at Mazi are for members. Sign in or create your account to book a table or sunbeds."
+          />
         </div>
       </div>
     );
