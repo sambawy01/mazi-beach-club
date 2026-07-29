@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 // ── Supabase client (server-side) ─────────────────────────────────────────
 // Must match the project order-dinein.js reads verified_phones from, or the
 // dine-in phone gate rejects every order. (mmjjphgz… is the dead old project.)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://cdlcovqtltfwqrnpdstn.supabase.co';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = supabaseKey
   ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })

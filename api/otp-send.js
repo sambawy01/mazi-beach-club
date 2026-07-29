@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // ── Supabase client (server-side) ─────────────────────────────────────────
 // Keep in lockstep with otp-verify.js / order-dinein.js — see note there.
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://cdlcovqtltfwqrnpdstn.supabase.co';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = supabaseKey
   ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })

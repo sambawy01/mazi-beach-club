@@ -111,6 +111,12 @@ export default async function handler(req, res) {
           if (error) return res.status(500).json({ error: error.message });
           return res.status(200).json({ ok: true, data });
         }
+        case 'settings': {
+          const { data, error } = await supabase.from('settings').select('key, value');
+          if (error) return res.status(500).json({ error: error.message });
+          const obj = Object.fromEntries((data || []).map(r => [r.key, r.value]));
+          return res.status(200).json({ ok: true, data: obj });
+        }
         default:
           return res.status(400).json({ error: 'Unknown action' });
       }
@@ -340,6 +346,18 @@ export default async function handler(req, res) {
           }
           await writeAudit(supabase, auth, { action: 'send_outreach', target_type: 'outreach', summary: `Sent "${subject}" to ${sent}/${emails.length} recipients` });
           return res.status(200).json({ ok: true, data: { total: emails.length, sent, failed } });
+        }
+        case 'update_settings': {
+          // body.settings = { key: value, ... } — values stored as JSONB verbatim.
+          const patch = body.settings || {};
+          const keys = Object.keys(patch);
+          if (keys.length === 0) return res.status(400).json({ error: 'No settings provided' });
+          const now = new Date().toISOString();
+          const rows = keys.map(key => ({ key, value: patch[key], updated_at: now }));
+          const { error } = await supabase.from('settings').upsert(rows, { onConflict: 'key' });
+          if (error) return res.status(500).json({ error: error.message });
+          await writeAudit(supabase, auth, { action: 'update_settings', target_type: 'settings', summary: `Updated ${keys.join(', ')}`, meta: patch });
+          return res.status(200).json({ ok: true });
         }
         case 'create_staff': {
           const { email, name, role, password } = body;

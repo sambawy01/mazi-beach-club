@@ -104,6 +104,16 @@ export async function getAuditLog(password: string): Promise<AuditEntry[]> {
   return adminFetch<AuditEntry[]>(password, 'list_audit');
 }
 
+// ── Settings (Phase 01) — key/value store, values are JSON ──────────────────
+// The API returns a flat { key: value } object; updates upsert one or more keys.
+export type SettingsMap = Record<string, unknown>;
+export async function getSettings(password: string): Promise<SettingsMap> {
+  return adminFetch<SettingsMap>(password, 'settings');
+}
+export async function updateSettings(password: string, settings: SettingsMap): Promise<void> {
+  return adminUpdate(password, 'update_settings', { settings });
+}
+
 // ── Native catalog API (api/menu.js) — Menu & Pantry tabs ──────────────────
 // Bearer auth, id-based, envelope { ok, data } / { ok, error }.
 type CatalogResource = 'menu' | 'pantry';

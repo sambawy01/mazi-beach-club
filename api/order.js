@@ -5,7 +5,7 @@ import { sendOrderConfirmationEmail } from './email.js';
 import { getUserIdFromRequest } from './_lib/getUserFromRequest.js';
 
 // ── Supabase client (server-side) ─────────────────────────────────────────
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://cdlcovqtltfwqrnpdstn.supabase.co';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://xwfsjfwgmwddfuxbjlzu.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = supabaseKey
@@ -46,6 +46,9 @@ export default async function handler(req, res) {
     // Members-only: ordering requires a signed-in account (server-side gate,
     // mirrors the client SignInGate so a direct API call can't bypass it).
     if (!userId) return res.status(401).json({ error: 'Please sign in to place an order.' });
+    // Kill-switch: ordering can be paused from admin settings.
+    const { data: pauseRow } = await supabase.from('settings').select('value').eq('key', 'ordering_paused').maybeSingle();
+    if (pauseRow && pauseRow.value === true) return res.status(503).json({ error: 'Online ordering is temporarily paused — please check back soon.' });
 
     // ── Save to Supabase ──────────────────────────────────────────────────
     let dbId = null;

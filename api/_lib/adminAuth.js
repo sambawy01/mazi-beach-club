@@ -23,6 +23,7 @@ const PERMISSIONS = {
   dashboard: ['manager', 'host', 'accounting'],
   feedback: ['manager', 'accounting'],
   customers: ['manager', 'host'],
+  settings: ['manager'],
   // reservation ops
   update_order: ['manager', 'host', 'chef'],
   update_reservation: ['manager', 'host'],

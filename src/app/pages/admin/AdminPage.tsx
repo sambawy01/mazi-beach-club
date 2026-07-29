@@ -9,7 +9,7 @@ import { PantryTab } from './PantryTab';
 import { RamadanTab } from './RamadanTab';
 import { InventoryTab } from './InventoryTab';
 import { RequisitionsTab } from './RequisitionsTab';
-import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History } from 'lucide-react';
+import { LogOut, Loader2, Globe, Warehouse, Languages, UtensilsCrossed, Package, Moon, ClipboardList, BoxesIcon, ShoppingBag, CalendarDays, Mail, UserCog, History, SlidersHorizontal } from 'lucide-react';
 import { OrdersTab } from './OrdersTab';
 import { ReservationsTab } from './ReservationsTab';
 import { CalendarTab } from './CalendarTab';
@@ -17,6 +17,7 @@ import { EventsTab } from './EventsTab';
 import { OutreachTab } from './OutreachTab';
 import { StaffTab } from './StaffTab';
 import { ActivityTab } from './ActivityTab';
+import { SettingsTab } from './SettingsTab';
 
 const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   owner: { en: 'Owner', ar: 'المالك' },
@@ -254,9 +255,11 @@ export function AdminPage() {
             <TabsList className="mb-6">
               <TabsTrigger value="staff"><UserCog className="size-4 mr-1.5" /> Staff</TabsTrigger>
               <TabsTrigger value="activity"><History className="size-4 mr-1.5" /> Activity</TabsTrigger>
+              <TabsTrigger value="settings"><SlidersHorizontal className="size-4 mr-1.5" /> Settings</TabsTrigger>
             </TabsList>
             <TabsContent value="staff"><StaffTab /></TabsContent>
             <TabsContent value="activity"><ActivityTab /></TabsContent>
+            <TabsContent value="settings"><SettingsTab /></TabsContent>
           </Tabs>
         )}
       </main>
