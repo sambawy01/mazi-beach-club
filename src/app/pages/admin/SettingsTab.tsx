@@ -10,6 +10,7 @@ import { Loader2, Save, Power, Percent, Clock, CalendarX, RefreshCw } from 'luci
 const DEFAULTS = {
   ordering_paused: false,
   reservations_paused: false,
+  auto_deplete_stock: false,
   vat_rate: 0.14,
   service_rate: 0.12,
   min_delivery_order: 2000,
@@ -33,10 +34,13 @@ function coerce(raw: SettingsMap): Draft {
   return d;
 }
 
-function Toggle({ on, onClick, disabled }: { on: boolean; onClick: () => void; disabled?: boolean }) {
+// variant 'danger' → red when on (for pause switches); 'success' → green when on.
+function Toggle({ on, onClick, disabled, variant = 'danger' }: { on: boolean; onClick: () => void; disabled?: boolean; variant?: 'danger' | 'success' }) {
+  const onColor = variant === 'success' ? 'bg-emerald-500' : 'bg-red-500';
+  const offColor = variant === 'success' ? 'bg-gray-300' : 'bg-emerald-500';
   return (
     <button type="button" onClick={onClick} disabled={disabled}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${on ? 'bg-red-500' : 'bg-emerald-500'} ${disabled ? 'opacity-50' : ''}`}>
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${on ? onColor : offColor} ${disabled ? 'opacity-50' : ''}`}>
       <span className={`inline-block size-5 transform rounded-full bg-white shadow transition-transform ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
     </button>
   );
@@ -72,14 +76,14 @@ export function SettingsTab() {
   }
 
   // Kill-switches save immediately — they're emergency controls, not a form.
-  async function toggleSwitch(key: 'ordering_paused' | 'reservations_paused') {
+  async function toggleSwitch(key: 'ordering_paused' | 'reservations_paused' | 'auto_deplete_stock') {
     const pw = getStoredPassword();
     if (!pw) return;
     const next = !draft[key];
     set(key, next);
     try {
       await updateSettings(pw, { [key]: next });
-      toast.success(next ? 'Paused' : 'Resumed');
+      toast.success('Saved');
     } catch (e) {
       set(key, !next); // revert on failure
       toast.error(e instanceof Error ? e.message : 'Failed');
@@ -132,6 +136,19 @@ export function SettingsTab() {
           </div>
         </div>
         <p className="text-[11px] text-muted-foreground mt-3">Switches save instantly. Everything below saves with the button above.</p>
+      </div>
+
+      {/* Kitchen */}
+      <div className={card}>
+        <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-[#1b2350]"><Power className="size-4" /> Kitchen</h3>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-medium">Auto-deplete stock</div>
+            <div className="text-xs text-muted-foreground">{draft.auto_deplete_stock ? 'On — confirming an order draws down raw stock via its recipe.' : 'Off — stock is only adjusted manually.'}</div>
+          </div>
+          <Toggle on={draft.auto_deplete_stock} variant="success" onClick={() => toggleSwitch('auto_deplete_stock')} />
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-3">Requires recipes (bill of materials) set up in Inventory → Recipes. Ingredient names must match stock item names.</p>
       </div>
 
       {/* Financial rates */}

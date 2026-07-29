@@ -14,6 +14,61 @@ const supabase = supabaseKey
   ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
   : null;
 
+// Phase 08 — draw down raw stock for a confirmed order using the recipe BOM.
+// Best-effort and idempotent-per-transition (the caller only invokes this on the
+// pending→confirmed edge). Never throws into the request path. Returns a short
+// summary string for the audit log, or null when nothing was depleted.
+async function depleteStockForOrder(supabase, items, orderRef, actor) {
+  try {
+    if (!Array.isArray(items) || items.length === 0) return null;
+    // Gate: only run when the owner has explicitly enabled auto-depletion.
+    const { data: setting } = await supabase.from('settings').select('value').eq('key', 'auto_deplete_stock').maybeSingle();
+    if (!setting || setting.value !== true) return null;
+
+    const names = [...new Set(items.map(i => i.name).filter(Boolean))];
+    if (names.length === 0) return null;
+    const { data: recipes } = await supabase.from('recipes').select('menu_item, ingredient, qty_needed').in('menu_item', names);
+    if (!recipes || recipes.length === 0) return null;
+
+    // qtyByItem: how many of each menu item were ordered.
+    const qtyByItem = {};
+    for (const it of items) qtyByItem[it.name] = (qtyByItem[it.name] || 0) + (Number(it.quantity) || 0);
+
+    // Fold the BOM into total ingredient demand (keyed by lowercased name).
+    const demand = new Map();
+    for (const r of recipes) {
+      const mult = qtyByItem[r.menu_item] || 0;
+      if (!mult) continue;
+      const need = (Number(r.qty_needed) || 0) * mult;
+      if (need <= 0) continue;
+      const key = String(r.ingredient).toLowerCase().trim();
+      demand.set(key, { ingredient: r.ingredient, qty: (demand.get(key)?.qty || 0) + need });
+    }
+    if (demand.size === 0) return null;
+
+    const { data: stock } = await supabase.from('inventory_stock').select('id, name, qty_on_hand');
+    const stockByName = new Map((stock || []).map(s => [String(s.name).toLowerCase().trim(), s]));
+
+    const today = new Date().toISOString().split('T')[0];
+    let depleted = 0;
+    const movements = [];
+    for (const { ingredient, qty } of demand.values()) {
+      const s = stockByName.get(ingredient.toLowerCase().trim());
+      if (s) {
+        const next = (Number(s.qty_on_hand) || 0) - qty;
+        await supabase.from('inventory_stock').update({ qty_on_hand: next }).eq('id', s.id);
+        depleted++;
+      }
+      movements.push({ date: today, type: 'Recipe', item_name: ingredient, quantity: qty, direction: 'OUT', performed_by: actor || 'system', notes: `Order ${orderRef}`, status: 'Approved' });
+    }
+    if (movements.length) await supabase.from('requisitions').insert(movements);
+    return `Depleted ${depleted} stock item(s) for ${orderRef}`;
+  } catch (e) {
+    console.error('[deplete] failed:', e.message);
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -311,10 +366,29 @@ export default async function handler(req, res) {
         case 'update_order': {
           const { id, status } = body;
           if (!id || !status) return res.status(400).json({ error: 'Missing id or status' });
-          const updates = { status, updated_at: new Date().toISOString() };
-          if (status === 'confirmed') updates.confirmed_at = new Date().toISOString();
-          if (status === 'delivered') updates.delivered_at = new Date().toISOString();
-          if (status === 'served') updates.served_at = new Date().toISOString();
+          const now = new Date().toISOString();
+
+          if (status === 'confirmed') {
+            // Atomic pending→confirmed so the BOM depletion runs exactly once,
+            // even under concurrent confirms. A no-op (already confirmed) simply
+            // returns ok without re-depleting.
+            const { data: rows, error } = await supabase
+              .from('orders')
+              .update({ status: 'confirmed', confirmed_at: now, updated_at: now })
+              .eq('id', id)
+              .neq('status', 'confirmed')
+              .select('order_ref, items');
+            if (error) return res.status(500).json({ error: error.message });
+            if (rows && rows.length > 0) {
+              const summary = await depleteStockForOrder(supabase, rows[0].items, rows[0].order_ref, auth.actor);
+              if (summary) await writeAudit(supabase, auth, { action: 'deplete_stock', target_type: 'order', target_id: id, summary });
+            }
+            return res.status(200).json({ ok: true });
+          }
+
+          const updates = { status, updated_at: now };
+          if (status === 'delivered') updates.delivered_at = now;
+          if (status === 'served') updates.served_at = now;
           const { error } = await supabase.from('orders').update(updates).eq('id', id);
           if (error) return res.status(500).json({ error: error.message });
 

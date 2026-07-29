@@ -11,10 +11,11 @@ import {
 } from '@/services/inventoryService';
 import { InventoryFormDialog } from './InventoryFormDialog';
 import { RestockDialog } from './RestockDialog';
+import { RecipeManagerDialog } from './RecipeManagerDialog';
 import { Role } from '@/services/adminService';
 import { AdminLang } from './useAdminLang';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Loader2, ArrowUp, ArrowDown, Search, PackagePlus, AlertTriangle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ArrowUp, ArrowDown, Search, PackagePlus, AlertTriangle, BookOpen } from 'lucide-react';
 
 type SortKey = 'name' | 'category' | 'qty_on_hand' | 'status';
 type SortDir = 'asc' | 'desc';
@@ -55,6 +56,7 @@ export function InventoryTab({ l, role }: { l: AdminLang; role: Role }) {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [restockOpen, setRestockOpen] = useState(false);
+  const [recipesOpen, setRecipesOpen] = useState(false);
   const [editItem, setEditItem] = useState<StockItem | null>(null);
   const [restockTarget, setRestockTarget] = useState<StockItem | null>(null);
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -183,6 +185,7 @@ export function InventoryTab({ l, role }: { l: AdminLang; role: Role }) {
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input placeholder={tr('inv_search')} value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-10 sm:h-9 text-base sm:text-sm" />
           </div>
+          {canEdit && <Button variant="outline" onClick={() => setRecipesOpen(true)} size="sm" className="h-10 sm:h-9 shrink-0"><BookOpen className="size-4 mr-1" /> {tr('inv_recipes') || 'Recipes'}</Button>}
           {canEdit && <Button onClick={openAdd} size="sm" className="h-10 sm:h-9 shrink-0"><Plus className="size-4 mr-1" /> {tr('inv_add_item')}</Button>}
         </div>
       </div>
@@ -309,6 +312,8 @@ export function InventoryTab({ l, role }: { l: AdminLang; role: Role }) {
         onRestock={handleRestock}
         l={l}
       />
+
+      <RecipeManagerDialog open={recipesOpen} onOpenChange={setRecipesOpen} l={l} />
     </div>
   );
 }
