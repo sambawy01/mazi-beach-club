@@ -82,7 +82,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     id: 'r4',
     name: 'Mediterranean Ceviche',
-    description: 'Diced sea bass with red onion, cucumber, cherry tomato, lemon, white wine vinegar, dill, fennel fronds and fennel pollen, finished with Greek leche de tigre.',
+    description: 'Diced sea bass with red onion, cucumber, cherry tomato, lemon, white vinegar, dill, fennel fronds and fennel pollen, finished with Greek leche de tigre.',
     price: 550,
     category: 'Raw Bar',
     image: '',
@@ -228,7 +228,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     id: 'r18',
     name: 'Mussels Krasata',
-    description: 'Greek mussels in white wine, garlic, chili, parsley and lemon, served in a copper pot with crispy potato.',
+    description: 'Greek mussels in garlic, chili, parsley and lemon, served in a copper pot with crispy potato.',
     price: 550,
     category: 'Hot Mezze',
     image: '',
@@ -270,7 +270,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     id: 'r22',
     name: 'Pasta Garides',
-    description: 'Linguine with Alexandria red shrimp or tiger shrimp, garlic, chili, fresh tomato, white wine, parsley, lemon zest and smoked paprika oil.',
+    description: 'Linguine with Alexandria red shrimp or tiger shrimp, garlic, chili, fresh tomato, parsley, lemon zest and smoked paprika oil.',
     price: 750,
     category: 'Pasta & Risotto',
     image: '',
@@ -300,7 +300,7 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     id: 'r25',
     name: 'Lemon & Bottarga Risotto',
-    description: 'Carnaroli rice with white wine, butter and kefalotyri, finished with shaved bottarga (avgotaraho) at the table, lemon zest and dill.',
+    description: 'Carnaroli rice with butter and kefalotyri, finished with shaved bottarga (avgotaraho) at the table, lemon zest and dill.',
     price: 1100,
     category: 'Pasta & Risotto',
     image: '',
