@@ -138,7 +138,7 @@ export function HomePage() {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="mt-7 text-[0.68rem] md:text-xs text-white/70 uppercase tracking-[0.34em]"
           >
-            Mediterranean Beach Club &nbsp;·&nbsp; Ras El Hekma, North Coast
+            Mediterranean Beach Club &nbsp;·&nbsp; Mountain View Ras El Hekma, North Coast
           </motion.p>
 
           <motion.div

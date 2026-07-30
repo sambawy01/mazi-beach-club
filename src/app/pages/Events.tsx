@@ -340,7 +340,7 @@ export function EventsPage() {
                 href="https://mazibeach.com"
                 className="inline-flex items-center gap-2 border-2 border-white/30 text-white hover:bg-white/10 font-bold py-4 px-8 rounded-full shadow-lg transition-all"
               >
-                <MapPin className="w-5 h-5" /> Ras El Hekma, North Coast
+                <MapPin className="w-5 h-5" /> Mountain View Ras El Hekma, North Coast
               </a>
             </div>
           </motion.div>

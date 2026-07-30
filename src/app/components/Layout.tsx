@@ -201,7 +201,7 @@ function LayoutContent() {
                 />
               </Link>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                Ras El Hekma's premier beach restaurant and bar. Mediterranean seafood, sunset sessions, and beach dining on the North Coast.
+                Ras El Hekma's premier restaurant & beach club. Mediterranean seafood, sunset sessions, and beach dining on the North Coast.
               </p>
               <div className="flex gap-4">
                 <a href="https://instagram.com/mazibeach" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#12207e] transition-colors border border-white/10 hover:border-transparent">
@@ -225,7 +225,7 @@ function LayoutContent() {
                 <li className="flex items-start gap-3 group">
                   <MapPin className="w-5 h-5 text-[#12207e] shrink-0 group-hover:animate-bounce" />
                   <span className="text-left">
-                    Ras El Hekma, North Coast, Egypt
+                    Mountain View, Ras El Hekma, North Coast, Egypt
                   </span>
                 </li>
                 <li className="flex items-center gap-3 group">

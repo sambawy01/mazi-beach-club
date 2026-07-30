@@ -271,7 +271,7 @@ export function MenuPage() {
             transition={{ delay: 0.45 }}
             className="text-[#f0e6d2]/70 text-sm md:text-base font-light tracking-wide mt-3"
           >
-            Mediterranean | Ras El Hekma
+            Mediterranean | Mountain View Ras El Hekma
           </motion.p>
           <motion.p
             initial={{ opacity: 0 }}

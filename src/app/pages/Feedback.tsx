@@ -183,7 +183,7 @@ export function FeedbackPage() {
         )}
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Mazi · Mediterranean · Ras El Hekma
+          Mazi · Mediterranean · Mountain View Ras El Hekma
         </p>
       </div>
     </div>
