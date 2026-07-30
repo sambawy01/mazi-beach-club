@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendOutreachEmail } from './email.js';
+import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendOutreachEmail, sendMembershipApprovedEmail, sendMembershipDeclinedEmail } from './email.js';
 import { generateCheckinToken } from './_lib/checkinToken.js';
 import { resolveAuth, can, writeAudit } from './_lib/adminAuth.js';
 import { hashPassword } from './_lib/staffAuth.js';
@@ -125,6 +125,15 @@ export default async function handler(req, res) {
             .select('*')
             .order('created_at', { ascending: false })
             .limit(200);
+          if (error) return res.status(500).json({ error: error.message });
+          return res.status(200).json({ ok: true, data });
+        }
+        case 'memberships': {
+          const { data, error } = await supabase
+            .from('membership_applications')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(300);
           if (error) return res.status(500).json({ error: error.message });
           return res.status(200).json({ ok: true, data });
         }
@@ -416,6 +425,32 @@ export default async function handler(req, res) {
 
           const { error } = await supabase.from('reservations').update(updates).eq('id', id);
           if (error) return res.status(500).json({ error: error.message });
+          return res.status(200).json({ ok: true });
+        }
+        case 'update_membership': {
+          // Approve or decline a membership application (same lifecycle as
+          // reservations). Atomic pending→approved/declined so the email fires once.
+          const { id, status, reason } = body;
+          if (!id || !['approved', 'declined'].includes(status)) {
+            return res.status(400).json({ error: 'Missing id or invalid status' });
+          }
+          const nowIso = new Date().toISOString();
+          const patch = status === 'approved'
+            ? { status: 'approved', approved_at: nowIso, updated_at: nowIso }
+            : { status: 'declined', declined_at: nowIso, updated_at: nowIso, decline_reason: reason || null };
+          const { data: rows, error } = await supabase
+            .from('membership_applications')
+            .update(patch)
+            .eq('id', id)
+            .eq('status', 'pending')
+            .select('full_name, email, phone, membership_type');
+          if (error) return res.status(500).json({ error: error.message });
+          if (!rows || rows.length === 0) return res.status(409).json({ error: 'Application is not pending' });
+          try {
+            if (status === 'approved') await sendMembershipApprovedEmail(rows[0]);
+            else await sendMembershipDeclinedEmail(rows[0], reason || '');
+          } catch (e) { console.error('membership email failed:', e.message); }
+          await writeAudit(supabase, auth, { action: 'update_membership', target_type: 'membership', target_id: id, summary: `Membership ${status} for ${rows[0].full_name}` });
           return res.status(200).json({ ok: true });
         }
         case 'approve_reservation': {

@@ -215,6 +215,41 @@ export async function sendReservationDeclinedEmail(reservation, reasonText) {
   return { sent: !!id };
 }
 
+// ── Membership approved ───────────────────────────────────────────────────
+export async function sendMembershipApprovedEmail(application) {
+  if (!process.env.RESEND_API_KEY) return { sent: false, skipped: 'no RESEND_API_KEY' };
+  if (!application.email) return { sent: false, skipped: 'no email' };
+  const safeName = escapeHtml(application.full_name || 'there');
+  const inner = `
+    ${eyebrow('Welcome to the family')}
+    ${heading('Your Membership is Approved')}
+    ${goldRule()}
+    <p style="text-align:center;color:#4a5064;font-size:15px;line-height:1.65;margin:0 0 18px;">Dear ${safeName}, we are delighted to welcome you as a Mazi member. Your application has been approved.</p>
+    <p style="text-align:center;color:#4a5064;font-size:15px;line-height:1.65;margin:0 0 18px;">As a member you can reserve your place by the sea, order ahead, and be the first to hear about sunset sessions and members' evenings.</p>
+    <div style="text-align:center;margin:26px 0 4px;">${ctaButton(`${SITE_URL}/reserve`, 'Reserve your table')}</div>
+    <p style="text-align:center;color:${GOLD_DK};font-family:${SERIF};font-style:italic;font-size:16px;margin:26px 0 0;">See you by the sea,<br/>The Mazi Family</p>`;
+  const id = await sendEmail(application.email, 'Welcome to Mazi — your membership is approved', brandedShell(inner, 'Your Mazi membership has been approved'));
+  return { sent: !!id };
+}
+
+// ── Membership declined ───────────────────────────────────────────────────
+export async function sendMembershipDeclinedEmail(application, reasonText) {
+  if (!process.env.RESEND_API_KEY) return { sent: false, skipped: 'no RESEND_API_KEY' };
+  if (!application.email) return { sent: false, skipped: 'no email' };
+  const safeName = escapeHtml(application.full_name || 'there');
+  const safeReason = reasonText ? escapeHtml(reasonText) : '';
+  const inner = `
+    ${eyebrow('With our sincere thanks')}
+    ${heading('About your Membership')}
+    ${goldRule()}
+    <p style="text-align:center;color:#4a5064;font-size:15px;line-height:1.65;margin:0 0 18px;">Dear ${safeName}, thank you, truly, for your interest in becoming a Mazi member. It is with genuine regret that we are unable to approve your application at this time.</p>
+    ${safeReason ? `<p style="text-align:center;color:#4a5064;font-size:14px;line-height:1.6;margin:0 0 18px;"><span style="color:${GOLD_DK};font-family:${SERIF};font-style:italic;">A note from our team —</span><br/>${safeReason}</p>` : ''}
+    <p style="text-align:center;color:#4a5064;font-size:15px;line-height:1.65;margin:0 0 18px;">You remain most welcome to dine with us anytime. To visit, simply write to <a href="mailto:hello@mazibeach.com" style="color:${COBALT};text-decoration:none;font-weight:600;">hello@mazibeach.com</a> and we will take wonderful care of you.</p>
+    <p style="text-align:center;color:${GOLD_DK};font-family:${SERIF};font-style:italic;font-size:16px;margin:22px 0 0;">With warmth,<br/>The Mazi Family</p>`;
+  const id = await sendEmail(application.email, 'About your Mazi membership', brandedShell(inner, 'An update on your Mazi membership application'));
+  return { sent: !!id };
+}
+
 // ── Outreach / broadcast email (admin promotions & communication) ─────────
 export async function sendOutreachEmail(to, { subject, title, body, ctaLabel, ctaUrl, imageUrl }) {
   if (!to) return null;

@@ -1,6 +1,6 @@
 import https from 'https';
 import { createClient } from '@supabase/supabase-js';
-import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendReservationDeclinedEmail } from './email.js';
+import { sendReservationConfirmationEmail, sendPaymentRequestEmail, sendReservationDeclinedEmail, sendMembershipApprovedEmail, sendMembershipDeclinedEmail } from './email.js';
 import { parsePaymentReply } from './_lib/parsePaymentReply.js';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -191,6 +191,52 @@ export default async function handler(req, res) {
       // Parse callback data
       if (data === 'noop') {
         await tgAnswerCallback(callbackId);
+        return res.status(200).json({ ok: true });
+      }
+
+      // ── Membership approve/decline: mconfirm:<uuid> / mreject:<uuid> ─────
+      // Same lifecycle as reservations (pending → approved/declined) with a
+      // branded status email. Placed before confirm:/reject: — 'mconfirm:' and
+      // 'mreject:' never .startsWith('confirm:'/'reject:'/'rej:'), so no collision.
+      if (data.startsWith('mconfirm:') || data.startsWith('mreject:')) {
+        const approve = data.startsWith('mconfirm:');
+        const id = data.slice(approve ? 9 : 8);
+        if (!supabase) {
+          await tgAnswerCallback(callbackId, 'DB not configured');
+          return res.status(200).json({ ok: true });
+        }
+        const nowIso = new Date().toISOString();
+        const patch = approve
+          ? { status: 'approved', approved_at: nowIso, updated_at: nowIso }
+          : { status: 'declined', declined_at: nowIso, updated_at: nowIso };
+        // Atomic pending→approved/declined so the email fires at most once.
+        const { data: rows, error: updErr } = await supabase
+          .from('membership_applications')
+          .update(patch)
+          .eq('id', id)
+          .eq('status', 'pending')
+          .select('full_name, email, phone, membership_type');
+        if (updErr) {
+          await tgAnswerCallback(callbackId, 'DB update failed');
+          return res.status(200).json({ ok: true });
+        }
+        const won = rows && rows.length > 0 ? rows[0] : null;
+        if (!won) {
+          await tgAnswerCallback(callbackId, 'Already actioned');
+          return res.status(200).json({ ok: true });
+        }
+        const summary = `👤 ${won.full_name}\n✉️ ${won.email}\n🎟️ ${won.membership_type}`;
+        await tgEditMessage(chatId, messageId,
+          approve
+            ? `✅ MEMBERSHIP APPROVED — welcome email sent.\n\n${summary}`
+            : `❌ Membership declined — a polite note was emailed.\n\n${summary}`);
+        await tgAnswerCallback(callbackId, approve ? 'Approved' : 'Declined');
+        try {
+          if (approve) await sendMembershipApprovedEmail(won);
+          else await sendMembershipDeclinedEmail(won, '');
+        } catch (e) {
+          console.error('membership status email failed:', e);
+        }
         return res.status(200).json({ ok: true });
       }
 

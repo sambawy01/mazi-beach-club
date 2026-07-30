@@ -7,6 +7,7 @@ import { HomePage } from './pages/Home';
 import { MenuPage } from './pages/Menu';
 import { ReservationPage } from './pages/Reservation';
 import { EventsPage } from './pages/Events';
+import { MembershipPage } from './pages/Membership';
 import { AdminPage } from './pages/admin/AdminPage';
 import { TrackPage } from './pages/Track';
 import { DineInOrderPage } from './pages/DineInOrder';
@@ -27,6 +28,7 @@ function App() {
             <Route path="menu" element={<MenuPage />} />
             <Route path="reserve" element={<ReservationPage />} />
             <Route path="events" element={<EventsPage />} />
+            <Route path="membership" element={<MembershipPage />} />
             <Route path="signin" element={<SignIn />} />
             <Route path="account" element={<Account />} />
           </Route>

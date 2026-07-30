@@ -29,6 +29,7 @@ function LayoutContent() {
     { name: 'Menu', path: '/menu' },
     { name: 'Events', path: '/events' },
     { name: 'Reservations', path: '/reserve' },
+    { name: 'Membership', path: '/membership' },
   ];
 
   return (
@@ -216,6 +217,7 @@ function LayoutContent() {
                 <li><Link to="/menu" className="hover:text-[#12207e] transition-colors">Our Menu</Link></li>
                 <li><Link to="/reserve" className="hover:text-[#12207e] transition-colors">Reservations</Link></li>
                 <li><Link to="/events" className="hover:text-[#12207e] transition-colors">Events</Link></li>
+                <li><Link to="/membership" className="hover:text-[#12207e] transition-colors">Membership</Link></li>
               </ul>
             </div>
 

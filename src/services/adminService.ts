@@ -495,6 +495,26 @@ export async function fetchEventsFromSupabase(password: string): Promise<Supabas
   return adminFetch<SupabaseEvent[]>(password, 'events');
 }
 
+// ── Membership applications (same approval lifecycle as reservations) ──────
+export interface MembershipApplication {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  membership_type: string;
+  notes: string;
+  social_link: string;
+  status: string; // pending | approved | declined
+  decline_reason: string | null;
+  created_at: string;
+}
+export async function fetchMemberships(password: string): Promise<MembershipApplication[]> {
+  return adminFetch<MembershipApplication[]>(password, 'memberships');
+}
+export async function updateMembership(password: string, id: string, status: 'approved' | 'declined', reason?: string): Promise<void> {
+  return adminUpdate(password, 'update_membership', { id, status, ...(reason ? { reason } : {}) });
+}
+
 /**
  * Patch an event row. `quoted_price` / `paymob_link` are nullable on the row
  * (SupabaseEvent) and EventsTab passes an explicit `null` to CLEAR them — the

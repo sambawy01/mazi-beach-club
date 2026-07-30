@@ -19,6 +19,8 @@ const PERMISSIONS = {
   verify: ROLES,
   orders: ['manager', 'host', 'chef', 'accounting'],
   reservations: ['manager', 'host'],
+  memberships: ['manager', 'host'],
+  update_membership: ['manager', 'host'],
   events: ['manager', 'accounting'],
   contacts: ['manager'],
   list_staff: ['manager'],
