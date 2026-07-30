@@ -16,6 +16,7 @@ export const ROLES = ['owner', 'manager', 'host', 'chef', 'accounting', 'scanner
 // memberships, floor, customers, feedback, events, outreach, check-in) but NOT
 // these sensitive actions — kept to owner/manager.
 const OPERATIONS_DENIED = new Set([
+  'dashboard',
   'settings', 'update_settings',
   'list_staff', 'create_staff', 'update_staff', 'delete_staff',
   'list_audit', 'refund',

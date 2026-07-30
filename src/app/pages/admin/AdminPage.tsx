@@ -70,6 +70,7 @@ export function AdminPage() {
         // Command Center lands there; chef (no overview) lands on website.
         if (!sessionStorage.getItem('bc-admin-section')) {
           if (result.role === 'chef') setSection('website');
+          else if (result.role === 'operations') setSection('orders');
           else setSection('overview');
         }
       } else {
@@ -84,6 +85,7 @@ export function AdminPage() {
     setAuthed(true);
     setRole(r);
     if (r === 'chef') setSection('website');
+    else if (r === 'operations') setSection('orders');
     else setSection('overview');
   }
 
@@ -126,7 +128,7 @@ export function AdminPage() {
   const isOps = role === 'operations';
   const canSeeOrders = isFull || role === 'host' || role === 'accounting' || isOps;
   const canSeeTeam = isFull;
-  const canSeeOverview = isFull || role === 'host' || role === 'accounting' || isOps;
+  const canSeeOverview = isFull || role === 'host' || role === 'accounting';
 
   // Determine available sections for this role
   const sections: { key: 'overview' | 'website' | 'inventory' | 'orders' | 'team'; label: string; icon: React.ReactNode }[] = [];
