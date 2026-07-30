@@ -10,7 +10,16 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // no hardcoded fallback (fai
 // 'scanner' is a door-only role: it can authenticate (so it passes resolveAuth
 // for the check-in endpoint) and call 'verify', but matches no other permission
 // list below, so can() denies every admin.js action for it.
-export const ROLES = ['owner', 'manager', 'host', 'chef', 'accounting', 'scanner'];
+export const ROLES = ['owner', 'manager', 'host', 'chef', 'accounting', 'scanner', 'operations'];
+
+// The operations team gets broad day-to-day admin (orders, reservations,
+// memberships, floor, customers, feedback, events, outreach, check-in) but NOT
+// these sensitive actions — kept to owner/manager.
+const OPERATIONS_DENIED = new Set([
+  'settings', 'update_settings',
+  'list_staff', 'create_staff', 'update_staff', 'delete_staff',
+  'list_audit', 'refund',
+]);
 
 // Per-action allowed roles. 'owner' is implicitly allowed everywhere.
 // Anything not listed defaults to owner+manager.
@@ -71,6 +80,8 @@ export function resolveAuth(req) {
 /** Is this role allowed to perform this action? Owner may do anything. */
 export function can(role, action) {
   if (role === 'owner') return true;
+  // Operations = near-manager for everything operational, minus the deny-list.
+  if (role === 'operations') return !OPERATIONS_DENIED.has(action);
   const allowed = PERMISSIONS[action];
   if (!allowed) return role === 'manager'; // unlisted → manager (+owner) only
   return allowed.includes(role);

@@ -22,8 +22,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
 
-    // Applying does not require an account, but link to one if signed in.
+    // Members-only: applying requires a signed-in account (mirrors the client
+    // SignInGate so a direct API call can't bypass it).
     const userId = await getUserIdFromRequest(req);
+    if (!userId) return res.status(401).json({ error: 'Please sign in to apply for membership.' });
 
     const appId = `M${Date.now().toString(36).toUpperCase()}`;
     const type = ['individual', 'couple', 'family'].includes(membershipType) ? membershipType : 'individual';

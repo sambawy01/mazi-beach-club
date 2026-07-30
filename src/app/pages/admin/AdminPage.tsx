@@ -33,6 +33,7 @@ const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   chef: { en: 'Chef', ar: 'شيف' },
   accounting: { en: 'Accounting', ar: 'محاسبة' },
   scanner: { en: 'Door', ar: 'البوابة' },
+  operations: { en: 'Operations', ar: 'العمليات' },
 };
 
 export function AdminPage() {
@@ -122,9 +123,10 @@ export function AdminPage() {
   const isFull = role === 'owner' || role === 'manager';
   const canSeeWebsite = isFull || role === 'chef';
   const canSeeInventory = isFull || role === 'chef' || role === 'accounting';
-  const canSeeOrders = isFull || role === 'host' || role === 'accounting';
+  const isOps = role === 'operations';
+  const canSeeOrders = isFull || role === 'host' || role === 'accounting' || isOps;
   const canSeeTeam = isFull;
-  const canSeeOverview = isFull || role === 'host' || role === 'accounting';
+  const canSeeOverview = isFull || role === 'host' || role === 'accounting' || isOps;
 
   // Determine available sections for this role
   const sections: { key: 'overview' | 'website' | 'inventory' | 'orders' | 'team'; label: string; icon: React.ReactNode }[] = [];
@@ -250,17 +252,17 @@ export function AdminPage() {
               <TabsTrigger value="reservations">
                 <UtensilsCrossed className="size-4 mr-1.5" /> Reservations
               </TabsTrigger>
-              {(isFull || role === 'host') && (
+              {(isFull || role === 'host' || isOps) && (
                 <TabsTrigger value="memberships">
                   <IdCard className="size-4 mr-1.5" /> Memberships
                 </TabsTrigger>
               )}
-              {(isFull || role === 'host') && (
+              {(isFull || role === 'host' || isOps) && (
                 <TabsTrigger value="floor">
                   <LayoutGrid className="size-4 mr-1.5" /> Floor
                 </TabsTrigger>
               )}
-              {(isFull || role === 'host') && (
+              {(isFull || role === 'host' || isOps) && (
                 <TabsTrigger value="customers">
                   <Users className="size-4 mr-1.5" /> Customers
                 </TabsTrigger>
@@ -271,7 +273,7 @@ export function AdminPage() {
               <TabsTrigger value="events">
                 <Moon className="size-4 mr-1.5" /> Events
               </TabsTrigger>
-              {(isFull || role === 'accounting') && (
+              {(isFull || role === 'accounting' || isOps) && (
                 <TabsTrigger value="feedback">
                   <MessageSquare className="size-4 mr-1.5" /> Feedback
                 </TabsTrigger>
@@ -283,10 +285,10 @@ export function AdminPage() {
 
             <TabsContent value="orders"><OrdersTab l={l} /></TabsContent>
             <TabsContent value="reservations"><ReservationsTab /></TabsContent>
-            {(isFull || role === 'host') && <TabsContent value="memberships"><MembershipTab /></TabsContent>}
-            {(isFull || role === 'host') && <TabsContent value="floor"><TablesTab role={role!} /></TabsContent>}
-            {(isFull || role === 'host') && <TabsContent value="customers"><CustomersTab /></TabsContent>}
-            {(isFull || role === 'accounting') && <TabsContent value="feedback"><FeedbackTab /></TabsContent>}
+            {(isFull || role === 'host' || isOps) && <TabsContent value="memberships"><MembershipTab /></TabsContent>}
+            {(isFull || role === 'host' || isOps) && <TabsContent value="floor"><TablesTab role={role!} /></TabsContent>}
+            {(isFull || role === 'host' || isOps) && <TabsContent value="customers"><CustomersTab /></TabsContent>}
+            {(isFull || role === 'accounting' || isOps) && <TabsContent value="feedback"><FeedbackTab /></TabsContent>}
             <TabsContent value="calendar"><CalendarTab l={l} /></TabsContent>
             <TabsContent value="events"><EventsTab /></TabsContent>
             <TabsContent value="outreach"><OutreachTab /></TabsContent>

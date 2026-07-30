@@ -6,6 +6,8 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { API_BASE } from '../../lib/apiConfig';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../auth/AuthProvider';
+import { SignInGate } from '../components/SignInGate';
 import { toast } from 'sonner';
 import { Loader2, Check, IdCard } from 'lucide-react';
 
@@ -17,6 +19,7 @@ const TYPES: { key: MType; label: string; blurb: string }[] = [
 ];
 
 export function MembershipPage() {
+  const { session } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -73,7 +76,12 @@ export function MembershipPage() {
       </section>
 
       <div className="max-w-xl mx-auto px-4 py-12">
-        {done ? (
+        {!session ? (
+          <SignInGate
+            title="Sign in to apply"
+            message="Membership applications are handled through your Mazi account. Sign in or create your account, then apply — it only takes a moment."
+          />
+        ) : done ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl border shadow-sm p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-4">
