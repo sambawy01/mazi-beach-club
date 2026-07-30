@@ -12,6 +12,9 @@ export function evaluateCheckin(reservation, { today, tableId }) {
   if (reservation.status === 'arrived') {
     return { state: 'already', arrived_at: reservation.arrived_at, table_id: reservation.table_id };
   }
-  if (!tableId) return { state: 'invalid', reason: 'no_table' };
+  // Table assignment is optional — a guest can be checked in without a table
+  // (e.g. beach/sunbed reservations, or before the floor plan is set up). When a
+  // table IS chosen the handler validates + seats them; tableId here is unused.
+  void tableId;
   return { state: 'ok' };
 }

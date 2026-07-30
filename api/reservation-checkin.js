@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   }
   if (!supabase) return res.status(503).json({ error: 'Database not configured' });
 
-  const { token: rawToken, tableId } = req.body || {};
+  const { token: rawToken, tableId, preview } = req.body || {};
   if (!rawToken) return res.status(400).json({ error: 'Missing token' });
   const token = String(rawToken).slice(0, 128);
 
@@ -42,18 +42,43 @@ export default async function handler(req, res) {
     .eq('checkin_token', token)
     .maybeSingle();
 
-  const decision = evaluateCheckin(reservation, { today: cairoToday(), tableId });
+  // Resolve the currently-assigned table label (if any) for display.
+  async function labelFor(id) {
+    if (!id) return null;
+    const { data } = await supabase.from('tables').select('label').eq('id', id).maybeSingle();
+    return data?.label ?? null;
+  }
+
+  // ── PREVIEW: look up + report WITHOUT mutating. Powers the scanner showing
+  // the guest's details the instant a QR is scanned, before staff confirm.
+  if (preview) {
+    const decision = evaluateCheckin(reservation, { today: cairoToday() });
+    return res.status(200).json({
+      ...decision,
+      reservation: reservation || null,
+      table_label: reservation ? await labelFor(reservation.table_id) : null,
+    });
+  }
+
+  const decision = evaluateCheckin(reservation, { today: cairoToday() });
   if (decision.state !== 'ok') return res.status(200).json(decision);
 
-  // Resolve table label for the response + notification.
-  const { data: table } = await supabase
-    .from('tables').select('label').eq('id', tableId).maybeSingle();
-  if (!table) return res.status(400).json({ error: 'Invalid table' });
+  // Table is optional. If one was chosen, validate it and seat the guest there;
+  // otherwise check them in without a table (it can be assigned later).
+  let table_label = null;
+  const seatUpdate = { status: 'arrived', arrived_at: new Date().toISOString() };
+  if (tableId) {
+    const { data: table } = await supabase
+      .from('tables').select('label').eq('id', tableId).maybeSingle();
+    if (!table) return res.status(400).json({ error: 'Invalid table' });
+    table_label = table.label;
+    seatUpdate.table_id = tableId;
+  }
 
-  const nowIso = new Date().toISOString();
+  const nowIso = seatUpdate.arrived_at;
   const { data: updatedRows, error: updErr } = await supabase
     .from('reservations')
-    .update({ status: 'arrived', arrived_at: nowIso, table_id: tableId })
+    .update(seatUpdate)
     .eq('id', reservation.id)
     .neq('status', 'arrived')
     .select();
@@ -75,11 +100,12 @@ export default async function handler(req, res) {
 
   const partyLine = reservation.type === 'beach'
     ? `${reservation.sunbeds} sunbed(s)` : `party of ${reservation.party_size}`;
-  await notifyTelegram(`✅ <b>${reservation.customer_name}</b>, ${partyLine}, seated at <b>${table.label}</b>`);
+  const seatedLine = table_label ? `, seated at <b>${table_label}</b>` : '';
+  await notifyTelegram(`✅ <b>${reservation.customer_name}</b>, ${partyLine}${seatedLine}`);
 
   return res.status(200).json({
     state: 'ok',
-    reservation: { ...reservation, status: 'arrived', arrived_at: nowIso, table_id: tableId },
-    table_label: table.label,
+    reservation: { ...reservation, status: 'arrived', arrived_at: nowIso, table_id: tableId || null },
+    table_label,
   });
 }

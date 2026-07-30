@@ -12,8 +12,8 @@ describe('evaluateCheckin', () => {
   it('rejects wrong day', () => {
     expect(evaluateCheckin(base, { today: '2026-07-16', tableId: 't1' }).reason).toBe('wrong_day');
   });
-  it('rejects missing table', () => {
-    expect(evaluateCheckin(base, { today: '2026-07-15', tableId: '' }).reason).toBe('no_table');
+  it('accepts check-in without a table (table is optional)', () => {
+    expect(evaluateCheckin(base, { today: '2026-07-15', tableId: '' })).toEqual({ state: 'ok' });
   });
   it('reports already-arrived', () => {
     const arrived = { ...base, status: 'arrived', arrived_at: '2026-07-15T18:42:00Z', table_id: 'D12' };

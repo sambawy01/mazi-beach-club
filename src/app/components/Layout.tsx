@@ -230,7 +230,7 @@ function LayoutContent() {
                 </li>
                 <li className="flex items-center gap-3 group">
                   <Phone className="w-5 h-5 text-[#12207e] shrink-0 group-hover:rotate-12 transition-transform" />
-                  <a href="tel:+201000000000" className="hover:text-white transition-colors">+20 100 000 0000</a>
+                  <a href="tel:+201107772117" className="hover:text-white transition-colors">+20 110 777 2117</a>
                 </li>
                 <li className="flex items-center gap-3 group">
                   <Mail className="w-5 h-5 text-[#12207e] shrink-0 group-hover:scale-110 transition-transform" />

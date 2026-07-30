@@ -9,9 +9,24 @@ import { SearchableSelect } from './SearchableSelect';
 
 type TableRow = { id: string; label: string; zone: string };
 
+type ReservationInfo = {
+  id: string; customer_name: string; type: string; res_date: string;
+  res_time: string; party_size: number; sunbeds: number; status: string;
+  arrived_at: string | null; table_id: string | null;
+};
+
+// Non-mutating lookup shown the instant a QR is scanned.
+type Preview = {
+  state: 'ok' | 'already' | 'invalid';
+  reason?: string;
+  arrived_at?: string;
+  reservation: ReservationInfo | null;
+  table_label: string | null;
+};
+
 type Result =
-  | { state: 'ok'; table_label: string; reservation: Record<string, unknown> }
-  | { state: 'already'; arrived_at: string; table_id: string }
+  | { state: 'ok'; table_label: string | null; reservation: ReservationInfo }
+  | { state: 'already'; arrived_at: string; table_id: string | null }
   | { state: 'invalid'; reason: string };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -20,6 +35,25 @@ type Result =
 function tokenFromScan(text: string): string {
   const m = text.match(/\/r\/([A-Za-z0-9_-]+)/);
   return m ? m[1] : text.trim();
+}
+
+/** Human-readable message for a preview/check-in failure reason. */
+function reasonLabel(reason?: string): string {
+  switch (reason) {
+    case 'not_found': return 'No reservation matches this code.';
+    case 'wrong_day': return "This reservation isn't for today.";
+    case 'not_checkinable': return 'This reservation was cancelled or declined.';
+    case 'network_error': return 'Network error — please try again.';
+    case 'server_401': return 'Session expired — please re-login via /admin.';
+    default: return reason ? reason.replace(/_/g, ' ') : 'Could not verify this code.';
+  }
+}
+
+/** One-line party summary: "Party of 4" or "3 sunbeds" for beach. */
+function partySummary(r: ReservationInfo): string {
+  return r.type === 'beach'
+    ? `${r.sunbeds} sunbed${r.sunbeds === 1 ? '' : 's'}`
+    : `Party of ${r.party_size}`;
 }
 
 /** Group an array of tables by zone, returning zone keys in a stable order. */
@@ -78,6 +112,8 @@ function Scanner() {
   const [tableId, setTableId] = useState('');
   const [tables, setTables] = useState<TableRow[]>([]);
   const [result, setResult] = useState<Result | null>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [camError, setCamError] = useState('');
   const [tablesError, setTablesError] = useState('');
@@ -142,8 +178,32 @@ function Scanner() {
 
   const activeToken = scanned || manual.trim();
 
+  // Look up the reservation (without checking it in) the moment a token appears,
+  // so staff see who they're admitting before confirming. Debounced for typing.
+  useEffect(() => {
+    const t = activeToken;
+    if (!t) { setPreview(null); return; }
+    let cancelled = false;
+    const id = setTimeout(() => {
+      setPreviewLoading(true);
+      const pw = getStoredPassword();
+      fetch(`${API_BASE}/api/reservation-checkin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${pw}` },
+        body: JSON.stringify({ token: t, preview: true }),
+      })
+        .then(r => (r.ok ? r.json() : { state: 'invalid', reason: `server_${r.status}`, reservation: null, table_label: null }))
+        .then(d => { if (!cancelled) setPreview(d as Preview); })
+        .catch(() => { if (!cancelled) setPreview({ state: 'invalid', reason: 'network_error', reservation: null, table_label: null }); })
+        .finally(() => { if (!cancelled) setPreviewLoading(false); });
+    }, 300);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [activeToken]);
+
+  const canCheckIn = preview?.state === 'ok';
+
   async function handleCheckin() {
-    if (!activeToken || !tableId) return;
+    if (!activeToken || !canCheckIn) return;
     const pw = getStoredPassword();
     setLoading(true);
     setResult(null);
@@ -181,6 +241,7 @@ function Scanner() {
     setManual('');
     setTableId('');
     setResult(null);
+    setPreview(null);
     // Resume scanner after a reset; guard against scanner that never started
     try { scannerRef.current?.resume(); } catch { /* scanner not running, ignore */ }
   }
@@ -256,21 +317,66 @@ function Scanner() {
           />
         </section>
 
-        {/* Table picker */}
+        {/* Reservation preview — who's at the door */}
+        {activeToken && (
+          <section aria-live="polite">
+            {previewLoading && !preview && (
+              <div className="rounded-xl border bg-white px-4 py-4 text-sm text-muted-foreground">Looking up reservation…</div>
+            )}
+            {preview && preview.reservation && (preview.state === 'ok' || preview.state === 'already') && (
+              <div className={`rounded-xl border px-4 py-4 ${preview.state === 'already' ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-bold text-[#1b2350]">{preview.reservation.customer_name}</p>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {preview.reservation.type} · {partySummary(preview.reservation)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{preview.reservation.res_time}</p>
+                  </div>
+                  {preview.state === 'already' ? (
+                    <span className="text-xs font-medium text-amber-800 bg-amber-100 border border-amber-300 rounded-full px-2.5 py-1 whitespace-nowrap">
+                      Already in{preview.table_label ? ` · ${preview.table_label}` : ''}
+                    </span>
+                  ) : (
+                    <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 whitespace-nowrap">
+                      Ready to seat
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            {preview && preview.state === 'invalid' && (
+              <div className="rounded-xl border bg-red-50 border-red-200 px-4 py-4 text-sm font-medium text-red-800">
+                {reasonLabel(preview.reason)}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Table picker (optional) */}
         <section className="bg-white rounded-xl border px-4 py-4 space-y-2">
           <div role="group" aria-label="Assign table">
             <p className="block text-sm font-semibold text-[#1b2350] mb-2">
-              Assign table
+              Assign table <span className="font-normal text-muted-foreground">(optional)</span>
             </p>
-            <p className="text-xs text-muted-foreground mb-2">
-              Select the table to seat the guest at
-            </p>
-            <SearchableSelect
-              options={tableOptions}
-              value={tableId}
-              onChange={setTableId}
-              placeholder="Choose a table…"
-            />
+            {tableOptions.length > 0 ? (
+              <>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Select a table to seat the guest — or leave blank to check in without one
+                </p>
+                <SearchableSelect
+                  options={tableOptions}
+                  value={tableId}
+                  onChange={setTableId}
+                  placeholder="Choose a table…"
+                />
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No tables set up yet — you can still check the guest in. Add tables in{' '}
+                <a href="/admin" className="underline text-[#12207e]">Admin → Floor</a>.
+              </p>
+            )}
             {tablesError && (
               <p className="text-xs text-destructive mt-2">{tablesError}</p>
             )}
@@ -285,15 +391,16 @@ function Scanner() {
           </div>
         )}
 
-        {/* Check-in button */}
+        {/* Check-in button — table is optional, so this enables as soon as the
+            scanned reservation is valid & checkinable. */}
         <button
           type="button"
-          disabled={!activeToken || !tableId || loading}
+          disabled={!canCheckIn || loading}
           onClick={handleCheckin}
           className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#12207e]"
           style={{ background: '#12207e' }}
         >
-          {loading ? 'Checking in…' : 'Check in & seat'}
+          {loading ? 'Checking in…' : tableId ? 'Check in & seat' : 'Check in'}
         </button>
 
         {/* Result card */}
@@ -313,8 +420,15 @@ function Scanner() {
             <div>
               {result.state === 'ok' && (
                 <>
-                  <p className="font-semibold">Seated successfully</p>
-                  <p className="text-xs mt-0.5 opacity-80">Table: {result.table_label}</p>
+                  <p className="font-semibold">
+                    {result.reservation?.customer_name
+                      ? `${result.reservation.customer_name} checked in`
+                      : 'Checked in'}
+                  </p>
+                  <p className="text-xs mt-0.5 opacity-80">
+                    {result.reservation ? partySummary(result.reservation) : ''}
+                    {result.table_label ? ` · Table ${result.table_label}` : ' · no table'}
+                  </p>
                 </>
               )}
               {result.state === 'already' && (
