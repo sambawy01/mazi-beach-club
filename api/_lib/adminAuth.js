@@ -7,7 +7,10 @@ import { verifyToken } from './staffAuth.js';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // no hardcoded fallback (fail closed)
 
-export const ROLES = ['owner', 'manager', 'host', 'chef', 'accounting'];
+// 'scanner' is a door-only role: it can authenticate (so it passes resolveAuth
+// for the check-in endpoint) and call 'verify', but matches no other permission
+// list below, so can() denies every admin.js action for it.
+export const ROLES = ['owner', 'manager', 'host', 'chef', 'accounting', 'scanner'];
 
 // Per-action allowed roles. 'owner' is implicitly allowed everywhere.
 // Anything not listed defaults to owner+manager.

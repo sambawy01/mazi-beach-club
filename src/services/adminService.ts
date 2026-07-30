@@ -3,7 +3,7 @@ import { API_BASE } from '../lib/apiConfig';
 const STORAGE_KEY = 'bc-admin-pw';
 const ROLE_KEY = 'bc-admin-role';
 
-export type Role = 'owner' | 'manager' | 'host' | 'chef' | 'accounting';
+export type Role = 'owner' | 'manager' | 'host' | 'chef' | 'accounting' | 'scanner';
 
 export interface AdminItem {
   id: string; // uuid

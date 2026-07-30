@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import { Button } from '@/app/components/ui/button';
 import { getStoredPassword, clearStoredPassword, verifyPassword, getStoredRole, clearStoredRole, Role } from '@/services/adminService';
@@ -30,6 +31,7 @@ const ROLE_LABELS: Record<Role, Record<'en' | 'ar', string>> = {
   host: { en: 'Host', ar: 'مضيف' },
   chef: { en: 'Chef', ar: 'شيف' },
   accounting: { en: 'Accounting', ar: 'محاسبة' },
+  scanner: { en: 'Door', ar: 'البوابة' },
 };
 
 export function AdminPage() {
@@ -45,6 +47,12 @@ export function AdminPage() {
   }
   const l = useAdminLang();
   const { tr, lang, setLang, dir } = l;
+  const navigate = useNavigate();
+
+  // The door role has no admin surface — send it straight to the scanner.
+  useEffect(() => {
+    if (authed && role === 'scanner') navigate('/admin/checkin', { replace: true });
+  }, [authed, role, navigate]);
 
   useEffect(() => {
     const pw = getStoredPassword();

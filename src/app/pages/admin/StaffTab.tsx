@@ -7,13 +7,14 @@ import { getStaff, createStaff, updateStaff, deleteStaff, getStoredPassword, Sta
 import { toast } from 'sonner';
 import { Loader2, Plus, RefreshCw, UserCog, Trash2, KeyRound } from 'lucide-react';
 
-const ROLES: Role[] = ['owner', 'manager', 'host', 'chef', 'accounting'];
+const ROLES: Role[] = ['owner', 'manager', 'host', 'chef', 'accounting', 'scanner'];
 const ROLE_TONE: Record<Role, string> = {
   owner: 'bg-[#12207e] text-white border-transparent',
   manager: 'bg-[#e6eef4] text-[#12207e] border-[#12207e]/15',
   host: 'bg-amber-50 text-amber-800 border-amber-200',
   chef: 'bg-emerald-50 text-emerald-800 border-emerald-200',
   accounting: 'bg-violet-50 text-violet-800 border-violet-200',
+  scanner: 'bg-slate-100 text-slate-700 border-slate-200',
 };
 
 export function StaffTab() {
