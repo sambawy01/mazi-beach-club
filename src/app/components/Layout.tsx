@@ -224,9 +224,15 @@ function LayoutContent() {
               <ul className="space-y-4 text-gray-300 text-sm">
                 <li className="flex items-start gap-3 group">
                   <MapPin className="w-5 h-5 text-[#12207e] shrink-0 group-hover:animate-bounce" />
-                  <span className="text-left">
+                  <a
+                    href="https://maps.app.goo.gl/Sefc3SW1Zud5midK8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-left hover:text-white transition-colors"
+                  >
                     Mountain View, Ras El Hekma, North Coast, Egypt
-                  </span>
+                    <span className="block text-xs text-[#12207e] group-hover:text-white transition-colors">Get directions →</span>
+                  </a>
                 </li>
                 <li className="flex items-center gap-3 group">
                   <Phone className="w-5 h-5 text-[#12207e] shrink-0 group-hover:rotate-12 transition-transform" />

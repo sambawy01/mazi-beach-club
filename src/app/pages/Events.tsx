@@ -337,7 +337,9 @@ export function EventsPage() {
                 <Sparkles className="w-5 h-5" /> Follow on Instagram
               </a>
               <a
-                href="https://mazibeach.com"
+                href="https://maps.app.goo.gl/Sefc3SW1Zud5midK8"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 border-2 border-white/30 text-white hover:bg-white/10 font-bold py-4 px-8 rounded-full shadow-lg transition-all"
               >
                 <MapPin className="w-5 h-5" /> Mountain View Ras El Hekma, North Coast
