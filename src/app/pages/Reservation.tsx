@@ -1,5 +1,5 @@
 import React from 'react';
-import { Umbrella, UtensilsCrossed, Calendar, Clock, Users, Mail, Phone, User, AtSign, ClipboardList } from 'lucide-react';
+import { Umbrella, UtensilsCrossed, Calendar, Clock, Users, Mail, Phone, User, AtSign, ClipboardList, Shirt } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -356,6 +356,14 @@ export function ReservationPage() {
             </p>
           </button>
         </div>
+
+        {/* Dress code note — shown when Restaurant is selected */}
+        {resType === 'restaurant' && (
+          <div className="flex items-center gap-2 -mt-4 mb-6 px-1 text-xs text-[#12207e]/70">
+            <Shirt className="w-3.5 h-3.5 shrink-0" />
+            <span>After 9 PM: no slippers or swimwear — smart casual evening attire required.</span>
+          </div>
+        )}
 
         {/* Form */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-6">
