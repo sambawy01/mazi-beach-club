@@ -30,3 +30,4 @@ ios/App/output/
 .vercel
 .env.*
 !.env.example
+.env*

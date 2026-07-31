@@ -192,9 +192,17 @@ function Scanner() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${pw}` },
         body: JSON.stringify({ token: t, preview: true }),
       })
-        .then(r => (r.ok ? r.json() : { state: 'invalid', reason: `server_${r.status}`, reservation: null, table_label: null }))
+        .then(async (r) => {
+          if (r.ok) return r.json();
+          const reason = `server_${r.status}`;
+          console.error(`[CheckinScanner] Preview fetch returned ${r.status}`, r.statusText);
+          return { state: 'invalid' as const, reason, reservation: null, table_label: null };
+        })
         .then(d => { if (!cancelled) setPreview(d as Preview); })
-        .catch(() => { if (!cancelled) setPreview({ state: 'invalid', reason: 'network_error', reservation: null, table_label: null }); })
+        .catch((err) => {
+          console.error('[CheckinScanner] Preview fetch failed:', err);
+          if (!cancelled) setPreview({ state: 'invalid', reason: 'network_error', reservation: null, table_label: null });
+        })
         .finally(() => { if (!cancelled) setPreviewLoading(false); });
     }, 300);
     return () => { cancelled = true; clearTimeout(id); };
@@ -321,10 +329,10 @@ function Scanner() {
         {activeToken && (
           <section aria-live="polite">
             {previewLoading && !preview && (
-              <div className="rounded-xl border bg-white px-4 py-4 text-sm text-muted-foreground">Looking up reservation…</div>
+              <div className="rounded-xl border bg-white px-4 py-4 text-sm text-muted-foreground animate-pulse">Looking up reservation…</div>
             )}
-            {preview && preview.reservation && (preview.state === 'ok' || preview.state === 'already') && (
-              <div className={`rounded-xl border px-4 py-4 ${preview.state === 'already' ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+            {preview && preview.state === 'ok' && preview.reservation && (
+              <div className="rounded-xl border bg-white px-4 py-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-lg font-bold text-[#1b2350]">{preview.reservation.customer_name}</p>
@@ -333,21 +341,36 @@ function Scanner() {
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{preview.reservation.res_time}</p>
                   </div>
-                  {preview.state === 'already' ? (
-                    <span className="text-xs font-medium text-amber-800 bg-amber-100 border border-amber-300 rounded-full px-2.5 py-1 whitespace-nowrap">
-                      Already in{preview.table_label ? ` · ${preview.table_label}` : ''}
-                    </span>
-                  ) : (
-                    <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 whitespace-nowrap">
-                      Ready to seat
-                    </span>
-                  )}
+                  <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 whitespace-nowrap">
+                    Ready to seat
+                  </span>
+                </div>
+              </div>
+            )}
+            {preview && preview.state === 'already' && preview.reservation && (
+              <div className="rounded-xl border bg-amber-50 border-amber-200 px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-bold text-[#1b2350]">{preview.reservation.customer_name}</p>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {preview.reservation.type} · {partySummary(preview.reservation)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{preview.reservation.res_time}</p>
+                  </div>
+                  <span className="text-xs font-medium text-amber-800 bg-amber-100 border border-amber-300 rounded-full px-2.5 py-1 whitespace-nowrap">
+                    Already in{preview.table_label ? ` · ${preview.table_label}` : ''}
+                  </span>
                 </div>
               </div>
             )}
             {preview && preview.state === 'invalid' && (
               <div className="rounded-xl border bg-red-50 border-red-200 px-4 py-4 text-sm font-medium text-red-800">
-                {reasonLabel(preview.reason)}
+                ⚠️ {reasonLabel(preview.reason)}
+              </div>
+            )}
+            {preview && !previewLoading && preview.state !== 'ok' && preview.state !== 'already' && preview.state !== 'invalid' && (
+              <div className="rounded-xl border bg-red-50 border-red-200 px-4 py-4 text-sm font-medium text-red-800">
+                ⚠️ Unexpected response — please try again.
               </div>
             )}
           </section>
@@ -399,8 +422,21 @@ function Scanner() {
           onClick={handleCheckin}
           className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#12207e]"
           style={{ background: '#12207e' }}
+          title={!canCheckIn && !loading
+            ? (preview?.state === 'invalid'
+              ? `Cannot check in: ${reasonLabel(preview.reason)}`
+              : preview?.state === 'already'
+                ? 'Guest already checked in'
+                : 'Scan or enter a valid reservation code first')
+            : undefined}
         >
-          {loading ? 'Checking in…' : tableId ? 'Check in & seat' : 'Check in'}
+          {loading ? 'Checking in…' : !canCheckIn && activeToken && !previewLoading
+            ? (preview?.state === 'invalid'
+              ? reasonLabel(preview.reason)
+              : preview?.state === 'already'
+                ? 'Already checked in'
+                : 'Check in')
+            : tableId ? 'Check in & seat' : 'Check in'}
         </button>
 
         {/* Result card */}
