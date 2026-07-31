@@ -41,6 +41,7 @@ const BEACH_RULES: string[] = [
 const RESTAURANT_RULES: string[] = [
   'Tables are held for 30 minutes past your reserved time, then released.',
   'Specific seating (indoor/outdoor or particular tables) is subject to availability and not guaranteed.',
+  'After 9:00 PM, slippers and swimwear are not permitted in the restaurant — smart casual evening attire is required.',
 ];
 
 export function ReservationPage() {
