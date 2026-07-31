@@ -49,6 +49,11 @@ function reasonLabel(reason?: string): string {
   }
 }
 
+/** Format a reservation date (YYYY-MM-DD) as a readable string like "Fri, Aug 1". */
+function prettyDate(d: string): string {
+  try { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); } catch { return d; }
+}
+
 /** One-line party summary: "Party of 4" or "3 sunbeds" for beach. */
 function partySummary(r: ReservationInfo): string {
   return r.type === 'beach'
@@ -364,8 +369,28 @@ function Scanner() {
               </div>
             )}
             {preview && preview.state === 'invalid' && (
-              <div className="rounded-xl border bg-red-50 border-red-200 px-4 py-4 text-sm font-medium text-red-800">
-                ⚠️ {reasonLabel(preview.reason)}
+              <div className="space-y-2">
+                {preview.reservation && (
+                  <div className="rounded-xl border bg-white px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-lg font-bold text-[#1b2350]">{preview.reservation.customer_name}</p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {preview.reservation.type} · {partySummary(preview.reservation)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {prettyDate(preview.reservation.res_date)} · {preview.reservation.res_time}
+                        </p>
+                      </div>
+                      <span className="text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-full px-2.5 py-1 whitespace-nowrap">
+                        Cannot check in
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div className="rounded-xl border bg-red-50 border-red-200 px-4 py-3 text-sm font-medium text-red-800">
+                  ⚠️ {reasonLabel(preview.reason)}
+                </div>
               </div>
             )}
             {preview && !previewLoading && preview.state !== 'ok' && preview.state !== 'already' && preview.state !== 'invalid' && (
